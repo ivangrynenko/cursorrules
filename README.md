@@ -64,7 +64,7 @@ You can install these rules using one of the following methods:
 Run this command in your project root:
 
 ```sh
-curl -s https://raw.githubusercontent.com/YOUR_USERNAME/cursor-rules-webdev/main/install.php | php
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
 ```
 
 This will:
@@ -77,7 +77,7 @@ This will:
 
 1. **Clone this repository** into your project:
 ```sh
-git clone https://github.com/YOUR_USERNAME/cursor-rules-webdev.git
+git clone https://github.com/ivangrynenko/cursor-rules.git
 cd cursor-rules-webdev
 ```
 
