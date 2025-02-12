@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Cursor Rules Installer Script.
  * 
- * This script installs Cursor rules into your project's .cursor/rules directory.
+ * This script downloads and installs Cursor rules into your project's .cursor/rules directory.
  */
 
 // ANSI color codes for terminal output
@@ -40,13 +40,58 @@ function prompt(string $message, string $default = ''): string {
     return $input ?: $default;
 }
 
+/**
+ * Download a file from URL.
+ */
+function downloadFile(string $url, string $destination): bool {
+    $ch = curl_init($url);
+    if ($ch === FALSE) {
+        return FALSE;
+    }
+
+    $fp = fopen($destination, 'w');
+    if ($fp === FALSE) {
+        curl_close($ch);
+        return FALSE;
+    }
+
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+    $success = curl_exec($ch);
+    
+    curl_close($ch);
+    fclose($fp);
+
+    return $success !== FALSE;
+}
+
 // Script start
 println(colorize('Cursor Rules Installer', 'blue'));
 println('================================');
 println();
 
 $targetDir = '.cursor/rules';
-$sourceDir = __DIR__ . '/.cursor/rules';
+$baseUrl = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/rules';
+$ruleFiles = [
+    'accessibility-standards.mdc',
+    'api-standards.mdc',
+    'build-optimization.mdc',
+    'cursor-rules.mdc',
+    'drupal-database-standards.mdc',
+    'git-commit-standards.mdc',
+    'improve-cursorrules-efficiency.mdc',
+    'javascript-performance.mdc',
+    'javascript-standards.mdc',
+    'node-dependencies.mdc',
+    'php-drupal-best-practices.mdc',
+    'react-patterns.mdc',
+    'security-practices.mdc',
+    'tailwind-standards.mdc',
+    'third-party-integration.mdc',
+    'vue-best-practices.mdc',
+];
 
 // Check if target directory exists
 if (!file_exists($targetDir)) {
@@ -78,18 +123,17 @@ if (!file_exists($targetDir)) {
     println(colorize("Created directory: {$targetDir}", 'green'));
 }
 
-// Copy rules
+// Download and install rules
 $installedFiles = [];
-$sourceFiles = glob($sourceDir . '/*.mdc');
-
-foreach ($sourceFiles as $sourceFile) {
-    $filename = basename($sourceFile);
-    $targetFile = $targetDir . '/' . $filename;
+foreach ($ruleFiles as $file) {
+    $url = "{$baseUrl}/{$file}";
+    $destination = "{$targetDir}/{$file}";
     
-    if (copy($sourceFile, $targetFile)) {
-        $installedFiles[] = $filename;
+    println("Downloading {$file}...");
+    if (downloadFile($url, $destination)) {
+        $installedFiles[] = $file;
     } else {
-        println(colorize("Error: Failed to copy {$filename}", 'red'));
+        println(colorize("Error: Failed to download {$file}", 'red'));
     }
 }
 

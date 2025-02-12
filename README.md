@@ -78,7 +78,7 @@ This will:
 1. **Clone this repository** into your project:
 ```sh
 git clone https://github.com/ivangrynenko/cursor-rules.git
-cd cursor-rules-webdev
+cd cursor-rules
 ```
 
 2. **Copy the rules into your project's .cursor/rules/ directory:**
