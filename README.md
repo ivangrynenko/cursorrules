@@ -1,7 +1,3 @@
-Here's a README.md file tailored for your GitHub repository of Cursor AI Project Rules, aimed at web developers, PHP, and Drupal developers.
-
-README.md
-
 # Cursor AI Project Rules for Web Development
 
 ## 📌 About This Repository
