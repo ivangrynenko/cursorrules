@@ -1,0 +1,37 @@
+---
+description: RESTful API design and documentation standards
+globs: *.php, *.js, *.ts
+---
+# API Standards
+
+Ensures consistent API design and documentation.
+
+<rule>
+name: api_standards
+description: Enforce API design and documentation standards
+filters:
+  - type: file_extension
+    pattern: "\\.(php|js|ts)$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "@api\\s+(?!GET|POST|PUT|DELETE|PATCH)"
+        message: "Use standard HTTP methods in API endpoints"
+
+      - pattern: "function\\s+[a-zA-Z]+Api\\s*\\([^)]*\\)\\s*\\{[^}]*\\}"
+        message: "Implement proper API error handling"
+
+  - type: suggest
+    message: |
+      API Best Practices:
+      - Use proper HTTP status codes
+      - Implement versioning
+      - Document all endpoints
+      - Include rate limiting
+      - Implement proper authentication
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 

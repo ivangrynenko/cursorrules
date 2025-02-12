@@ -1,0 +1,40 @@
+---
+description: WCAG compliance and accessibility best practices
+globs: *.vue, *.jsx, *.tsx, *.html, *.php
+---
+# Accessibility Standards
+
+Ensures WCAG compliance and accessibility best practices.
+
+<rule>
+name: accessibility_standards
+description: Enforce accessibility standards and WCAG compliance
+filters:
+  - type: file_extension
+    pattern: "\\.(vue|jsx|tsx|html|php)$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "<img[^>]+(?!alt=)[^>]*>"
+        message: "Images must have alt attributes"
+
+      - pattern: "aria-[a-z]+=\"\""
+        message: "ARIA attributes should not be empty"
+
+      - pattern: "<button[^>]*>(?![^<]*[^\\s])[^<]*</button>"
+        message: "Buttons should have meaningful content"
+
+  - type: suggest
+    message: |
+      Accessibility Best Practices:
+      - Implement proper heading hierarchy
+      - Ensure keyboard navigation
+      - Use semantic HTML elements
+      - Provide sufficient color contrast
+      - Include skip navigation links
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 

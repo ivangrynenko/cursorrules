@@ -27,21 +27,57 @@ This repository is ideal for:
 ## 📜 Available Cursor Rules
 Each rule is written in `.mdc` format and structured to enforce best practices in different aspects of development.
 
+### Core Rules
 | File Name | Purpose |
 |-----------|---------|
 | [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organizing Cursor rule files |
-| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries to improve responses |
-| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | Enforces PHP 8.3+ features, Drupal coding standards, and modularity |
-| [`javascript-standards.mdc`](.cursor/rules/javascript-standards.mdc) | Ensures clean, modular, and readable JavaScript & TypeScript code |
-| [`javascript-performance.mdc`](.cursor/rules/javascript-performance.mdc) | Optimizes JavaScript performance by enforcing best practices |
+| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages and prefixes |
-| [`node-dependencies.mdc`](.cursor/rules/node-dependencies.mdc) | Ensures correct Node.js versions and dependency management |
-| [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Ensures tests and documentation remain up to date |
+
+### Frontend Development
+| File Name | Purpose |
+|-----------|---------|
+| [`vue-best-practices.mdc`](.cursor/rules/vue-best-practices.mdc) | Vue 3 and NuxtJS specific standards and optimizations |
+| [`react-patterns.mdc`](.cursor/rules/react-patterns.mdc) | React component patterns and hooks usage guidelines |
+| [`tailwind-standards.mdc`](.cursor/rules/tailwind-standards.mdc) | Tailwind CSS class organization and best practices |
+| [`accessibility-standards.mdc`](.cursor/rules/accessibility-standards.mdc) | WCAG compliance and accessibility best practices |
+
+### Backend Development
+| File Name | Purpose |
+|-----------|---------|
+| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP 8.3+ features and Drupal coding standards |
+| [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes and query optimization |
+| [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
+
+### Build & Integration
+| File Name | Purpose |
+|-----------|---------|
+| [`build-optimization.mdc`](.cursor/rules/build-optimization.mdc) | Webpack/Vite configuration and build process optimization |
+| [`node-dependencies.mdc`](.cursor/rules/node-dependencies.mdc) | Node.js versioning and package management |
+| [`api-standards.mdc`](.cursor/rules/api-standards.mdc) | RESTful API design and documentation standards |
+| [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
 
 ---
 
-## 🔧 How to Use These Rules
-To use these rules with **Cursor AI**, follow these steps:
+## 🔧 Installation
+
+You can install these rules using one of the following methods:
+
+### Option 1: Quick Install (Recommended)
+
+Run this command in your project root:
+
+```sh
+curl -s https://raw.githubusercontent.com/YOUR_USERNAME/cursor-rules-webdev/main/install.php | php
+```
+
+This will:
+1. Download and run the installer
+2. Create the `.cursor/rules` directory if it doesn't exist
+3. Install all Cursor rules
+4. Remove the installer script automatically
+
+### Option 2: Manual Installation
 
 1. **Clone this repository** into your project:
 ```sh
@@ -52,10 +88,10 @@ cd cursor-rules-webdev
 2. **Copy the rules into your project's .cursor/rules/ directory:**
 ```sh
 mkdir -p .cursor/rules
-cp rules/*.mdc .cursor/rules/
+cp .cursor/rules/*.mdc .cursor/rules/
 ```
 
-3. Start using Cursor AI in your workflow—the rules will automatically assist in maintaining best practices!
+After installation, the rules will automatically be used by Cursor AI in your workflow.
 
 ## 🤝 Contributing
 

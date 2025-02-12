@@ -1,0 +1,37 @@
+---
+description: Webpack/Vite configuration and build process optimization
+globs: webpack.config.js, vite.config.js, *.config.js
+---
+# Build Process Optimization
+
+Ensures optimal build configuration and process.
+
+<rule>
+name: build_optimization
+description: Enforce build process optimization standards
+filters:
+  - type: file_extension
+    pattern: "\\.config.js$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "mode:\\s*['\"]development['\"]"
+        message: "Ensure production mode is set for production builds"
+
+      - pattern: "devtool:\\s*['\"]eval"
+        message: "Use source-map for production builds"
+
+  - type: suggest
+    message: |
+      Build Optimization Best Practices:
+      - Implement code splitting
+      - Enable tree shaking
+      - Optimize asset loading
+      - Configure proper caching
+      - Use modern JavaScript features
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 
