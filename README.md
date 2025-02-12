@@ -122,3 +122,44 @@ This repository is licensed under the MIT License, allowing free and open usage.
 ---
 
 💡 **Note:** This repository is actively maintained and updated. Feel free to submit issues or pull requests for improvements!
+
+## 📋 Role-Based Development
+
+This repository implements a multi-agent development workflow with two primary roles:
+
+### Planner Role
+- Performs high-level analysis
+- Breaks down tasks into manageable units
+- Defines success criteria
+- Evaluates progress
+- Uses high-intelligence models for planning
+
+### Executor Role
+- Implements specific tasks
+- Writes and tests code
+- Reports progress
+- Raises questions or blockers
+- Follows Planner's directives
+
+## 📝 Workflow Guidelines
+
+1. **Task Initialization**
+   - Planner analyzes requirements
+   - Documents background and motivation
+   - Creates high-level task breakdown
+
+2. **Development Cycle**
+   - Executor implements tasks
+   - Reports progress regularly
+   - Raises questions when blocked
+   - Planner reviews and adjusts plans
+
+3. **Quality Control**
+   - Planner verifies task completion
+   - Cross-checks against success criteria
+   - Provides feedback for improvements
+
+4. **Documentation**
+   - Track progress in structured format
+   - Maintain clear communication records
+   - Document lessons learned
