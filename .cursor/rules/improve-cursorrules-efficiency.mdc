@@ -1,0 +1,59 @@
+---
+description: AI Query Efficiency & Auto-Optimization
+globs: 
+---
+---
+description: AI Query Efficiency & Auto-Optimization
+globs: *.mdc
+---
+# AI Query Efficiency & Auto-Optimization
+
+Ensures Cursor analyzes AI query efficiency, detects repeated requests, and automatically updates relevant rules to improve response quality.
+
+<rule>
+name: ai_query_efficiency_optimization
+description: Analyze AI query efficiency and optimize rules to prevent repeated requests.
+filters:
+  # Match AI query interactions in supported files
+  - type: file_extension
+    pattern: "\\.(md|mdc|txt|json|py|js|ts|yaml|yml|cursorrules)$"
+  # Match AI communication patterns
+  - type: content
+    pattern: "(?i)(retry|again|didn't work|not what I expected|try another way|improve|fix this)"
+
+actions:
+  - type: analyze
+    conditions:
+      - pattern: "(?i)(retry|again|fix this|not what I expected)"
+        message: "Detected multiple requests for the same task. Running efficiency analysis..."
+    execute: |
+      - Identify inefficiencies in AI responses.
+      - Suggest improvements in query structure or Cursor usage.
+      - Automatically update relevant Cursor rules to enhance efficiency.
+
+  - type: suggest
+    message: |
+      You seem to be making multiple requests for the same type of response. Consider:
+      
+      1. Refining your prompt to be more specific.
+      2. Reviewing past responses for insights before retrying.
+      3. Using structured queries for better AI comprehension.
+      4. Allowing Cursor to automatically optimize related rules to avoid repeated issues.
+
+  - type: auto_update
+    target: ".cursor/rules/ai-optimization.mdc"
+    conditions:
+      - pattern: "(?i)(retry|again|fix this|not what I expected)"
+    message: "Updating AI efficiency rule set based on detected patterns."
+
+examples:
+  - input: |
+      "This SQL query is slow, let's try again."
+      "That didn't work, let's refine it."
+      "Try another approach."
+    output: "Cursor detects repeated inefficiencies and refines AI rules to improve response quality."
+
+metadata:
+  priority: critical
+  version: 1.0
+</rule>

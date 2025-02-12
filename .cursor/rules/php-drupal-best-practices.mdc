@@ -1,0 +1,43 @@
+---
+description: Enforce PHP 8.3+ features, Drupal coding standards, and modularity.
+globs: *.php, *.module, *.theme, *.inc, *.info, *.install
+---
+---
+description: PHP & Drupal Best Practices
+globs: *.php
+---
+# PHP & Drupal Best Practices
+
+Defines coding standards and best practices for PHP and Drupal development.
+
+<rule>
+name: php_drupal_best_practices
+description: Enforce PHP 8.3+ features, Drupal coding standards, and modularity.
+filters:
+  - type: file_extension
+    pattern: "\\.php$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "declare\\(strict_types=1\\);"
+        message: "Ensure all PHP files declare strict types: declare(strict_types=1);"
+
+      - pattern: "(?<!\\bTRUE\\b)\\btrue\\b|(?<!\\bFALSE\\b)\\bfalse\\b|(?<!\\bNULL\\b)\\bnull\\b"
+        message: "Use uppercase for TRUE, FALSE, and NULL."
+
+      - pattern: "(?i)\\/\\/\\s[a-z]"
+        message: "Ensure inline comments begin with a capital letter and end with a period."
+
+  - type: suggest
+    message: |
+      Follow Drupal best practices:
+      - Use fields API for working with fields.
+      - Use try/catch for exception handling.
+      - Use the database abstraction layer for queries.
+      - Implement hook_update_N() for schema changes.
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

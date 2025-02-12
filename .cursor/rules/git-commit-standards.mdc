@@ -1,0 +1,42 @@
+---
+description: Enforce structured Git commit messages.
+globs: 
+---
+---
+description: Git Commit Standards
+globs: .git/*
+---
+# Git Commit Standards
+
+Ensures consistent Git commit messages.
+
+<rule>
+name: git_commit_standards
+description: Enforce structured Git commit messages.
+filters:
+  - type: file_extension
+    pattern: "\\.git/.*"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "^(?!fix|feat|perf|docs|style|refactor|test|chore):"
+        message: "Use a commit message prefix (fix, feat, perf, docs, etc.)."
+
+      - pattern: "^[A-Z]"
+        message: "Commit messages should start with lowercase."
+
+      - pattern: ".{51,}"
+        message: "Keep commit summary lines under 50 characters."
+
+  - type: suggest
+    message: |
+      Recommended commit format:
+      - "fix: Resolved bug in X"
+      - "feat: Added feature Y"
+      - "docs: Updated documentation"
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>

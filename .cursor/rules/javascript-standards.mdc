@@ -1,0 +1,42 @@
+---
+description: Enforce modular, readable, and optimized JavaScript/TypeScript.
+globs: 
+---
+---
+description: JavaScript Coding Standards
+globs: *.js, *.ts
+---
+# JavaScript Coding Standards
+
+Ensures JavaScript and TypeScript follow clean code principles.
+
+<rule>
+name: javascript_best_practices
+description: Enforce modular, readable, and optimized JavaScript/TypeScript.
+filters:
+  - type: file_extension
+    pattern: "\\.(js|ts)$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "\\bvar\\b"
+        message: "Avoid 'var'. Use 'let' or 'const' instead."
+
+      - pattern: "(?i)console\\.log"
+        message: "Remove console.log() before committing."
+
+      - pattern: "\\bfunction\\s+[a-zA-Z0-9]+\\("
+        message: "Use arrow functions when possible."
+
+  - type: suggest
+    message: |
+      JavaScript Code Structure:
+      - Use camelCase for variables and functions.
+      - Use PascalCase for React components.
+      - Avoid anonymous functions in render methods.
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>
