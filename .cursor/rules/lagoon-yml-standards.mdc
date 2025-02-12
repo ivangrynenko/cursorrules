@@ -1,5 +1,59 @@
 ---
-description: 
-globs: 
+description: Standards for Lagoon configuration files and deployment workflows
+globs: .lagoon.yml, docker-compose.yml
 ---
- 
+# Lagoon Configuration Standards
+
+Ensures proper configuration and best practices for Lagoon deployment files.
+
+<rule>
+name: lagoon_yml_standards
+description: Enforce standards for Lagoon configuration files
+filters:
+  - type: file_extension
+    pattern: "\\.(yml|yaml)$"
+  - type: file_name
+    pattern: "^\\.lagoon\\.yml$|^docker-compose\\.yml$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "environments:\\s*[\\w-]+:\\s*routes:\\s*-\\s*\\w+:\\s*-[^:]+:\\s*tls-acme:\\s*true"
+        message: "Ensure tls-acme is set to 'false' until DNS points to Lagoon"
+
+      - pattern: "post-rollout:\\s*-\\s*run:\\s*command:\\s*drush"
+        message: "Consider wrapping Drush commands in proper error handling"
+
+      - pattern: "pre-rollout:\\s*-\\s*run:\\s*command:\\s*(?!.*if)"
+        message: "Add conditional checks for pre-rollout tasks"
+
+      - pattern: "cronjobs:\\s*-\\s*name:[^\\n]*\\n\\s*schedule:\\s*'\\*\\s*\\*'"
+        message: "Use 'M' or 'H' notation for randomized cron scheduling"
+
+  - type: suggest
+    message: |
+      Lagoon Configuration Best Practices:
+      - Use environment-specific configurations
+      - Implement proper rollout tasks with error handling
+      - Configure routes with appropriate SSL settings
+      - Use randomized cron schedules with 'M' and 'H'
+      - Include database sync in PR environments
+      - Define proper resource limits
+      - Use conditional task execution
+      - Implement proper backup strategies
+
+  - type: validate
+    conditions:
+      - pattern: "environments:\\s*[\\w-]+:\\s*types:\\s*[^\\n]*"
+        message: "Define environment types for proper resource allocation"
+
+      - pattern: "tasks:\\s*(pre|post)-rollout:"
+        message: "Include both pre and post rollout tasks for robust deployments"
+
+      - pattern: "routes:\\s*-\\s*\\w+:\\s*-[^:]+:\\s*insecure:\\s*(Allow|Redirect)"
+        message: "Configure proper insecure traffic handling"
+
+metadata:
+  priority: critical
+  version: 1.0
+</rule> 
