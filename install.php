@@ -8,7 +8,6 @@ declare(strict_types=1);
  * This script downloads and installs Cursor rules into your project's .cursor/rules directory.
  */
 
-// ANSI color codes for terminal output
 const COLORS = [
     'red' => "\033[0;31m",
     'green' => "\033[0;32m",
@@ -17,32 +16,29 @@ const COLORS = [
     'reset' => "\033[0m",
 ];
 
-/**
- * Print colored message to terminal.
- */
 function colorize(string $message, string $color): string {
     return COLORS[$color] . $message . COLORS['reset'];
 }
 
-/**
- * Print message to terminal.
- */
 function println(string $message = ''): void {
     echo $message . PHP_EOL;
 }
 
-/**
- * Get user input with optional default value.
- */
 function prompt(string $message, string $default = ''): string {
+    // Check if input is piped
+    $isPiped = !posix_isatty(STDIN);
+    if ($isPiped) {
+        return $default;
+    }
+    
     echo $message . ($default ? " [{$default}]" : '') . ': ';
-    $input = trim(fgets(STDIN));
-    return $input ?: $default;
+    $input = fgets(STDIN);
+    if ($input === false) {
+        return $default;
+    }
+    return trim($input) ?: $default;
 }
 
-/**
- * Download a file from URL.
- */
 function downloadFile(string $url, string $destination): bool {
     $ch = curl_init($url);
     if ($ch === FALSE) {
@@ -67,7 +63,6 @@ function downloadFile(string $url, string $destination): bool {
     return $success !== FALSE;
 }
 
-// Script start
 println(colorize('Cursor Rules Installer', 'blue'));
 println('================================');
 println();
@@ -93,7 +88,6 @@ $ruleFiles = [
     'vue-best-practices.mdc',
 ];
 
-// Check if target directory exists
 if (!file_exists($targetDir)) {
     println(colorize("Notice: Directory '{$targetDir}' does not exist.", 'yellow'));
     println("It will be created during installation.");
@@ -114,7 +108,6 @@ if ($confirm !== 'y') {
 println();
 println('Starting installation...');
 
-// Create directory if it doesn't exist
 if (!file_exists($targetDir)) {
     if (!mkdir($targetDir, 0755, TRUE)) {
         println(colorize("Error: Failed to create directory '{$targetDir}'", 'red'));
@@ -123,7 +116,6 @@ if (!file_exists($targetDir)) {
     println(colorize("Created directory: {$targetDir}", 'green'));
 }
 
-// Download and install rules
 $installedFiles = [];
 foreach ($ruleFiles as $file) {
     $url = "{$baseUrl}/{$file}";
@@ -137,7 +129,6 @@ foreach ($ruleFiles as $file) {
     }
 }
 
-// Installation summary
 println();
 println(colorize('Installation Complete!', 'green'));
 println('--------------------------------');
@@ -149,5 +140,4 @@ println();
 println(colorize('Cursor rules have been installed successfully!', 'green'));
 println('You can now use these rules in your project.');
 
-// Self-delete
 @unlink(__FILE__); 
