@@ -1,0 +1,52 @@
+---
+description: Standards for maintaining README.md documentation
+globs: README.md, *.md
+---
+# README Maintenance Standards
+
+Ensures consistent and up-to-date documentation in README files.
+
+<rule>
+name: readme_maintenance_standards
+description: Enforce standards for README documentation
+filters:
+  - type: file_extension
+    pattern: "\\.md$"
+  - type: file_name
+    pattern: "^README\\.md$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "## Available (Rules|Features|Components)"
+        message: "Update Available Rules section when adding new rules or features"
+
+      - pattern: "\\[`[^`]+`\\]\\([^)]+\\)"
+        message: "Ensure all file references in README are properly linked"
+
+      - pattern: "## (Installation|Usage|Configuration)"
+        message: "Keep setup and configuration sections up to date"
+
+  - type: suggest
+    message: |
+      README Maintenance Best Practices:
+      - Update rule listings when adding new rules
+      - Keep installation instructions current
+      - Document new features and changes
+      - Maintain proper section hierarchy
+      - Include examples for new functionality
+      - Update version information
+      - Keep table of contents synchronized
+
+  - type: validate
+    conditions:
+      - pattern: "^# [^\\n]+\\n\\n## "
+        message: "Maintain proper markdown heading hierarchy"
+
+      - pattern: "\\|[^|]+\\|[^|]+\\|\\n\\|\\s*-+\\s*\\|"
+        message: "Use consistent table formatting"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 

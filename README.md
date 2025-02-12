@@ -52,6 +52,18 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`node-dependencies.mdc`](.cursor/rules/node-dependencies.mdc) | Node.js versioning and package management |
 | [`api-standards.mdc`](.cursor/rules/api-standards.mdc) | RESTful API design and documentation standards |
 | [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
+| [`lagoon-yml-standards.mdc`](.cursor/rules/lagoon-yml-standards.mdc) | Standards for Lagoon configuration files |
+| [`lagoon-docker-compose-standards.mdc`](.cursor/rules/lagoon-docker-compose-standards.mdc) | Standards for Lagoon Docker Compose files |
+| [`vortex-scaffold-standards.mdc`](.cursor/rules/vortex-scaffold-standards.mdc) | Standards for Vortex/DrevOps scaffold usage |
+| [`vortex-cicd-standards.mdc`](.cursor/rules/vortex-cicd-standards.mdc) | Standards for Vortex CI/CD configuration |
+
+### Documentation & Process
+| File Name | Purpose |
+|-----------|---------|
+| [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Standards for README documentation |
+| [`multi-agent-coordination.mdc`](.cursor/rules/multi-agent-coordination.mdc) | Multi-agent coordination standards |
+| [`code-generation-standards.mdc`](.cursor/rules/code-generation-standards.mdc) | Standards for code generation |
+| [`debugging-standards.mdc`](.cursor/rules/debugging-standards.mdc) | Standards for debugging and error handling |
 
 ---
 
