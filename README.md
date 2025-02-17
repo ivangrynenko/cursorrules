@@ -64,6 +64,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`multi-agent-coordination.mdc`](.cursor/rules/multi-agent-coordination.mdc) | Multi-agent coordination standards |
 | [`code-generation-standards.mdc`](.cursor/rules/code-generation-standards.mdc) | Standards for code generation |
 | [`debugging-standards.mdc`](.cursor/rules/debugging-standards.mdc) | Standards for debugging and error handling |
+| [`project-definition-template.mdc`](.cursor/rules/project-definition-template.mdc) | Template for defining project context |
 
 ---
 
@@ -101,6 +102,15 @@ cp .cursor/rules/*.mdc .cursor/rules/
 
 After installation, the rules will automatically be used by Cursor AI in your workflow.
 
+## 🤖 Using Cursor AI
+
+To enhance your documentation and ensure it remains up-to-date, consider using **Cursor AI** itself. The **"cursor-small"** model can assist in updating your README.md file based on the rules and context defined in your project. 
+
+### Steps to Use Cursor AI:
+1. **Invoke Cursor AI** with the context of your project.
+2. **Request updates** for the README.md file.
+3. **Review the suggested changes** and ensure they align with your project goals.
+
 ## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions, feel free to open a pull request or submit an issue.
@@ -119,6 +129,7 @@ This repository is licensed under the MIT License, allowing free and open usage.
 - Additional rules for specific frameworks and CMS platforms
 - Customizable rule sets for different types of projects
 - Integration with CI/CD pipelines to automate rule enforcement
+- Use the `project-definition-template.mdc` rule to define your project's context and structure.
 
 🚀 Let's improve web development workflows together with Cursor AI!
 
@@ -175,3 +186,24 @@ This repository implements a multi-agent development workflow with two primary r
    - Track progress in structured format
    - Maintain clear communication records
    - Document lessons learned
+
+## 📝 Initial Setup Steps
+
+### Option 1: Define Your Project Context Using Cursor AI
+- After adding the rules to your project, use the **Cursor AI** and the **"cursor-small"** model to document your project's purpose, technical stack, folder structure, customizations, and libraries.
+- **Steps to Use Cursor AI:**
+  1. **Invoke Cursor AI** with the context of your project.
+  2. **Request updates** for the README.md file.
+  3. **Review the suggested changes** and ensure they align with your project goals.
+
+### Option 2: Manual Definition of Your Project Context
+1. **Define Your Project Context:**
+   - Search for the README file and `/docs/` folder to gather context.
+   - Use the `project-definition-template.mdc` rule to document your project's purpose, technical stack, folder structure, customizations, and libraries.
+
+2. **Follow the Guidelines:**
+   - Update the README file with the necessary sections as outlined in the project definition rule.
+   - Maintain clear and concise documentation for future reference.
+
+3. **Continue with Other Rules:**
+   - Once the project context is defined, proceed to implement other rules to enhance code quality and maintainability.
