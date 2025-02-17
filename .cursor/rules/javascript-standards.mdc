@@ -1,40 +1,54 @@
 ---
-description: Enforce modular, readable, and optimized JavaScript/TypeScript.
-globs: 
+description: Standards for JavaScript development in Drupal
+globs: *.js
 ---
----
-description: JavaScript Coding Standards
-globs: *.js, *.ts
----
-# JavaScript Coding Standards
+# JavaScript Development Standards
 
-Ensures JavaScript and TypeScript follow clean code principles.
+Ensures proper JavaScript implementation in Drupal projects.
 
 <rule>
-name: javascript_best_practices
-description: Enforce modular, readable, and optimized JavaScript/TypeScript.
+name: javascript_standards
+description: Enforce JavaScript development standards for Drupal
 filters:
   - type: file_extension
-    pattern: "\\.(js|ts)$"
+    pattern: "\\.js$"
 
 actions:
   - type: enforce
     conditions:
-      - pattern: "\\bvar\\b"
-        message: "Avoid 'var'. Use 'let' or 'const' instead."
+      - pattern: "\\(function\\s*\\(\\$\\)\\s*\\{[^}]*\\}\\)\\s*\\(jQuery\\)"
+        message: "Use Drupal behaviors instead of IIFE"
 
-      - pattern: "(?i)console\\.log"
-        message: "Remove console.log() before committing."
+      - pattern: "\\$\\('[^']*'\\)"
+        message: "Cache jQuery selectors for better performance"
 
-      - pattern: "\\bfunction\\s+[a-zA-Z0-9]+\\("
-        message: "Use arrow functions when possible."
+      - pattern: "\\.ajax\\(\\{[^}]*success:"
+        message: "Implement proper error handling for AJAX calls"
+
+      - pattern: "var\\s+"
+        message: "Use const or let instead of var (ES6+)"
 
   - type: suggest
     message: |
-      JavaScript Code Structure:
-      - Use camelCase for variables and functions.
-      - Use PascalCase for React components.
-      - Avoid anonymous functions in render methods.
+      JavaScript Best Practices:
+      - Use Drupal behaviors for all JavaScript
+      - Implement proper error handling for AJAX
+      - Cache jQuery selectors
+      - Use ES6+ features
+      - Add proper documentation
+      - Follow Drupal JavaScript coding standards
+      - Use proper event delegation
+      - Implement proper error handling
+      - Use async/await for asynchronous operations
+      - Follow proper module pattern
+
+  - type: validate
+    conditions:
+      - pattern: "Drupal\\.behaviors\\.\\w+"
+        message: "Implement JavaScript functionality using Drupal behaviors"
+
+      - pattern: "/\\*\\*[^*]*\\*/"
+        message: "Add JSDoc documentation for JavaScript functions"
 
 metadata:
   priority: high

@@ -1,0 +1,76 @@
+---
+description: Standards for PHP and Drupal development
+globs: *.php, *.module, *.inc, *.install, *.theme
+---
+# PHP and Drupal Development Standards
+
+Ensures proper PHP 8.3+ features usage and Drupal development best practices.
+
+<rule>
+name: php_drupal_development_standards
+description: Enforce PHP 8.3+ and Drupal development standards
+filters:
+  - type: file_extension
+    pattern: "\\.(php|module|inc|install|theme)$"
+  - type: file_path
+    pattern: "web/modules/custom/|web/themes/custom/"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "^(?!declare\\(strict_types=1\\);)"
+        message: "Add 'declare(strict_types=1);' at the beginning of PHP files"
+
+      - pattern: "class\\s+\\w+\\s*(?!\\{[^}]*readonly\\s+\\$)"
+        message: "Consider using readonly properties where immutability is required"
+
+      - pattern: "public\\s+function\\s+\\w+\\([^)]*\\)\\s*(?!:)"
+        message: "Add return type declarations for all methods"
+
+      - pattern: "extends\\s+\\w+\\s*\\{[^}]*public\\s+function\\s+\\w+\\([^)]*\\)\\s*(?!#\\[Override\\])"
+        message: "Add #[Override] attribute for overridden methods"
+
+      - pattern: "\\$\\w+\\s*(?!:)"
+        message: "Use typed properties with proper nullability"
+
+      - pattern: "function\\s+hook_\\w+\\([^)]*\\)\\s*(?!:)"
+        message: "Add type hints and return types for all hooks"
+
+      - pattern: "new\\s+\\w+\\([^)]*\\)\\s*(?!;\\s*//\\s*@inject)"
+        message: "Use proper dependency injection with services"
+
+      - pattern: "extends\\s+FormBase\\s*\\{[^}]*validate"
+        message: "Implement proper form validation in FormBase classes"
+
+  - type: suggest
+    message: |
+      PHP/Drupal Development Best Practices:
+      - Place module files in web/modules/custom/[module_name]/
+      - Include required .info.yml, .module, .libraries.yml, .services.yml files
+      - Implement hook_requirements() for external dependencies
+      - Use FormBase or ConfigFormBase for forms
+      - Add CSRF protection to forms
+      - Use proper cache tags and contexts
+      - Implement proper error handling and logging
+      - Use type safety in form methods
+      - Follow Drupal's dependency injection patterns
+      - Use proper service container for dependencies
+
+  - type: validate
+    conditions:
+      - pattern: "web/modules/custom/[^/]+/\\.info\\.yml$"
+        message: "Ensure module has required .info.yml file"
+
+      - pattern: "web/modules/custom/[^/]+/\\.module$"
+        message: "Ensure module has .module file if hooks are used"
+
+      - pattern: "web/modules/custom/[^/]+/src/Form/\\w+Form\\.php$"
+        message: "Place form classes in the Form directory"
+
+      - pattern: "try\\s*\\{[^}]*\\}\\s*catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+        message: "Implement proper exception handling in catch blocks"
+
+metadata:
+  priority: critical
+  version: 1.0
+</rule> 

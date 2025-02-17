@@ -1,0 +1,66 @@
+---
+description: Template for defining project context
+globs: README.md, /docs/*
+---
+# Project Definition Template
+
+This rule serves as a template for defining the project context, including its purpose, technical stack, folder structure, customizations, and libraries.
+
+<rule>
+name: project_definition
+description: Enforce project context definition for CursorAI
+filters:
+  - type: file_extension
+    pattern: "\\.md$"
+  - type: file_path
+    pattern: "README.md|/docs/"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "## Project Purpose"
+        message: "Define the purpose of the project in the README file."
+
+      - pattern: "## Technical Stack"
+        message: "List the technical stack used in the project in the README file."
+
+      - pattern: "## Folder Structure"
+        message: "Document the folder structure in the README file."
+
+      - pattern: "## Customizations"
+        message: "Include any custom themes, modules, or libraries in the README file."
+
+      - pattern: "## Libraries"
+        message: "List any third-party libraries used in the project in the README file."
+
+  - type: suggest
+    message: |
+      Project Definition Best Practices:
+      - Search for the README file and /docs/ folder to gather context.
+      - Clearly define the project's purpose and goals.
+      - Specify the technical stack and versions used.
+      - Document the folder structure for easy navigation.
+      - Include details about custom themes and modules.
+      - List any libraries and their versions for dependency management.
+
+  - type: validate
+    conditions:
+      - pattern: "## Project Purpose"
+        message: "Ensure the project purpose is clearly defined."
+
+      - pattern: "## Technical Stack"
+        message: "Ensure the technical stack is documented."
+
+      - pattern: "## Folder Structure"
+        message: "Ensure the folder structure is outlined."
+
+      - pattern: "## Customizations"
+        message: "Ensure customizations are documented."
+
+      - pattern: "## Libraries"
+        message: "Ensure libraries are listed."
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule> 

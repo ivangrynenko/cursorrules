@@ -40,6 +40,8 @@ actions:
       - Implement proper CI/CD integration
       - Use provided tool configurations (PHPCS, PHPStan, etc.)
       - Maintain documentation structure
+      - Ensure CI/CD pipelines include testing and deployment steps
+      - Document CI/CD processes in the README for clarity
 
   - type: validate
     conditions:
@@ -51,5 +53,5 @@ actions:
 
 metadata:
   priority: high
-  version: 1.0
+  version: 1.1
 </rule> 
