@@ -20,23 +20,35 @@ filters:
 actions:
   - type: enforce
     conditions:
-      - pattern: "^(?!fix|feat|perf|docs|style|refactor|test|chore):"
-        message: "Use a commit message prefix (fix, feat, perf, docs, etc.)."
+      # More precise regex to ensure prefix is followed by colon and space
+      - pattern: "^(?!fix|feat|perf|docs|style|refactor|test|chore): "
+        message: "Use a commit message prefix followed by colon and space (fix:, feat:, etc.)."
 
-      - pattern: "^[A-Z]"
-        message: "Commit messages should start with lowercase."
+      # Check for uppercase after the prefix
+      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore): [A-Z]"
+        message: "First word after prefix should be lowercase."
 
-      - pattern: ".{51,}"
-        message: "Keep commit summary lines under 50 characters."
+      # More precise length check that excludes the prefix from the count
+      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore): .{46,}"
+        message: "Keep commit message content (excluding prefix) under 46 characters."
+
+      # Ensure there's a space after the colon
+      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore):(?! )"
+        message: "Include a space after the colon in prefix."
 
   - type: suggest
     message: |
       Recommended commit format:
-      - "fix: Resolved bug in X"
-      - "feat: Added feature Y"
-      - "docs: Updated documentation"
+      - "fix: resolved bug in user authentication"
+      - "feat: added new search functionality"
+      - "docs: updated installation guide"
+      - "style: fixed button alignment"
+      - "refactor: simplified login logic"
+      - "test: added unit tests for auth"
+      - "chore: updated dependencies"
+      - "perf: optimized database queries"
 
 metadata:
-  priority: medium
-  version: 1.0
+  priority: high
+  version: 1.1
 </rule>
