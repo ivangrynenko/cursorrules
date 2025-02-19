@@ -2,13 +2,13 @@
 description: Standards for maintaining README.md documentation
 globs: README.md, *.md
 ---
-# README Maintenance Standards
+# Enhanced README Maintenance Standards
 
-Ensures consistent and up-to-date documentation in README files.
+Ensures that README files are consistently maintained, up-to-date, and informative.
 
 <rule>
-name: readme_maintenance_standards
-description: Enforce standards for README documentation
+name: enhanced_readme_maintenance_standards
+description: Enforce standards for maintaining README documentation
 filters:
   - type: file_extension
     pattern: "\\.md$"
@@ -18,35 +18,52 @@ filters:
 actions:
   - type: enforce
     conditions:
-      - pattern: "## Available (Rules|Features|Components)"
-        message: "Update Available Rules section when adding new rules or features"
+      - pattern: "## (Available Rules|Features|Components)"
+        message: "Update the 'Available Rules/Features/Components' section whenever new elements are added."
 
       - pattern: "\\[`[^`]+`\\]\\([^)]+\\)"
-        message: "Ensure all file references in README are properly linked"
+        message: "Ensure all file references in the README are properly linked and point to existing files."
 
       - pattern: "## (Installation|Usage|Configuration)"
-        message: "Keep setup and configuration sections up to date"
+        message: "Keep setup, usage, and configuration sections current with the latest project changes."
+
+      - pattern: "## (Contributing|License)"
+        message: "Ensure contributing guidelines and license information are accurate and up-to-date."
+
+      - pattern: "\\[Version\\s*(\\d+\\.)?(\\d+\\.)?\\d+\\]"
+        message: "Update version information to reflect the current state of the project."
+
+      - pattern: "## (Changelog|Changes|Updates)"
+        message: "Maintain a changelog for significant updates, fixes, and features."
 
   - type: suggest
     message: |
-      README Maintenance Best Practices:
-      - Update rule listings when adding new rules
-      - Keep installation instructions current
-      - Document new features and changes
-      - Maintain proper section hierarchy
-      - Include examples for new functionality
-      - Update version information
-      - Keep table of contents synchronized
+      **README Maintenance Best Practices:**
+      - **Rule Listings:** Automatically update or manually check if new rules or features are reflected in the README.
+      - **Installation & Configuration:** Regularly review and update installation and configuration instructions to match the latest project state.
+      - **Documentation of Changes:** Document new features, bug fixes, and changes in a changelog or dedicated section.
+      - **Section Hierarchy:** Maintain a logical structure with clear headings for easy navigation.
+      - **Examples:** Include or update examples for new or changed functionalities.
+      - **Version Information:** Keep version numbers and release notes current, linking to the changelog if applicable.
+      - **Table of Contents:** Ensure the table of contents reflects the current document structure, using auto-generated if possible.
+      - **Badges:** Update badges for CI/CD status, test coverage, or dependencies to reflect current project health.
+      - **Accessibility:** Write with accessibility in mind, using alt text for images and semantic markdown.
 
   - type: validate
     conditions:
       - pattern: "^# [^\\n]+\\n\\n## "
-        message: "Maintain proper markdown heading hierarchy"
+        message: "Ensure proper markdown heading hierarchy for readability."
 
       - pattern: "\\|[^|]+\\|[^|]+\\|\\n\\|\\s*-+\\s*\\|"
-        message: "Use consistent table formatting"
+        message: "Use consistent table formatting throughout the document."
+
+      - pattern: "\\[(.*?)\\]\\((?!http|\\/)[^\\)]+\\)"
+        message: "All local links should point to existing files or sections within the project."
+
+      - pattern: "\\[Version\\s*(\\d+\\.)?(\\d+\\.)?\\*\\d+\\]"
+        message: "Check that version placeholders are updated to actual numbers before release."
 
 metadata:
   priority: high
-  version: 1.0
-</rule> 
+  version: 1.1
+</rule>
