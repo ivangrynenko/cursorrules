@@ -2,13 +2,13 @@
 description: PHP & Drupal Development Standards and Best Practices
 globs: *.php, *.module, *.theme, *.inc, *.info, *.install
 ---
-# PHP & Drupal Development Standards
+# Enhanced PHP & Drupal Development Standards
 
-Defines comprehensive coding standards and best practices for PHP and Drupal development.
+Defines comprehensive coding standards and best practices for PHP and Drupal development, with a focus on modern PHP features, Drupal 10+ standards, and modularity.
 
 <rule>
-name: php_drupal_best_practices
-description: Enforce PHP 8.3+ features, Drupal coding standards, and modularity
+name: enhanced_php_drupal_best_practices
+description: Enforce PHP 8.3+ features, Drupal 10+ coding standards, and modularity
 filters:
   - type: file_extension
     pattern: "\\.(php|module|inc|install|theme)$"
@@ -19,68 +19,74 @@ actions:
   - type: enforce
     conditions:
       - pattern: "^(?!declare\\(strict_types=1\\);)"
-        message: "Add 'declare(strict_types=1);' at the beginning of PHP files"
+        message: "Add 'declare(strict_types=1);' at the beginning of PHP files for type safety."
 
       - pattern: "(?<!\\bTRUE\\b)\\btrue\\b|(?<!\\bFALSE\\b)\\bfalse\\b|(?<!\\bNULL\\b)\\bnull\\b"
-        message: "Use uppercase for TRUE, FALSE, and NULL"
+        message: "Use uppercase for TRUE, FALSE, and NULL constants."
 
       - pattern: "(?i)\\/\\/\\s[a-z]"
-        message: "Ensure inline comments begin with a capital letter and end with a period"
+        message: "Ensure inline comments begin with a capital letter and end with a period."
 
       - pattern: "class\\s+\\w+\\s*(?!\\{[^}]*readonly\\s+\\$)"
-        message: "Consider using readonly properties where immutability is required"
+        message: "Consider using readonly properties where immutability is required."
 
       - pattern: "public\\s+function\\s+\\w+\\([^)]*\\)\\s*(?!:)"
-        message: "Add return type declarations for all methods"
+        message: "Add return type declarations for all methods to ensure type safety."
 
       - pattern: "extends\\s+\\w+\\s*\\{[^}]*public\\s+function\\s+\\w+\\([^)]*\\)\\s*(?!#\\[Override\\])"
-        message: "Add #[Override] attribute for overridden methods"
+        message: "Add #[Override] attribute for overridden methods for clarity."
 
       - pattern: "\\$\\w+\\s*(?!:)"
-        message: "Use typed properties with proper nullability"
+        message: "Use typed properties with proper nullability for better code maintainability."
 
       - pattern: "function\\s+hook_\\w+\\([^)]*\\)\\s*(?!:)"
-        message: "Add type hints and return types for all hooks"
+        message: "Add type hints and return types for all hooks to leverage PHP's type system."
 
       - pattern: "new\\s+\\w+\\([^)]*\\)\\s*(?!;\\s*//\\s*@inject)"
-        message: "Use proper dependency injection with services"
+        message: "Use proper dependency injection with services for better testability and modularity."
 
       - pattern: "extends\\s+FormBase\\s*\\{[^}]*validate"
-        message: "Implement proper form validation in FormBase classes"
+        message: "Implement proper form validation in FormBase classes for security."
+
+      - pattern: "function\\s+\\w+\\s*\\([^)]*\\)\\s*\\{[^}]*\\$this->t\\("
+        message: "Use Drupal's t() function for strings that need translation."
+
+      - pattern: "\\$this->config\\('\\w+'\\)"
+        message: "Use ConfigFactory for configuration management."
 
   - type: suggest
     message: |
-      PHP/Drupal Development Best Practices:
-      - Use fields API for working with fields
-      - Use try/catch for exception handling
-      - Use the database abstraction layer for queries
-      - Implement hook_update_N() for schema changes
-      - Place module files in web/modules/custom/[module_name]/
-      - Include required .info.yml, .module, .libraries.yml, .services.yml files
-      - Implement hook_requirements() for external dependencies
-      - Use FormBase or ConfigFormBase for forms
-      - Add CSRF protection to forms
-      - Use proper cache tags and contexts
-      - Implement proper error handling and logging
-      - Use type safety in form methods
-      - Follow Drupal's dependency injection patterns
-      - Use proper service container for dependencies
+      **PHP/Drupal Development Best Practices:**
+      - **Fields API:** Utilize the Fields API for managing entity fields.
+      - **Exception Handling:** Use try/catch for exception handling to manage errors gracefully.
+      - **Database Layer:** Use Drupal's database abstraction layer for all database operations.
+      - **Schema Updates:** Implement hook_update_N() for schema changes during updates.
+      - **File Structure:** Place module files in `web/modules/custom/[module_name]/`.
+      - **Module Files:** Include required files like .info.yml, .module, .libraries.yml, .services.yml.
+      - **Dependencies:** Use hook_requirements() to check for external dependencies.
+      - **Forms:** Use FormBase or ConfigFormBase for creating forms; ensure CSRF protection.
+      - **Caching:** Implement proper use of cache tags and contexts for performance.
+      - **Error Handling:** Add comprehensive error handling and logging using Drupal's systems.
+      - **Type Safety:** Leverage PHP 8+ features for type safety in form methods.
+      - **Dependency Injection:** Follow Drupal's dependency injection patterns for better code organization.
+      - **Service Container:** Use Drupal's service container for managing dependencies.
+      - **Security:** Always validate user input, use sanitized data, and follow Drupal security practices.
 
   - type: validate
     conditions:
       - pattern: "web/modules/custom/[^/]+/\\.info\\.yml$"
-        message: "Ensure module has required .info.yml file"
+        message: "Ensure each custom module has a required .info.yml file."
 
       - pattern: "web/modules/custom/[^/]+/\\.module$"
-        message: "Ensure module has .module file if hooks are used"
+        message: "Ensure module has .module file if hooks are implemented."
 
       - pattern: "web/modules/custom/[^/]+/src/Form/\\w+Form\\.php$"
-        message: "Place form classes in the Form directory"
+        message: "Place form classes in the Form directory for organization."
 
       - pattern: "try\\s*\\{[^}]*\\}\\s*catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
-        message: "Implement proper exception handling in catch blocks"
+        message: "Implement proper exception handling in catch blocks."
 
 metadata:
   priority: critical
-  version: 1.0
+  version: 1.1
 </rule>

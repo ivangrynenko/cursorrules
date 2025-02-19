@@ -8,52 +8,65 @@ globs: *.mdc
 ---
 # AI Query Efficiency & Auto-Optimization
 
-Ensures Cursor analyzes AI query efficiency, detects repeated requests, and automatically updates relevant rules to improve response quality.
+Ensures Cursor analyzes AI query efficiency, detects repeated requests, and automatically updates relevant rules to improve response quality and reduce redundancy.
 
 <rule>
 name: ai_query_efficiency_optimization
-description: Analyze AI query efficiency and optimize rules to prevent repeated requests.
+description: Analyze AI query efficiency, optimize rules, and prevent repeated requests.
 filters:
   # Match AI query interactions in supported files
   - type: file_extension
     pattern: "\\.(md|mdc|txt|json|py|js|ts|yaml|yml|cursorrules)$"
-  # Match AI communication patterns
+  # Match AI communication patterns indicating inefficiency or repetition
   - type: content
-    pattern: "(?i)(retry|again|didn't work|not what I expected|try another way|improve|fix this)"
+    pattern: "(?i)(retry|again|didn't work|not what I expected|try another way|improve|fix this|optimize)"
 
 actions:
   - type: analyze
     conditions:
-      - pattern: "(?i)(retry|again|fix this|not what I expected)"
-        message: "Detected multiple requests for the same task. Running efficiency analysis..."
+      - pattern: "(?i)(retry|again|fix this|not what I expected|didn't work)"
+        message: "Detected inefficiencies or repeated requests. Initiating efficiency analysis..."
     execute: |
-      - Identify inefficiencies in AI responses.
-      - Suggest improvements in query structure or Cursor usage.
-      - Automatically update relevant Cursor rules to enhance efficiency.
+      - **Identify inefficiencies** in AI responses by comparing previous queries and results.
+      - **Suggest improvements** in query structure or Cursor usage based on analysis:
+        - Use more specific or detailed prompts.
+        - Implement structured queries for complex tasks.
+        - Provide feedback on past responses for better contextual understanding.
+      - **Automatically update** relevant Cursor rules:
+        - Enhance pattern recognition for similar future queries.
+        - Adjust rule priorities or conditions to prevent repeat inefficiencies.
+        - Update rule suggestions to guide users towards more effective interactions.
 
   - type: suggest
     message: |
-      You seem to be making multiple requests for the same type of response. Consider:
-      
-      1. Refining your prompt to be more specific.
-      2. Reviewing past responses for insights before retrying.
-      3. Using structured queries for better AI comprehension.
-      4. Allowing Cursor to automatically optimize related rules to avoid repeated issues.
+      You seem to be making multiple requests for similar tasks. Here's how to optimize:
+
+      1. **Refine your prompt:** Be more specific or detailed in your query.
+      2. **Review past interactions:** Look at previous responses for insights or missed opportunities.
+      3. **Structured Queries:** Use a structured format for complex queries to aid AI comprehension.
+      4. **Automatic Rule Optimization:** Cursor will now update rules to avoid similar issues in the future.
+      5. **Feedback Loop:** Provide feedback on responses to help improve future interactions.
 
   - type: auto_update
     target: ".cursor/rules/ai-optimization.mdc"
     conditions:
-      - pattern: "(?i)(retry|again|fix this|not what I expected)"
-    message: "Updating AI efficiency rule set based on detected patterns."
+      - pattern: "(?i)(retry|again|fix this|not what I expected|didn't work)"
+    message: "Updating AI efficiency rules based on detected inefficiencies or repeated queries."
+
+  - type: log
+    message: "AI Query Efficiency Analysis: [{{query_count}} queries in {{time_period}} detected inefficiency.]"
+    conditions:
+      - pattern: "(?i)(retry|again|fix this|not what I expected|didn't work)"
+    # Note: This action assumes Cursor AI can log data or implement placeholders for query count and time period.
 
 examples:
   - input: |
       "This SQL query is slow, let's try again."
       "That didn't work, let's refine it."
       "Try another approach."
-    output: "Cursor detects repeated inefficiencies and refines AI rules to improve response quality."
+    output: "Cursor detects inefficiency in queries, refines AI rules, and suggests optimization strategies."
 
 metadata:
   priority: critical
-  version: 1.0
+  version: 1.1
 </rule>
