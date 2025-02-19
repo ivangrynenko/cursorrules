@@ -50,7 +50,7 @@ actions:
   - type: auto_update
     target: ".cursor/rules/ai-optimization.mdc"
     conditions:
-      - pattern: "(?i)(retry|again|fix this|not what I expected|didn't work)"
+      - pattern: "(?i)(retry|again|fix this|not what I expected|not what I meant|didn't work)"
     message: "Updating AI efficiency rules based on detected inefficiencies or repeated queries."
 
   - type: log
