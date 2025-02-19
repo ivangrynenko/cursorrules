@@ -86,6 +86,7 @@ $ruleFiles = [
     'tailwind-standards.mdc',
     'third-party-integration.mdc',
     'vue-best-practices.mdc',
+    'govcms-saas.mdc',
 ];
 
 if (!file_exists($targetDir)) {
