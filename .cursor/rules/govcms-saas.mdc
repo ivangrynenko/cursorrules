@@ -1,0 +1,108 @@
+---
+description: This rule defines the constraints and best practices for working with GovCMS Distribution projects. The primary focus is theme-level development only, as the distribution's infrastructure and core functionality should remain unchanged.
+globs: 
+---
+---
+name: govcms-distribution-development-standards
+id: govcms_distribution
+
+description: >
+  This rule defines the constraints and best practices for working with GovCMS Distribution projects. The primary focus is theme-level development only, as the distribution's infrastructure and core functionality should remain unchanged.
+
+project_identification:
+  - "docker-compose.yml with GovCMS-specific services"
+  - ".lagoon.yml configuration"
+  - ".ahoy.yml for GovCMS commands"
+  - "Standard GovCMS directory structure"
+
+development_constraints:
+  restricted_areas:
+    - "docker-compose.yml"
+    - ".docker/*"
+    - ".lagoon.yml"
+    - ".lagoon.env*"
+    - ".ahoy.yml"
+    - "Core infrastructure files"
+    - "Docker-related configurations"
+    - "CI/CD configurations (.gitlab-ci.yml)"
+    - "Root-level configuration files"
+  allowed_areas:
+    - name: "Theme Development"
+      location: "themes/*"
+      modifications:
+        - "Twig templates"
+        - "CSS/SCSS files"
+        - "JavaScript files"
+        - "Theme hooks in .theme files"
+        - "Theme-specific libraries"
+        - "Theme configuration"
+        - "Theme-level preprocess functions"
+        - "Theme-level template suggestions"
+    - name: "Theme-Level Functionality"
+      note: "Implement all custom functionality within theme using relevant theme hooks and practices"
+      modifications:
+        - "hook_preprocess_* functions"
+        - "theme-specific JavaScript"
+        - "Twig templates and includes"
+        - "Theme hooks"
+        - "Library definitions"
+        - "CSS/SCSS modifications"
+
+best_practices:
+  theme_development:
+    - "Follow Drupal 10 theming standards"
+    - "Use Twig templates for markup modifications"
+    - "Implement responsive design patterns"
+    - "Use theme hooks for dynamic content"
+    - "Maintain accessibility standards"
+    - "Use BEM methodology for CSS"
+    - "Implement JavaScript as behaviors"
+  performance:
+    - "Optimize theme assets"
+    - "Use Drupal's library system"
+    - "Implement lazy loading where appropriate"
+    - "Minimize CSS/JavaScript file sizes"
+  security:
+    - "Sanitize all output in Twig templates"
+    - "Use Drupal's Form API for any forms"
+    - "Implement proper XSS protection"
+    - "Follow Drupal security best practices"
+
+implementation_guidelines:
+  - "All customizations must be contained within the theme directory"
+  - "Use theme hooks instead of custom modules"
+  - "Leverage Drupal's theme layer APIs"
+  - "Maintain backwards compatibility"
+  - "Document all theme modifications"
+  - "Use responsive images and optimize assets"
+  - "Follow Drupal coding standards"
+
+error_prevention:
+  - "Prevent modifications to infrastructure files"
+  - "Ensure all development stays within theme boundaries"
+  - "Avoid custom module development"
+  - "No modifications to distribution core files"
+
+file_patterns:
+  protected:
+    - "docker-compose.yml"
+    - ".docker/*"
+    - ".lagoon.yml"
+    - ".lagoon.env*"
+    - ".ahoy.yml"
+    - ".gitlab-ci.yml"
+    - "behat.yml"
+    - "phpcs.xml"
+    - "composer.*"
+  allowed:
+    - "themes/*/css/**/*"
+    - "themes/*/js/**/*"
+    - "themes/*/templates/**/*"
+    - "themes/*/*.theme"
+    - "themes/*/theme-settings.php"
+    - "themes/*/config/**/*"
+    - "themes/*/images/**/*"
+    - "themes/*/fonts/**/*"
+    - "themes/*/*.libraries.yml"
+    - "themes/*/*.info.yml"
+--- 
