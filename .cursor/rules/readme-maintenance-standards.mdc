@@ -1,6 +1,7 @@
 ---
 description: Standards for maintaining README.md documentation
 globs: README.md, *.md
+alwaysApply: false
 ---
 # Enhanced README Maintenance Standards
 

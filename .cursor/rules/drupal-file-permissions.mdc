@@ -1,0 +1,82 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Drupal file permissions security standards
+globs: *.dockerfile, *.sh, docker-compose.yml
+---
+# Drupal File Permissions Security
+
+Standards for securing Drupal file permissions in Docker environments.
+
+<rule>
+name: drupal_file_permissions
+description: Enforce secure file permissions for Drupal sites/default directory and critical files
+filters:
+  - type: file_extension
+    pattern: "\\.(dockerfile|sh|yml)$"
+  - type: file_path
+    pattern: "docker-compose\\.yml$"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "chmod\\s+(?!755)\\d+\\s+[^\\n]*sites\\/default(?![^\\n]*files)"
+        message: "sites/default directory should have 755 permissions (read-only for group/others)"
+
+      - pattern: "chmod\\s+(?!444)\\d+\\s+[^\\n]*settings\\.php"
+        message: "settings.php should have 444 permissions (read-only for everyone)"
+
+      - pattern: "chmod\\s+(?!444)\\d+\\s+[^\\n]*services\\.yml"
+        message: "services.yml should have 444 permissions (read-only for everyone)"
+
+  - type: suggest
+    message: |
+      Drupal File Permissions Security:
+
+      1. Set correct permissions in Dockerfile:
+         ```dockerfile
+         RUN chmod 755 /app/${WEBROOT}/sites/default && \
+             chmod 444 /app/${WEBROOT}/sites/default/settings.php && \
+             chmod 444 /app/${WEBROOT}/sites/default/services.yml
+         ```
+
+      2. Use the permission fix script for existing environments:
+         ```bash
+         ahoy cli "/app/scripts/custom/fix-drupal-permissions.sh"
+         ```
+
+      3. Never use `docker compose exec` directly, use `ahoy cli` instead:
+         ```bash
+         # Incorrect
+         docker compose exec cli /app/scripts/custom/fix-drupal-permissions.sh
+
+         # Correct
+         ahoy cli "/app/scripts/custom/fix-drupal-permissions.sh"
+         ```
+
+      4. Verify permissions are set correctly with:
+         ```bash
+         ahoy drush status-report | grep -i "protected"
+         ```
+
+      5. The output should show "Protected" instead of "Not protected"
+
+examples:
+  - input: |
+      # Bad: Incorrect permissions
+      RUN chmod 777 /app/${WEBROOT}/sites/default
+      RUN chmod 666 /app/${WEBROOT}/sites/default/settings.php
+
+      # Good: Correct permissions
+      RUN chmod 755 /app/${WEBROOT}/sites/default
+      RUN chmod 444 /app/${WEBROOT}/sites/default/settings.php
+      RUN chmod 444 /app/${WEBROOT}/sites/default/services.yml
+    output: "Correctly set Drupal file permissions"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 

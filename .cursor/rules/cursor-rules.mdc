@@ -1,6 +1,7 @@
 ---
 description: Describes how and where to create Cursor Rules
 globs: 
+alwaysApply: false
 ---
 ---
 description: Cursor Rules Location
@@ -8,11 +9,11 @@ globs: *.mdc
 ---
 # Cursor Rules Location
 
-Rules for placing and organizing Cursor rule files in the repository.
+Standards for placing and organizing Cursor rule files in the repository, ensuring rules are always up-to-date.
 
 <rule>
-name: cursor_rules_location
-description: Standards for placing Cursor rule files in the correct directory
+name: cursor_rules_location_and_maintenance
+description: Standards for placing and maintaining Cursor rule files in the correct directory
 filters:
   # Match any .mdc files
   - type: file_extension
@@ -20,9 +21,9 @@ filters:
   # Match files that look like Cursor rules
   - type: content
     pattern: "(?s)<rule>.*?</rule>"
-  # Match file creation events
+  # Match file creation or modification events
   - type: event
-    pattern: "file_create"
+    pattern: "file_create|file_modify"
 
 actions:
   - type: reject
@@ -32,22 +33,23 @@ actions:
 
   - type: suggest
     message: |
-      When creating Cursor rules:
+      When creating or updating Cursor rules:
 
-      1. Always place rule files in PROJECT_ROOT/.cursor/rules/:
-         ```
-         .cursor/rules/
-         ├── your-rule-name.mdc
-         ├── another-rule.mdc
-         └── ...
-         ```
+      1. **Location:**
+         - Always place rule files in **PROJECT_ROOT/.cursor/rules/**:
+           ```
+           .cursor/rules/
+           ├── your-rule-name.mdc
+           ├── another-rule.mdc
+           └── ...
+           ```
 
-      2. Follow the naming convention:
-         - Use kebab-case for filenames
-         - Always use .mdc extension
+      2. **Naming Convention:**
+         - Use **kebab-case** for filenames
+         - Always use the **.mdc** extension
          - Make names descriptive of the rule's purpose
 
-      3. Directory structure:
+      3. **Directory Structure:**
          ```
          PROJECT_ROOT/
          ├── .cursor/
@@ -57,10 +59,21 @@ actions:
          └── ...
          ```
 
-      4. Never place rule files:
-         - In the project root
-         - In subdirectories outside .cursor/rules
-         - In any other location
+      4. **Placement Restrictions:**
+         - Never place rule files:
+           - In the project root
+           - In subdirectories outside .cursor/rules
+           - In any other location
+
+      5. **Maintenance:**
+         - **When adding new rules or modifying existing ones**, ensure to:
+           - Review and possibly update **related project rules** or **global rules** to maintain consistency and reflect changes in project standards or practices.
+           - Check if the modification impacts other parts of your project or documentation, updating them accordingly.
+
+      **Suggestion to Update Rules:**
+      - After modifying or creating a rule, Cursor should suggest:
+        - "Consider updating [related rule name] to reflect these changes."
+        - "Ensure all global rules that might be affected by this change are reviewed."
 
 examples:
   - input: |
@@ -75,5 +88,5 @@ examples:
 
 metadata:
   priority: high
-  version: 1.0
+  version: 1.1
 </rule>
