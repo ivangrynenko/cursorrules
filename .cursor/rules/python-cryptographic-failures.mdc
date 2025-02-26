@@ -1,9 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: false
----
- # Python Cryptographic Failures Security Standards (OWASP A02:2021)
+# Python Cryptographic Failures Security Standards (OWASP A02:2021)
 
 This rule enforces security best practices to prevent cryptographic failures in Python applications, as defined in OWASP Top 10:2021-A02.
 
@@ -190,4 +185,4 @@ metadata:
     - "https://cryptography.io/en/latest/"
     - "https://pypi.org/project/bcrypt/"
     - "https://pypi.org/project/argon2-cffi/"
-</rule>
+</rule> 

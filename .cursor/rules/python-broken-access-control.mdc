@@ -1,9 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: false
----
- # Python Broken Access Control Security Standards (OWASP A01:2021)
+# Python Broken Access Control Security Standards (OWASP A01:2021)
 
 This rule enforces security best practices to prevent broken access control vulnerabilities in Python applications, as defined in OWASP Top 10:2021-A01.
 
@@ -144,4 +139,4 @@ metadata:
     - "https://flask-login.readthedocs.io/en/latest/"
     - "https://fastapi.tiangolo.com/tutorial/security/"
     - "https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html"
-</rule>
+</rule> 
