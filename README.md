@@ -67,6 +67,45 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`debugging-standards.mdc`](.cursor/rules/debugging-standards.mdc) | Standards for debugging and error handling |
 | [`project-definition-template.mdc`](.cursor/rules/project-definition-template.mdc) | Template for defining project context |
 
+## OWASP Top 10 Security Standards
+
+This section outlines cursor rules for addressing the OWASP Top 10 web application security risks. The Drupal and Python rules implemented below are preliminary and need testing and refinement. We will need to continue to work through additional Top Ten compliance rules for other languages/frameworks.
+
+| Security Risk/Filename | Purpose | Implementation Status |
+|---------------|---------|----------------------|
+| [`drupal-broken-access-control.mdc`](.cursor/rules/drupal-broken-access-control.mdc) | [A01:2021-Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/) Identify and prevent broken access control patterns in Drupal applications | Completed |
+| [`drupal-cryptographic-failures.mdc`](.cursor/rules/drupal-cryptographic-failures.mdc) | [A02:2021-Cryptographic Failures](https://owasp.org/Top10/A02_2021-Cryptographic_Failures/) Detect weak encryption, hardcoded credentials, and insecure data storage in Drupal | Completed |
+| [`drupal-injection.mdc`](.cursor/rules/drupal-injection.mdc) | [A03:2021-Injection](https://owasp.org/Top10/A03_2021-Injection/) Flag potential SQL injection, XSS, CSRF, and command injection vulnerabilities in Drupal | Completed |
+| [`drupal-insecure-design.mdc`](.cursor/rules/drupal-insecure-design.mdc) | [A04:2021-Insecure Design](https://owasp.org/Top10/A04_2021-Insecure_Design/) Promote secure design patterns and identify architectural issues in Drupal | Completed |
+| [`drupal-security-misconfiguration.mdc`](.cursor/rules/drupal-security-misconfiguration.mdc) | [A05:2021-Security Misconfiguration](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/) Identify security misconfigurations in Drupal application settings | Completed |
+| [`drupal-vulnerable-components.mdc`](.cursor/rules/drupal-vulnerable-components.mdc) | [A06:2021-Vulnerable and Outdated Components](https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/) Detect deprecated libraries and vulnerable dependencies in Drupal | Completed |
+| [`drupal-authentication-failures.mdc`](.cursor/rules/drupal-authentication-failures.mdc) | [A07:2021-Identification and Authentication Failures](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/) Verify secure authentication and identification practices in Drupal | Completed |
+| [`drupal-integrity-failures.mdc`](.cursor/rules/drupal-integrity-failures.mdc) | [A08:2021-Software and Data Integrity Failures](https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/) Find insecure deserialization and integrity verification issues in Drupal | Completed |
+| [`drupal-logging-failures.mdc`](.cursor/rules/drupal-logging-failures.mdc) | [A09:2021-Security Logging and Monitoring Failures](https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/) | Ensure proper security event logging and monitoring in Drupal | Completed |
+| [`drupal-ssrf.mdc`](.cursor/rules/drupal-ssrf.mdc) | [A10:2021-Server-Side Request Forgery](https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/) | Detect and prevent server-side request forgery vulnerabilities in Drupal | Completed |
+| [A01:2021-Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/) | #TODO Identify and prevent broken access control patterns | Not started |
+| [A02:2021-Cryptographic Failures](https://owasp.org/Top10/A02_2021-Cryptographic_Failures/) | #TODO Detect weak encryption, hardcoded credentials, and insecure data storage | Not started |
+| [A03:2021-Injection](https://owasp.org/Top10/A03_2021-Injection/) | #TODO Flag potential SQL injection, XSS, and command injection vulnerabilities | Not started |
+| [A04:2021-Insecure Design](https://owasp.org/Top10/A04_2021-Insecure_Design/) | #TODO Promote secure design patterns and identify architectural issues | Not started |
+| [A05:2021-Security Misconfiguration](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/) | #TODO Identify security misconfigurations in application settings | Not started |
+| [A06:2021-Vulnerable and Outdated Components](https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/) | #TODO Detect deprecated libraries and known vulnerable dependencies | Not started |
+| [A07:2021-Identification and Authentication Failures](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/) | #TODO Verify secure authentication practices | Not started |
+| [A08:2021-Software and Data Integrity Failures](https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/) | #TODO Find insecure deserialization and integrity verification issues | Not started |
+| [A09:2021-Security Logging and Monitoring Failures](https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/) | #TODO Ensure proper security event logging | Not started |
+| [A10:2021-Server-Side Request Forgery](https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/) | #TODO Identify when user input influences outbound requests | Not started |
+
+### Implementation Considerations
+
+The following considerations will guide our implementation approach:
+
+| Factor | Approach |
+|--------|----------|
+| Language-specific rules | Separate rule files for PHP/Drupal, JavaScript, React, Vue, etc. |
+| Framework-specific patterns | Framework-specific security patterns and anti-patterns |
+| Security context | Consider the security context of different application components |
+| Positive patterns | Include recommended secure implementation examples |
+| Documentation | Link to detailed remediation guides and security best practices |
+
 ---
 
 ## 🔧 Installation
@@ -208,3 +247,83 @@ This repository implements a multi-agent development workflow with two primary r
 
 3. **Continue with Other Rules:**
    - Once the project context is defined, proceed to implement other rules to enhance code quality and maintainability.
+
+## 📊 Managing Cursor Rules at Scale
+
+This repository contains a significant number of rules covering multiple languages, frameworks, and security concerns. Here are some considerations and recommendations for managing rules at scale:
+
+### Potential Constraints
+
+1. **Performance Considerations**:
+   - Each rule requires processing when Cursor AI evaluates a file
+   - While individual rules have minimal impact, large collections could potentially affect performance
+   - Current collection size (25+ general rules, 10 OWASP security rules) should not cause notable performance issues
+
+2. **Rule Conflicts**:
+   - Rules from different frameworks or languages might occasionally provide conflicting recommendations
+   - Filter patterns help mitigate this by ensuring rules only trigger for relevant files
+   - Priority settings in rule metadata can help resolve conflicts when multiple rules apply
+
+3. **Maintenance Complexity**:
+   - As the rule collection grows, testing and maintenance effort increases
+   - Version compatibility across rules becomes more important to track
+   - Documentation needs increase proportionally with rule count
+
+### Benefits of a Unified Repository
+
+1. **Simplified Installation and Management**:
+   - Single installation command for all rules
+   - Consistent versioning across all rules
+   - Centralized documentation and examples
+
+2. **Rule Filtering System**:
+   - Built-in file extension and path filtering prevents irrelevant rule application
+   - Rules for specific languages/frameworks won't be triggered for unrelated files
+   - Metadata tagging allows for logical organization without physical separation
+
+3. **Holistic Development Experience**:
+   - Comprehensive coverage across different aspects of development
+   - Consistent enforcement of standards across technologies
+   - Simplified onboarding for new team members
+
+### Recommendations for Users
+
+1. **Selective Rule Usage**:
+   - Disable rules not relevant to your specific technology stack
+   - Configure rule priorities based on your project's needs
+   - Consider creating custom installation scripts that only install relevant rules
+
+2. **Performance Optimization**:
+   - If experiencing slowdowns, review which rules are most frequently triggered
+   - Consider disabling computationally expensive rules for very large files
+   - Report performance issues so rule patterns can be optimized
+
+3. **Custom Rule Development**:
+   - When creating custom rules, follow the patterns established in existing rules
+   - Use specific file filters to minimize unnecessary rule evaluation
+   - Test new rules thoroughly in isolation before adding to the collection
+
+### Future Scalability Plans
+
+While maintaining all rules in a single repository currently provides the best developer experience, we're preparing for potential future growth:
+
+1. **Enhanced Categorization**:
+   - Rules include clear language/framework tagging with a structured hierarchical system (As seen in the OWASP Top Ten Rules):
+     - `language:php` - Explicitly identifies the programming language
+     - `framework:drupal` - Specifies the framework or CMS
+     - `category:security` - Defines the primary functional category
+     - `subcategory:injection` - Provides more granular categorization (e.g., injection, authentication)
+     - `standard:owasp-top10` - Identifies the security standard being applied
+     - `risk:a01-broken-access-control` - Specifies the exact risk identifier
+   - This tagging system enables selective installation based on language, framework, or security concern
+   - Installation scripts can target specific categories (e.g., only install PHP rules or only OWASP rules)
+
+2. **Modular Design**:
+   - Rule file structure supports potential future separation
+   - Consistent naming conventions facilitate organization
+
+3. **Monitoring and Feedback**:
+   - Repository growth and performance impacts are monitored
+   - User feedback helps identify optimization opportunities
+
+If you encounter any issues with rule management or have suggestions for improving organization, please submit an issue or pull request.
