@@ -1,9 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: false
----
- # Drupal Server-Side Request Forgery Standards (OWASP A10:2021)
+# Drupal Server-Side Request Forgery Standards (OWASP A10:2021)
 
 This rule enforces security best practices to prevent Server-Side Request Forgery (SSRF) vulnerabilities in Drupal applications, as defined in OWASP Top 10:2021-A10.
 
@@ -36,7 +31,7 @@ actions:
         message: "Potential SSRF vulnerability: URL being constructed with variable concatenation. Use URL validation and allowlisting."
         
       # Pattern 5: Using file system wrappers which can lead to SSRF
-      - pattern: "file_get_contents\\([\"'](mdc:?:http|https|ftp|php|data|expect|zip|phar)://"
+      - pattern: "file_get_contents\\([\"'](?:http|https|ftp|php|data|expect|zip|phar)://"
         message: "Avoid using PHP wrappers with file operations that could lead to SSRF vulnerabilities."
         
       # Pattern 6: Bypassing local proxy settings
@@ -121,10 +116,16 @@ metadata:
     - drupal
     - ssrf
     - owasp
+    - language:php
+    - framework:drupal
+    - category:security
+    - subcategory:ssrf
+    - standard:owasp-top10
+    - risk:a10-ssrf
   references:
     - "https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/"
     - "https://cwe.mitre.org/data/definitions/918.html"
     - "https://www.drupal.org/docs/develop/security-in-drupal/writing-secure-code-for-drupal"
     - "https://portswigger.net/web-security/ssrf"
     - "https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html"
-</rule>
+</rule> 
