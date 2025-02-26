@@ -9,7 +9,7 @@ globs: *.mdc
 ---
 # Cursor Rules Location
 
-Standards for placing and organizing Cursor rule files in the repository, ensuring rules are always up-to-date.
+Standards for placing and organizing Cursor rule files in the repository, ensuring rules are always up-to-date and follow best practices.
 
 <rule>
 name: cursor_rules_location_and_maintenance
@@ -33,47 +33,78 @@ actions:
 
   - type: suggest
     message: |
-      When creating or updating Cursor rules:
+      ## Cursor Rules Best Practices
 
-      1. **Location:**
-         - Always place rule files in **PROJECT_ROOT/.cursor/rules/**:
-           ```
-           .cursor/rules/
-           ├── your-rule-name.mdc
-           ├── another-rule.mdc
-           └── ...
-           ```
+      ### 1. Location and Structure
+      - **Location:** Always place rule files in **PROJECT_ROOT/.cursor/rules/**
+      - **Directory Structure:**
+        ```
+        PROJECT_ROOT/
+        ├── .cursor/
+        │   └── rules/
+        │       ├── your-rule-name.mdc
+        │       └── ...
+        └── ...
+        ```
 
-      2. **Naming Convention:**
-         - Use **kebab-case** for filenames
-         - Always use the **.mdc** extension
-         - Make names descriptive of the rule's purpose
+      ### 2. Naming Conventions
+      - Use **kebab-case** for filenames (e.g., `php-drupal-standards.mdc`)
+      - Always use the **.mdc** extension
+      - Make names descriptive of the rule's purpose
+      - Group related rules with common prefixes (e.g., `drupal-*`, `lagoon-*`)
 
-      3. **Directory Structure:**
-         ```
-         PROJECT_ROOT/
-         ├── .cursor/
-         │   └── rules/
-         │       ├── your-rule-name.mdc
-         │       └── ...
-         └── ...
-         ```
+      ### 3. Rule File Structure
+      ```
+      ---
+      description: Brief description of the rule
+      globs: *.php, *.module, *.inc
+      alwaysApply: false
+      ---
+      # Rule Title
 
-      4. **Placement Restrictions:**
-         - Never place rule files:
-           - In the project root
-           - In subdirectories outside .cursor/rules
-           - In any other location
+      <rule>
+      name: rule_name_in_snake_case
+      description: Detailed description of what the rule enforces
+      filters:
+        - type: file_extension
+          pattern: "pattern_to_match"
+      
+      actions:
+        - type: enforce|suggest|validate
+          conditions:
+            - pattern: "regex_pattern"
+              message: "Clear message explaining the issue"
+      
+      metadata:
+        priority: high|medium|low
+        version: 1.0
+      </rule>
+      ```
 
-      5. **Maintenance:**
-         - **When adding new rules or modifying existing ones**, ensure to:
-           - Review and possibly update **related project rules** or **global rules** to maintain consistency and reflect changes in project standards or practices.
-           - Check if the modification impacts other parts of your project or documentation, updating them accordingly.
+      ### 4. Rule Maintenance
+      - **When adding new rules:**
+        - Check for overlapping or conflicting rules
+        - Ensure patterns are efficient and specific
+        - Test rules against sample code
+      - **When modifying existing rules:**
+        - Update version number
+        - Document changes in commit messages
+        - Review and update related rules for consistency
+        - Consider backward compatibility
 
-      **Suggestion to Update Rules:**
-      - After modifying or creating a rule, Cursor should suggest:
-        - "Consider updating [related rule name] to reflect these changes."
-        - "Ensure all global rules that might be affected by this change are reviewed."
+      ### 5. Best Practices for Rule Content
+      - Use clear, specific regex patterns
+      - Provide helpful, actionable messages
+      - Include examples of good and bad code
+      - Set appropriate priority levels
+      - Use multiple conditions for complex rules
+      - Consider performance impact of complex patterns
+
+      ### 6. Rule Testing
+      - Test rules against both compliant and non-compliant code
+      - Verify that messages are clear and helpful
+      - Check for false positives and false negatives
+      - Ensure rules don't conflict with each other
 
 examples:
   - input: |
@@ -85,8 +116,33 @@ examples:
       # Good: Rule file in correct location
       .cursor/rules/my-rule.mdc
     output: "Correctly placed Cursor rule file"
+  
+  - input: |
+      # Bad: Poorly structured rule
+      <rule>
+      name: bad_rule
+      description: This rule does something
+      </rule>
+
+      # Good: Well-structured rule
+      <rule>
+      name: good_rule
+      description: This rule enforces proper error handling in PHP code
+      filters:
+        - type: file_extension
+          pattern: "\\.php$"
+      actions:
+        - type: enforce
+          conditions:
+            - pattern: "try\\s*{[^}]*}\\s*catch\\s*\\([^)]*\\)\\s*{\\s*}"
+              message: "Empty catch blocks should include at least error logging"
+      metadata:
+        priority: high
+        version: 1.0
+      </rule>
+    output: "Well-structured Cursor rule with proper components"
 
 metadata:
   priority: high
-  version: 1.1
+  version: 1.2
 </rule>
