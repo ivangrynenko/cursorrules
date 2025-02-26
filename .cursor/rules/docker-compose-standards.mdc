@@ -1,6 +1,7 @@
 ---
 description: Docker Compose standards Rule
 globs: 
+alwaysApply: false
 ---
 <rule>
 name: docker_compose_best_practices

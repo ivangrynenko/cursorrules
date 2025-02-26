@@ -1,6 +1,7 @@
 ---
 description: Security best practices for PHP, JavaScript, and Drupal
 globs: *.php, *.js, *.vue, *.jsx, *.tsx
+alwaysApply: false
 ---
 # Security Best Practices
 
@@ -33,6 +34,8 @@ actions:
       - Sanitize user input
       - Implement proper access controls
       - Follow security updates protocol
+      - Ensure Drupal file permissions are secure (see drupal-file-permissions.mdc)
+      - Use ahoy cli commands instead of direct docker compose exec
 
 metadata:
   priority: critical
