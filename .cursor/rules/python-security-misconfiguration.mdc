@@ -1,0 +1,276 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ # Python Security Misconfiguration Standards (OWASP A05:2021)
+
+This rule enforces security best practices to prevent security misconfigurations in Python applications, as defined in OWASP Top 10:2021-A05.
+
+<rule>
+name: python_security_misconfiguration
+description: Detect and prevent security misconfigurations in Python applications as defined in OWASP Top 10:2021-A05
+filters:
+  - type: file_extension
+    pattern: "\\.(py|ini|cfg|yml|yaml|json|toml)$"
+  - type: file_path
+    pattern: ".*"
+
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Debug mode enabled in production settings
+      - pattern: "DEBUG\\s*=\\s*True|debug\\s*=\\s*true|\"debug\"\\s*:\\s*true|debug:\\s*true"
+        message: "Debug mode appears to be enabled. This should be disabled in production environments as it can expose sensitive information."
+        
+      # Pattern 2: Insecure cookie settings
+      - pattern: "SESSION_COOKIE_SECURE\\s*=\\s*False|session_cookie_secure\\s*=\\s*false|\"session_cookie_secure\"\\s*:\\s*false|session_cookie_secure:\\s*false"
+        message: "Insecure cookie configuration detected. Set SESSION_COOKIE_SECURE to True in production environments."
+        
+      # Pattern 3: Missing CSRF protection
+      - pattern: "CSRF_ENABLED\\s*=\\s*False|csrf_enabled\\s*=\\s*false|\"csrf_enabled\"\\s*:\\s*false|csrf_enabled:\\s*false|WTF_CSRF_ENABLED\\s*=\\s*False"
+        message: "CSRF protection appears to be disabled. Enable CSRF protection to prevent cross-site request forgery attacks."
+        
+      # Pattern 4: Insecure CORS settings
+      - pattern: "CORS_ORIGIN_ALLOW_ALL\\s*=\\s*True|cors_origin_allow_all\\s*=\\s*true|\"cors_origin_allow_all\"\\s*:\\s*true|cors_origin_allow_all:\\s*true|Access-Control-Allow-Origin:\\s*\\*"
+        message: "Overly permissive CORS configuration detected. Restrict CORS to specific origins rather than allowing all origins."
+        
+      # Pattern 5: Default or weak secret keys
+      - pattern: "SECRET_KEY\\s*=\\s*['\"]default|SECRET_KEY\\s*=\\s*['\"][a-zA-Z0-9]{1,32}['\"]|secret_key\\s*=\\s*['\"]default|\"secret_key\"\\s*:\\s*\"default|secret_key:\\s*default"
+        message: "Default or potentially weak secret key detected. Use a strong, randomly generated secret key and store it securely."
+        
+      # Pattern 6: Exposed sensitive information in error messages
+      - pattern: "DEBUG_PROPAGATE_EXCEPTIONS\\s*=\\s*True|debug_propagate_exceptions\\s*=\\s*true|\"debug_propagate_exceptions\"\\s*:\\s*true|debug_propagate_exceptions:\\s*true"
+        message: "Exception propagation in debug mode is enabled. This can expose sensitive information in error messages."
+        
+      # Pattern 7: Insecure SSL/TLS configuration
+      - pattern: "SECURE_SSL_REDIRECT\\s*=\\s*False|secure_ssl_redirect\\s*=\\s*false|\"secure_ssl_redirect\"\\s*:\\s*false|secure_ssl_redirect:\\s*false"
+        message: "SSL redirection appears to be disabled. Enable SSL redirection to ensure secure communications."
+        
+      # Pattern 8: Missing security headers
+      - pattern: "SECURE_HSTS_SECONDS\\s*=\\s*0|secure_hsts_seconds\\s*=\\s*0|\"secure_hsts_seconds\"\\s*:\\s*0|secure_hsts_seconds:\\s*0"
+        message: "HTTP Strict Transport Security (HSTS) appears to be disabled. Enable HSTS to enforce secure communications."
+        
+      # Pattern 9: Exposed sensitive directories
+      - pattern: "@app\\.route\\(['\"]/(admin|console|management|config|settings|system)['\"]"
+        message: "Potentially sensitive endpoint exposed without access controls. Ensure proper authentication and authorization for administrative endpoints."
+        
+      # Pattern 10: Default accounts or credentials
+      - pattern: "username\\s*=\\s*['\"]admin['\"]|password\\s*=\\s*['\"]admin|password\\s*=\\s*['\"]password|password\\s*=\\s*['\"]123|user\\s*=\\s*['\"]root['\"]"
+        message: "Default or weak credentials detected. Never use default or easily guessable credentials in any environment."
+        
+      # Pattern 11: Insecure file permissions
+      - pattern: "os\\.chmod\\([^,]+,\\s*0o777\\)|os\\.chmod\\([^,]+,\\s*777\\)"
+        message: "Overly permissive file permissions detected. Use the principle of least privilege for file permissions."
+        
+      # Pattern 12: Exposed version information
+      - pattern: "@app\\.route\\(['\"]/(version|build|status|health)['\"]"
+        message: "Endpoints that may expose version information detected. Ensure these endpoints don't reveal sensitive details about your application."
+        
+      # Pattern 13: Insecure deserialization
+      - pattern: "pickle\\.loads|yaml\\.load\\([^,)]+\\)|json\\.loads\\([^,)]+,\\s*[^)]*object_hook"
+        message: "Potentially insecure deserialization detected. Use safer alternatives like yaml.safe_load() or validate input before deserialization."
+        
+      # Pattern 14: Missing timeout settings
+      - pattern: "requests\\.get\\([^,)]+\\)|requests\\.(post|put|delete|patch)\\([^,)]+\\)"
+        message: "HTTP request without timeout setting detected. Always set timeouts for HTTP requests to prevent denial of service."
+        
+      # Pattern 15: Insecure upload directory
+      - pattern: "UPLOAD_FOLDER\\s*=\\s*['\"][^'\"]*(/tmp|/var/tmp)[^'\"]*['\"]|upload_folder\\s*=\\s*['\"][^'\"]*(/tmp|/var/tmp)[^'\"]*['\"]"
+        message: "Insecure upload directory detected. Use a properly secured directory for file uploads, not temporary directories."
+
+  - type: suggest
+    message: |
+      **Python Security Configuration Best Practices:**
+      
+      1. **Environment-Specific Configuration:**
+         - Use different configurations for development, testing, and production
+         - Never enable debug mode in production
+         - Example with environment variables:
+           ```python
+           import os
+           
+           DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+           SECRET_KEY = os.environ.get('SECRET_KEY')
+           ```
+      
+      2. **Secure Cookie Configuration:**
+         - Enable secure cookies in production
+         - Set appropriate cookie flags
+         - Example for Django:
+           ```python
+           SESSION_COOKIE_SECURE = True
+           SESSION_COOKIE_HTTPONLY = True
+           SESSION_COOKIE_SAMESITE = 'Lax'
+           CSRF_COOKIE_SECURE = True
+           CSRF_COOKIE_HTTPONLY = True
+           ```
+         - Example for Flask:
+           ```python
+           app.config.update(
+               SESSION_COOKIE_SECURE=True,
+               SESSION_COOKIE_HTTPONLY=True,
+               SESSION_COOKIE_SAMESITE='Lax',
+               PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
+           )
+           ```
+      
+      3. **Security Headers:**
+         - Implement HTTP security headers
+         - Example with Flask-Talisman:
+           ```python
+           from flask_talisman import Talisman
+           
+           talisman = Talisman(
+               app,
+               content_security_policy={
+                   'default-src': "'self'",
+                   'script-src': "'self'"
+               },
+               strict_transport_security=True,
+               strict_transport_security_max_age=31536000,
+               frame_options='DENY'
+           )
+           ```
+         - Example for Django:
+           ```python
+           SECURE_HSTS_SECONDS = 31536000
+           SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+           SECURE_HSTS_PRELOAD = True
+           SECURE_CONTENT_TYPE_NOSNIFF = True
+           SECURE_BROWSER_XSS_FILTER = True
+           X_FRAME_OPTIONS = 'DENY'
+           ```
+      
+      4. **CORS Configuration:**
+         - Restrict CORS to specific origins
+         - Example with Flask-CORS:
+           ```python
+           from flask_cors import CORS
+           
+           CORS(app, resources={r"/api/*": {"origins": "https://example.com"}})
+           ```
+         - Example for Django:
+           ```python
+           CORS_ALLOWED_ORIGINS = [
+               "https://example.com",
+               "https://sub.example.com",
+           ]
+           CORS_ALLOW_CREDENTIALS = True
+           ```
+      
+      5. **Secret Management:**
+         - Use environment variables or secure vaults for secrets
+         - Generate strong random secrets
+         - Example:
+           ```python
+           import secrets
+           
+           # Generate a secure random secret key
+           secret_key = secrets.token_hex(32)
+           ```
+      
+      6. **Error Handling:**
+         - Use custom error handlers to prevent information leakage
+         - Example for Flask:
+           ```python
+           @app.errorhandler(Exception)
+           def handle_exception(e):
+               # Log the error
+               app.logger.error(f"Unhandled exception: {str(e)}")
+               # Return a generic error message
+               return jsonify({"error": "An unexpected error occurred"}), 500
+           ```
+      
+      7. **Secure File Uploads:**
+         - Validate file types and sizes
+         - Store uploaded files outside the web root
+         - Use secure permissions
+         - Example:
+           ```python
+           import os
+           from werkzeug.utils import secure_filename
+           
+           UPLOAD_FOLDER = '/path/to/secure/location'
+           ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg'}
+           
+           app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+           app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
+           
+           def allowed_file(filename):
+               return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           ```
+      
+      8. **Dependency Management:**
+         - Regularly update dependencies
+         - Use tools like safety or dependabot
+         - Pin dependency versions
+         - Example requirements.txt:
+           ```
+           Flask==2.0.1
+           Werkzeug==2.0.1
+           ```
+      
+      9. **Timeout Configuration:**
+         - Set timeouts for all external service calls
+         - Example:
+           ```python
+           import requests
+           
+           response = requests.get('https://api.example.com', timeout=(3.05, 27))
+           ```
+      
+      10. **Secure Deserialization:**
+          - Use safe alternatives for deserialization
+          - Validate input before deserialization
+          - Example:
+            ```python
+            import yaml
+            
+            # Use safe_load instead of load
+            data = yaml.safe_load(yaml_string)
+            ```
+
+  - type: validate
+    conditions:
+      # Check 1: Proper debug configuration
+      - pattern: "DEBUG\\s*=\\s*os\\.environ\\.get\\(['\"]DEBUG['\"]|DEBUG\\s*=\\s*False"
+        message: "Using environment-specific or secure debug configuration."
+      
+      # Check 2: Secure cookie settings
+      - pattern: "SESSION_COOKIE_SECURE\\s*=\\s*True|session_cookie_secure\\s*=\\s*true"
+        message: "Using secure cookie configuration."
+      
+      # Check 3: Security headers implementation
+      - pattern: "SECURE_HSTS_SECONDS|X_FRAME_OPTIONS|Talisman\\(|CSP|Content-Security-Policy"
+        message: "Implementing security headers."
+      
+      # Check 4: Proper CORS configuration
+      - pattern: "CORS_ALLOWED_ORIGINS|CORS\\(app,\\s*resources"
+        message: "Using restricted CORS configuration."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - configuration
+    - deployment
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:configuration
+    - standard:owasp-top10
+    - risk:a05-security-misconfiguration
+  references:
+    - "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Configuration_Security_Cheat_Sheet.html"
+    - "https://flask.palletsprojects.com/en/latest/security/"
+    - "https://docs.djangoproject.com/en/stable/topics/security/"
+    - "https://fastapi.tiangolo.com/advanced/security/https/"
+    - "https://owasp.org/www-project-secure-headers/"
+</rule>

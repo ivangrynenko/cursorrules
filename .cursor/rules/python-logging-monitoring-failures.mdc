@@ -1,0 +1,444 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ # Python Security Logging and Monitoring Failures Standards (OWASP A09:2021)
+
+This rule enforces security best practices to prevent security logging and monitoring failures in Python applications, as defined in OWASP Top 10:2021-A09.
+
+<rule>
+name: python_logging_monitoring_failures
+description: Detect and prevent security logging and monitoring failures in Python applications as defined in OWASP Top 10:2021-A09
+filters:
+  - type: file_extension
+    pattern: "\\.(py|ini|cfg|yml|yaml|json|toml)$"
+  - type: file_path
+    pattern: ".*"
+
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Missing logging in authentication functions
+      - pattern: "def\\s+(login|authenticate|signin|logout|signout).*?:[^\\n]*?(?!.*logging\\.(info|warning|error|critical))"
+        message: "Authentication function without logging detected. Always log authentication events, especially failures, for security monitoring."
+        
+      # Pattern 2: Missing logging in authorization functions
+      - pattern: "def\\s+(authorize|check_permission|has_permission|is_authorized|require_permission).*?:[^\\n]*?(?!.*logging\\.(info|warning|error|critical))"
+        message: "Authorization function without logging detected. Always log authorization decisions, especially denials, for security monitoring."
+        
+      # Pattern 3: Missing logging in security-sensitive operations
+      - pattern: "def\\s+(create_user|update_user|delete_user|reset_password|change_password).*?:[^\\n]*?(?!.*logging\\.(info|warning|error|critical))"
+        message: "Security-sensitive user operation without logging detected. Always log security-sensitive operations for audit trails."
+        
+      # Pattern 4: Missing logging in exception handlers
+      - pattern: "except\\s+[^:]+:[^\\n]*?(?!.*logging\\.(warning|error|critical|exception))"
+        message: "Exception handler without logging detected. Always log exceptions, especially in security-sensitive code, for monitoring and debugging."
+        
+      # Pattern 5: Logging sensitive data
+      - pattern: "logging\\.(debug|info|warning|error|critical)\\([^)]*?(password|token|secret|key|credential|auth)"
+        message: "Potential sensitive data logging detected. Avoid logging sensitive information like passwords, tokens, or keys."
+        
+      # Pattern 6: Insufficient log level in security context
+      - pattern: "logging\\.debug\\([^)]*?(auth|login|permission|security|attack|hack|exploit|vulnerability)"
+        message: "Debug-level logging for security events detected. Use appropriate log levels (INFO, WARNING, ERROR) for security events."
+        
+      # Pattern 7: Missing logging configuration
+      - pattern: "import\\s+logging(?!.*logging\\.basicConfig|.*logging\\.config)"
+        message: "Logging import without configuration detected. Configure logging properly with appropriate handlers, formatters, and levels."
+        
+      # Pattern 8: Insecure logging configuration
+      - pattern: "logging\\.basicConfig\\([^)]*?level\\s*=\\s*logging\\.DEBUG"
+        message: "Debug-level logging configuration detected. Use appropriate log levels in production to avoid excessive logging."
+        
+      # Pattern 9: Missing request/response logging in web frameworks
+      - pattern: "@app\\.route\\(['\"][^'\"]+['\"]|@api_view\\(|class\\s+\\w+\\(APIView\\)|class\\s+\\w+\\(View\\)"
+        message: "Web endpoint without request logging detected. Consider logging requests and responses for security monitoring."
+        
+      # Pattern 10: Missing correlation IDs in logs
+      - pattern: "logging\\.(debug|info|warning|error|critical)\\([^)]*?(?!.*request_id|.*correlation_id|.*trace_id)"
+        message: "Logging without correlation ID detected. Include correlation IDs in logs to trace requests across systems."
+        
+      # Pattern 11: Missing error handling for logging failures
+      - pattern: "logging\\.(debug|info|warning|error|critical)\\([^)]*?\\)"
+        message: "Logging without error handling detected. Handle potential logging failures to ensure critical events are not missed."
+        
+      # Pattern 12: Missing logging for database operations
+      - pattern: "(execute|executemany|cursor\\.execute|session\\.execute|query)\\([^)]*?(?!.*logging\\.(debug|info|warning|error|critical))"
+        message: "Database operation without logging detected. Consider logging database operations for audit trails and security monitoring."
+        
+      # Pattern 13: Missing logging for file operations
+      - pattern: "open\\([^)]+,\\s*['\"]w['\"]|open\\([^)]+,\\s*['\"]a['\"]|write\\(|writelines\\("
+        message: "File write operation without logging detected. Consider logging file operations for audit trails."
+        
+      # Pattern 14: Missing logging for subprocess execution
+      - pattern: "subprocess\\.(call|run|Popen)\\([^)]*?(?!.*logging\\.(debug|info|warning|error|critical))"
+        message: "Subprocess execution without logging detected. Always log command execution for security monitoring."
+        
+      # Pattern 15: Missing centralized logging configuration
+      - pattern: "logging\\.basicConfig\\([^)]*?(?!.*filename|.*handlers)"
+        message: "Console-only logging configuration detected. Configure centralized logging with file handlers or external logging services."
+
+  - type: suggest
+    message: |
+      **Python Security Logging and Monitoring Best Practices:**
+      
+      1. **Structured Logging:**
+         - Use structured logging formats (JSON)
+         - Include contextual information
+         - Example with Python's standard logging:
+           ```python
+           import logging
+           import json
+           
+           class JsonFormatter(logging.Formatter):
+               def format(self, record):
+                   log_record = {
+                       "timestamp": self.formatTime(record),
+                       "level": record.levelname,
+                       "message": record.getMessage(),
+                       "logger": record.name,
+                       "path": record.pathname,
+                       "line": record.lineno
+                   }
+                   
+                   # Add extra attributes from record
+                   for key, value in record.__dict__.items():
+                       if key not in ["args", "asctime", "created", "exc_info", "exc_text", 
+                                     "filename", "funcName", "id", "levelname", "levelno",
+                                     "lineno", "module", "msecs", "message", "msg", "name", 
+                                     "pathname", "process", "processName", "relativeCreated", 
+                                     "stack_info", "thread", "threadName"]:
+                           log_record[key] = value
+                   
+                   return json.dumps(log_record)
+           
+           # Configure logger with JSON formatter
+           logger = logging.getLogger("security_logger")
+           handler = logging.StreamHandler()
+           handler.setFormatter(JsonFormatter())
+           logger.addHandler(handler)
+           logger.setLevel(logging.INFO)
+           
+           # Usage with context
+           logger.info("User login successful", extra={
+               "user_id": user.id,
+               "ip_address": request.remote_addr,
+               "request_id": request.headers.get("X-Request-ID")
+           })
+           ```
+      
+      2. **Security Event Logging:**
+         - Log all authentication events
+         - Log authorization decisions
+         - Log security-sensitive operations
+         - Example:
+           ```python
+           def login(request):
+               username = request.form.get("username")
+               password = request.form.get("password")
+               
+               try:
+                   user = authenticate(username, password)
+                   if user:
+                       # Log successful login
+                       logger.info("User login successful", extra={
+                           "user_id": user.id,
+                           "ip_address": request.remote_addr,
+                           "request_id": request.headers.get("X-Request-ID")
+                       })
+                       return success_response()
+                   else:
+                       # Log failed login
+                       logger.warning("User login failed: invalid credentials", extra={
+                           "username": username,  # Note: log username but never password
+                           "ip_address": request.remote_addr,
+                           "request_id": request.headers.get("X-Request-ID")
+                       })
+                       return error_response("Invalid credentials")
+               except Exception as e:
+                   # Log exceptions
+                   logger.error("Login error", extra={
+                       "error": str(e),
+                       "username": username,
+                       "ip_address": request.remote_addr,
+                       "request_id": request.headers.get("X-Request-ID")
+                   })
+                   return error_response("Login error")
+           ```
+      
+      3. **Correlation IDs:**
+         - Use request IDs to correlate logs
+         - Propagate IDs across services
+         - Example with Flask:
+           ```python
+           import uuid
+           from flask import Flask, request, g
+           
+           app = Flask(__name__)
+           
+           @app.before_request
+           def before_request():
+               request_id = request.headers.get("X-Request-ID")
+               if not request_id:
+                   request_id = str(uuid.uuid4())
+               g.request_id = request_id
+           
+           @app.after_request
+           def after_request(response):
+               response.headers["X-Request-ID"] = g.request_id
+               return response
+           
+           # In your view functions
+           @app.route("/api/resource")
+           def get_resource():
+               logger.info("Resource accessed", extra={"request_id": g.request_id})
+               return jsonify({"data": "resource"})
+           ```
+      
+      4. **Appropriate Log Levels:**
+         - DEBUG: Detailed information for debugging
+         - INFO: Confirmation of normal events
+         - WARNING: Potential issues that don't prevent operation
+         - ERROR: Errors that prevent specific operations
+         - CRITICAL: Critical errors that prevent application function
+         - Example:
+           ```python
+           # Normal operation
+           logger.info("User profile updated", extra={"user_id": user.id})
+           
+           # Potential security issue
+           logger.warning("Multiple failed login attempts", extra={
+               "username": username,
+               "attempt_count": attempts,
+               "ip_address": ip_address
+           })
+           
+           # Security violation
+           logger.error("Unauthorized access attempt", extra={
+               "user_id": user.id,
+               "resource": resource_id,
+               "ip_address": ip_address
+           })
+           
+           # Critical security breach
+           logger.critical("Possible data breach detected", extra={
+               "indicators": indicators,
+               "affected_resources": resources
+           })
+           ```
+      
+      5. **Centralized Logging:**
+         - Configure logging to centralized systems
+         - Use appropriate handlers
+         - Example with file rotation:
+           ```python
+           import logging
+           from logging.handlers import RotatingFileHandler
+           
+           logger = logging.getLogger("security_logger")
+           
+           # File handler with rotation
+           file_handler = RotatingFileHandler(
+               "security.log",
+               maxBytes=10485760,  # 10MB
+               backupCount=10
+           )
+           file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+           logger.addHandler(file_handler)
+           
+           # Set level
+           logger.setLevel(logging.INFO)
+           ```
+      
+      6. **Sensitive Data Handling:**
+         - Never log sensitive data
+         - Implement data masking
+         - Example:
+           ```python
+           def mask_sensitive_data(data, fields_to_mask):
+               """Mask sensitive fields in data dictionary."""
+               masked_data = data.copy()
+               for field in fields_to_mask:
+                   if field in masked_data:
+                       masked_data[field] = "********"
+               return masked_data
+           
+           # Usage
+           user_data = {"username": "john", "password": "secret123", "email": "john@example.com"}
+           safe_data = mask_sensitive_data(user_data, ["password"])
+           logger.info("User data processed", extra={"user_data": safe_data})
+           ```
+      
+      7. **Exception Logging:**
+         - Always log exceptions
+         - Include stack traces for debugging
+         - Example:
+           ```python
+           try:
+               # Some operation
+               result = process_data(data)
+           except Exception as e:
+               logger.error(
+                   "Error processing data",
+                   exc_info=True,  # Include stack trace
+                   extra={
+                       "data_id": data.id,
+                       "error": str(e)
+                   }
+               )
+               raise  # Re-raise or handle appropriately
+           ```
+      
+      8. **Audit Logging:**
+         - Log all security-relevant changes
+         - Include before/after states
+         - Example:
+           ```python
+           def update_user_role(user_id, new_role, current_user):
+               user = User.get(user_id)
+               old_role = user.role
+               
+               # Update role
+               user.role = new_role
+               user.save()
+               
+               # Audit log
+               logger.info("User role changed", extra={
+                   "user_id": user_id,
+                   "old_role": old_role,
+                   "new_role": new_role,
+                   "changed_by": current_user.id,
+                   "timestamp": datetime.utcnow().isoformat()
+               })
+           ```
+      
+      9. **Log Monitoring Integration:**
+         - Configure alerts for security events
+         - Integrate with SIEM systems
+         - Example configuration for ELK stack:
+           ```python
+           import logging
+           from elasticsearch import Elasticsearch
+           from elasticsearch.helpers import bulk
+           
+           class ElasticsearchHandler(logging.Handler):
+               def __init__(self, es_host, index_name):
+                   super().__init__()
+                   self.es = Elasticsearch([es_host])
+                   self.index_name = index_name
+                   self.buffer = []
+                   
+               def emit(self, record):
+                   try:
+                       log_entry = {
+                           "_index": self.index_name,
+                           "_source": {
+                               "timestamp": self.formatter.formatTime(record),
+                               "level": record.levelname,
+                               "message": record.getMessage(),
+                               "logger": record.name
+                           }
+                       }
+                       
+                       # Add extra fields
+                       for key, value in record.__dict__.items():
+                           if key not in ["args", "asctime", "created", "exc_info", "exc_text", 
+                                         "filename", "funcName", "id", "levelname", "levelno",
+                                         "lineno", "module", "msecs", "message", "msg", "name", 
+                                         "pathname", "process", "processName", "relativeCreated", 
+                                         "stack_info", "thread", "threadName"]:
+                               log_entry["_source"][key] = value
+                               
+                       self.buffer.append(log_entry)
+                       
+                       # Bulk insert if buffer is full
+                       if len(self.buffer) >= 10:
+                           self.flush()
+                   except Exception:
+                       self.handleError(record)
+                       
+               def flush(self):
+                   if self.buffer:
+                       bulk(self.es, self.buffer)
+                       self.buffer = []
+           
+           # Usage
+           es_handler = ElasticsearchHandler("localhost:9200", "app-logs")
+           es_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+           logger.addHandler(es_handler)
+           ```
+      
+      10. **Logging Failure Handling:**
+          - Handle logging failures gracefully
+          - Implement fallback mechanisms
+          - Example:
+            ```python
+            class FallbackHandler(logging.Handler):
+                def __init__(self, primary_handler, fallback_handler):
+                    super().__init__()
+                    self.primary_handler = primary_handler
+                    self.fallback_handler = fallback_handler
+                    
+                def emit(self, record):
+                    try:
+                        self.primary_handler.emit(record)
+                    except Exception:
+                        try:
+                            self.fallback_handler.emit(record)
+                        except Exception:
+                            # Last resort: print to stderr
+                            import sys
+                            print(f"CRITICAL: Logging failure: {record.getMessage()}", file=sys.stderr)
+            
+            # Usage
+            primary = ElasticsearchHandler("localhost:9200", "app-logs")
+            fallback = logging.FileHandler("fallback.log")
+            handler = FallbackHandler(primary, fallback)
+            logger.addHandler(handler)
+            ```
+
+  - type: validate
+    conditions:
+      # Check 1: Proper logging configuration
+      - pattern: "logging\\.basicConfig\\(|logging\\.config\\.dictConfig\\(|logging\\.config\\.fileConfig\\("
+        message: "Logging is properly configured."
+      
+      # Check 2: Security event logging
+      - pattern: "logging\\.(info|warning|error|critical)\\([^)]*?(login|authenticate|authorize|permission)"
+        message: "Security events are being logged."
+      
+      # Check 3: Structured logging
+      - pattern: "logging\\.(info|warning|error|critical)\\([^)]*?extra\\s*="
+        message: "Structured logging with context is implemented."
+      
+      # Check 4: Correlation ID usage
+      - pattern: "request_id|correlation_id|trace_id"
+        message: "Correlation IDs are used for request tracing."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - logging
+    - monitoring
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:logging
+    - standard:owasp-top10
+    - risk:a09-security-logging-monitoring-failures
+  references:
+    - "https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+    - "https://docs.python.org/3/library/logging.html"
+    - "https://docs.python.org/3/howto/logging-cookbook.html"
+    - "https://docs.djangoproject.com/en/stable/topics/logging/"
+    - "https://flask.palletsprojects.com/en/latest/logging/"
+    - "https://fastapi.tiangolo.com/tutorial/handling-errors/#logging"
+</rule>

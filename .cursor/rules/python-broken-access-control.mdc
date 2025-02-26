@@ -1,0 +1,142 @@
+# Python Broken Access Control Security Standards (OWASP A01:2021)
+
+This rule enforces security best practices to prevent broken access control vulnerabilities in Python applications, as defined in OWASP Top 10:2021-A01.
+
+<rule>
+name: python_broken_access_control
+description: Detect and prevent broken access control vulnerabilities in Python applications as defined in OWASP Top 10:2021-A01
+filters:
+  - type: file_extension
+    pattern: "\\.(py)$"
+  - type: file_path
+    pattern: ".*"
+
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Missing access control in Flask routes
+      - pattern: "@(app|blueprint)\\.route\\([^)]*\\)\\s*\\n\\s*def\\s+[a-zA-Z0-9_]+\\([^)]*\\):\\s*(?![^#]*@login_required|[^#]*current_user\\.|[^#]*session\\[)"
+        message: "Flask route lacks access control. Consider using @login_required or checking user permissions within the function."
+        
+      # Pattern 2: Missing access control in Django views
+      - pattern: "class\\s+[A-Za-z0-9_]+View\\((?!LoginRequiredMixin|PermissionRequiredMixin|UserPassesTestMixin)[^)]*\\):"
+        message: "Django class-based view lacks access control mixins. Consider using LoginRequiredMixin, PermissionRequiredMixin, or UserPassesTestMixin."
+        
+      # Pattern 3: Insecure direct object reference
+      - pattern: "(get|filter|find)_by_id\\(\\s*request\\.(GET|POST|args|form|json)\\[['\"][^'\"]+['\"]\\]\\s*\\)"
+        message: "Potential insecure direct object reference (IDOR). Validate that the current user has permission to access this object."
+        
+      # Pattern 4: Hardcoded role checks
+      - pattern: "if\\s+user\\.role\\s*==\\s*['\"]admin['\"]|if\\s+user\\.(is_staff|is_superuser)\\s*:"
+        message: "Hardcoded role checks can be fragile. Consider using a permission system or role-based access control framework."
+        
+      # Pattern 5: Missing authorization in FastAPI
+      - pattern: "@(app|router)\\.([a-z]+)\\([^)]*\\)\\s*\\n\\s*(?:async\\s+)?def\\s+[a-zA-Z0-9_]+\\([^)]*\\):\\s*(?![^#]*Depends\\(|[^#]*Security\\(|[^#]*HTTPBearer\\()"
+        message: "FastAPI endpoint lacks security dependencies. Consider using Depends(get_current_user) or similar security dependencies."
+        
+      # Pattern 6: Bypassing access control with admin flags
+      - pattern: "if\\s+request\\.(GET|POST|args|form|json)\\[['\"]admin['\"]\\]|if\\s+request\\.(GET|POST|args|form|json)\\[['\"]debug['\"]\\]"
+        message: "Dangerous admin/debug flags in request parameters could bypass access control. Remove or secure these backdoors."
+        
+      # Pattern 7: Insecure use of eval or exec with user input
+      - pattern: "eval\\(|exec\\(.*request\\."
+        message: "Extremely dangerous use of eval() or exec() with user input can lead to code execution. Avoid these functions entirely."
+        
+      # Pattern 8: Missing access control in API endpoints
+      - pattern: "@api_view\\(|@api\\.route\\(|@app\\.api_route\\("
+        message: "API endpoint may lack access control. Ensure proper authentication and authorization checks are implemented."
+        
+      # Pattern 9: Insecure Flask session usage
+      - pattern: "session\\[['\"][^'\"]+['\"]\\]\\s*=\\s*request\\."
+        message: "Setting session variables directly from request data without validation can lead to session-based access control bypasses."
+        
+      # Pattern 10: Missing CSRF protection
+      - pattern: "class\\s+[A-Za-z0-9_]+Form\\((?!.*csrf).*\\):|@csrf_exempt"
+        message: "Form or view appears to be missing CSRF protection. Ensure CSRF tokens are properly implemented."
+
+  - type: suggest
+    message: |
+      **Python Access Control Best Practices:**
+      
+      1. **Framework-Specific Controls:**
+         - **Django**: Use built-in authentication and permission decorators/mixins
+           - `@login_required`, `LoginRequiredMixin`
+           - `@permission_required`, `PermissionRequiredMixin`
+           - `UserPassesTestMixin` for custom permission logic
+         - **Flask**: Use Flask-Login or similar extensions
+           - `@login_required` decorator
+           - `current_user.is_authenticated` checks
+           - Role-based access control with Flask-Principal
+         - **FastAPI**: Use dependency injection for security
+           - `Depends(get_current_user)` pattern
+           - OAuth2 with `Security(oauth2_scheme)`
+           - JWT validation middleware
+      
+      2. **General Access Control Principles:**
+         - Implement access control at the server side, never rely on client-side checks
+         - Use deny-by-default approach (whitelist vs blacklist)
+         - Implement proper session management
+         - Apply principle of least privilege
+         - Use contextual access control (time, location, device-based restrictions when appropriate)
+      
+      3. **Object-Level Authorization:**
+         - Validate user has permission to access specific resources
+         - Implement row-level security for database access
+         - Use UUIDs instead of sequential IDs when possible
+         - Always verify ownership or permission before allowing operations on objects
+      
+      4. **API Security:**
+         - Implement proper authentication for all API endpoints
+         - Use token-based authentication with proper validation
+         - Apply rate limiting to prevent brute force attacks
+         - Implement proper CORS configuration
+         - Log and monitor access control failures
+      
+      5. **Testing Access Control:**
+         - Write tests specifically for authorization logic
+         - Test vertical access control (different permission levels)
+         - Test horizontal access control (same permission level, different users)
+         - Verify access control works after session timeout/expiration
+
+  - type: validate
+    conditions:
+      # Check 1: Proper Django permission usage
+      - pattern: "@login_required|@permission_required|LoginRequiredMixin|PermissionRequiredMixin"
+        message: "Using Django's built-in access control mechanisms."
+      
+      # Check 2: Proper Flask authentication
+      - pattern: "@login_required|current_user\\.is_authenticated|@auth\\.login_required"
+        message: "Implementing proper Flask authentication checks."
+      
+      # Check 3: Object-level permission checks
+      - pattern: "\\.has_permission\\(|has_object_permission\\(|can_view\\(|can_edit\\("
+        message: "Implementing object-level permission checks."
+      
+      # Check 4: FastAPI security dependencies
+      - pattern: "Depends\\(get_current_user\\)|Security\\(|HTTPBearer\\("
+        message: "Using FastAPI's security dependency injection."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - access-control
+    - permissions
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:access-control
+    - standard:owasp-top10
+    - risk:a01-broken-access-control
+  references:
+    - "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
+    - "https://docs.djangoproject.com/en/stable/topics/auth/default/"
+    - "https://flask-login.readthedocs.io/en/latest/"
+    - "https://fastapi.tiangolo.com/tutorial/security/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html"
+</rule> 
