@@ -31,6 +31,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organizing Cursor rule files |
 | [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages and prefixes |
+| [`github-actions-standards.mdc`](.cursor/rules/github-actions-standards.mdc) | Ensures GitHub Actions workflows follow best practices and use the latest action versions |
 | [`govcms-saas.mdc`](.cursor/rules/govcms-saas.mdc) | Defines constraints and best practices for GovCMS Distribution projects focusing on theme-level development. |
 
 ### Frontend Development
