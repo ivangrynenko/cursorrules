@@ -24,33 +24,33 @@ This repository is ideal for:
 
 ## 📥 Installation
 
-### Quick Installation
+### Interactive Installation (Recommended)
 
-You can install Cursor Rules with a single command:
+For a fully interactive installation with prompts:
+
+```bash
+# Step 1: Download the installer
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php -o install.php
+
+# Step 2: Run the installer interactively
+php install.php
+```
+
+This two-step process ensures you get the interactive experience with:
+- Prompts to choose which rule sets to install (Core, Web Stack, Python, or All)
+- Option to specify a custom installation directory
+
+### Quick Non-Interactive Installation
+
+For a quick installation without prompts (installs core rules only):
 
 ```bash
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
 ```
 
-When using the curl piping method above, the installer will automatically install the core rules since interactive mode is not available through piping. For more options, see below.
+⚠️ **Note**: When using the curl piping method above, interactive mode is **not possible** because STDIN is already being used for the script input. The installer will automatically default to installing core rules only.
 
-### Interactive Installation
-
-For an interactive installation experience, download the installer first and then run it:
-
-```bash
-# Download the installer
-curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php -o install.php
-
-# Run the installer interactively
-php install.php
-```
-
-This will launch interactive mode, allowing you to:
-- Choose which rule sets to install (Core, Web Stack, Python, or All)
-- Specify a custom installation directory if needed
-
-### Installation with Options
+### Installation with Specific Options
 
 To install with specific options and bypass the interactive mode:
 
