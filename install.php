@@ -201,8 +201,12 @@ function install_cursor_rules(array $options = []): bool {
     }
   } else if ($option_count === 0 && !$stdin_available) {
     // If STDIN is not available (e.g., when piped through curl), default to core rules
-    echo "Running in non-interactive mode (STDIN not available for input).\n";
-    echo "Defaulting to core rules installation. For more options, use:\n";
+    echo "⚠️ Interactive mode not available when using curl piping (STDIN is already in use).\n";
+    echo "Defaulting to core rules installation.\n\n";
+    echo "For interactive installation with prompts, use the two-step process instead:\n";
+    echo "1. curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php -o install.php\n";
+    echo "2. php install.php\n\n";
+    echo "For specific options without interactive mode, use:\n";
     echo "curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --help\n\n";
     $rules_to_install = $core_rules;
   } else if ($options['all']) {
