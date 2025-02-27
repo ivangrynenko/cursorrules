@@ -140,8 +140,11 @@ function install_cursor_rules(array $options = []): bool {
   // Determine which rules to install.
   $rules_to_install = [];
   
-  // Interactive mode if no specific option is selected and not in auto-yes mode
-  if ($option_count === 0 && !$options['yes']) {
+  // Check if STDIN is available for interactive input
+  $stdin_available = function_exists('stream_isatty') ? stream_isatty(STDIN) : false;
+  
+  // Interactive mode if no specific option is selected and not in auto-yes mode and STDIN is available
+  if ($option_count === 0 && !$options['yes'] && $stdin_available) {
     echo "Welcome to Cursor Rules Installer v" . CURSOR_RULES_VERSION . "\n\n";
     echo "Please select which rules to install:\n";
     echo "1) Core rules only\n";
@@ -196,6 +199,12 @@ function install_cursor_rules(array $options = []): bool {
         echo "Installing to: $custom_path\n";
       }
     }
+  } else if ($option_count === 0 && !$stdin_available) {
+    // If STDIN is not available (e.g., when piped through curl), default to core rules
+    echo "Running in non-interactive mode (STDIN not available for input).\n";
+    echo "Defaulting to core rules installation. For more options, use:\n";
+    echo "curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --help\n\n";
+    $rules_to_install = $core_rules;
   } else if ($options['all']) {
     $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules);
   } elseif ($options['web_stack']) {

@@ -32,7 +32,21 @@ You can install Cursor Rules with a single command:
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
 ```
 
-Running the installer without options will launch interactive mode, allowing you to:
+When using the curl piping method above, the installer will automatically install the core rules since interactive mode is not available through piping. For more options, see below.
+
+### Interactive Installation
+
+For an interactive installation experience, download the installer first and then run it:
+
+```bash
+# Download the installer
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php -o install.php
+
+# Run the installer interactively
+php install.php
+```
+
+This will launch interactive mode, allowing you to:
 - Choose which rule sets to install (Core, Web Stack, Python, or All)
 - Specify a custom installation directory if needed
 
