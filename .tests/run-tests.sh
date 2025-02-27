@@ -35,6 +35,29 @@ print_message() {
   echo -e "${color}${message}${NC}"
 }
 
+# Function to copy a fresh installer to the target path
+get_fresh_installer() {
+  local target_path=${1:-"$INSTALLER_PATH"}
+  print_message "$BLUE" "Copying installer to $target_path..."
+  
+  # Ensure the installer exists
+  if [ ! -f "$INSTALLER_PATH" ]; then
+    print_message "$RED" "Installer not found at $INSTALLER_PATH!"
+    return 1
+  fi
+  
+  # Create directory if it doesn't exist
+  mkdir -p "$(dirname "$target_path")"
+  
+  # Copy the installer
+  cp "$INSTALLER_PATH" "$target_path"
+  if [ $? -ne 0 ]; then
+    print_message "$RED" "Failed to copy installer!"
+    return 1
+  fi
+  return 0
+}
+
 # Function to run a test
 run_test() {
   local test_name=$1
@@ -51,7 +74,14 @@ run_test() {
   local test_dir="$TEMP_DIR/test_$TESTS_TOTAL"
   rm -rf "$test_dir"
   mkdir -p "$test_dir"
-  cp "$INSTALLER_PATH" "$test_dir/"
+  
+  # Copy a fresh installer for this test
+  get_fresh_installer "$test_dir/install.php"
+  if [ $? -ne 0 ]; then
+    print_message "$RED" "✗ Test failed: Could not copy installer"
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+    return 1
+  fi
   
   # Run the command
   cd "$test_dir"
@@ -115,7 +145,7 @@ run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_sta
 # Test 7: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
 
-# Test 8: Invalid Option - Run directly
+# Test 8: Invalid Option
 print_message "$BLUE" "\n=== Running Test: Invalid Option ==="
 echo "Command: php install.php --invalid-option"
 
@@ -123,30 +153,36 @@ echo "Command: php install.php --invalid-option"
 TEST_DIR="$TEMP_DIR/test_invalid_option"
 rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
-cp "$INSTALLER_PATH" "$TEST_DIR/"
 
-# Run the command
-cd "$TEST_DIR"
-php install.php --invalid-option > output.log 2>&1
-EXIT_CODE=$?
-cd "$BASE_DIR"
-
-# Display output
-print_message "$YELLOW" "Command output:"
-cat "$TEST_DIR/output.log"
-print_message "$YELLOW" "Exit code: $EXIT_CODE"
-
-# Check exit code
-if [ $EXIT_CODE -ne 1 ]; then
-  print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
+# Copy a fresh installer for this test
+get_fresh_installer "$TEST_DIR/install.php"
+if [ $? -ne 0 ]; then
+  print_message "$RED" "✗ Test failed: Could not copy installer"
   TESTS_FAILED=$((TESTS_FAILED + 1))
 else
-  print_message "$GREEN" "✓ Test passed: Invalid Option"
-  TESTS_PASSED=$((TESTS_PASSED + 1))
-fi
-TESTS_TOTAL=$((TESTS_TOTAL + 1))
+  # Run the command
+  cd "$TEST_DIR"
+  php install.php --invalid-option > output.log 2>&1
+  EXIT_CODE=$?
+  cd "$BASE_DIR"
 
-# Test 9: Conflicting Options - Run directly
+  # Display output
+  print_message "$YELLOW" "Command output:"
+  cat "$TEST_DIR/output.log"
+  print_message "$YELLOW" "Exit code: $EXIT_CODE"
+
+  # Check exit code
+  if [ $EXIT_CODE -ne 1 ]; then
+    print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+  else
+    print_message "$GREEN" "✓ Test passed: Invalid Option"
+    TESTS_PASSED=$((TESTS_PASSED + 1))
+  fi
+  TESTS_TOTAL=$((TESTS_TOTAL + 1))
+fi
+
+# Test 9: Conflicting Options
 print_message "$BLUE" "\n=== Running Test: Conflicting Options ==="
 echo "Command: php install.php --web-stack --python"
 
@@ -154,28 +190,34 @@ echo "Command: php install.php --web-stack --python"
 TEST_DIR="$TEMP_DIR/test_conflicting_options"
 rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
-cp "$INSTALLER_PATH" "$TEST_DIR/"
 
-# Run the command
-cd "$TEST_DIR"
-php install.php --web-stack --python > output.log 2>&1
-EXIT_CODE=$?
-cd "$BASE_DIR"
-
-# Display output
-print_message "$YELLOW" "Command output:"
-cat "$TEST_DIR/output.log"
-print_message "$YELLOW" "Exit code: $EXIT_CODE"
-
-# Check exit code
-if [ $EXIT_CODE -ne 1 ]; then
-  print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
+# Copy a fresh installer for this test
+get_fresh_installer "$TEST_DIR/install.php"
+if [ $? -ne 0 ]; then
+  print_message "$RED" "✗ Test failed: Could not copy installer"
   TESTS_FAILED=$((TESTS_FAILED + 1))
 else
-  print_message "$GREEN" "✓ Test passed: Conflicting Options"
-  TESTS_PASSED=$((TESTS_PASSED + 1))
+  # Run the command
+  cd "$TEST_DIR"
+  php install.php --web-stack --python > output.log 2>&1
+  EXIT_CODE=$?
+  cd "$BASE_DIR"
+
+  # Display output
+  print_message "$YELLOW" "Command output:"
+  cat "$TEST_DIR/output.log"
+  print_message "$YELLOW" "Exit code: $EXIT_CODE"
+
+  # Check exit code
+  if [ $EXIT_CODE -ne 1 ]; then
+    print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+  else
+    print_message "$GREEN" "✓ Test passed: Conflicting Options"
+    TESTS_PASSED=$((TESTS_PASSED + 1))
+  fi
+  TESTS_TOTAL=$((TESTS_TOTAL + 1))
 fi
-TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 # Print summary
 print_message "$BLUE" "\n=== Test Summary ==="

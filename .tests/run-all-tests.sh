@@ -17,6 +17,29 @@ INSTALLER_PATH="$BASE_DIR/install.php"
 # Import file maps
 source "$BASE_DIR/.tests/file-maps.sh"
 
+# Function to copy a fresh installer to the target path
+get_fresh_installer() {
+  local target_path=${1:-"$INSTALLER_PATH"}
+  print_message "$BLUE" "Copying installer to $target_path..."
+  
+  # Ensure the installer exists
+  if [ ! -f "$INSTALLER_PATH" ]; then
+    print_message "$RED" "Installer not found at $INSTALLER_PATH!"
+    return 1
+  fi
+  
+  # Create directory if it doesn't exist
+  mkdir -p "$(dirname "$target_path")"
+  
+  # Copy the installer
+  cp "$INSTALLER_PATH" "$target_path"
+  if [ $? -ne 0 ]; then
+    print_message "$RED" "Failed to copy installer!"
+    return 1
+  fi
+  return 0
+}
+
 # Test counter
 TESTS_TOTAL=0
 TESTS_PASSED=0
@@ -45,7 +68,14 @@ run_test() {
   local test_dir="$TEMP_DIR/test_$TESTS_TOTAL"
   rm -rf "$test_dir"
   mkdir -p "$test_dir"
-  cp "$INSTALLER_PATH" "$test_dir/"
+  
+  # Copy fresh installer to test directory
+  get_fresh_installer "$test_dir/install.php"
+  if [ $? -ne 0 ]; then
+    print_message "$RED" "Failed to copy installer for test $test_name. Skipping."
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+    return 1
+  fi
   
   # Run the command
   cd "$test_dir"
