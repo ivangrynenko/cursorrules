@@ -67,18 +67,28 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 ### Installation Options
 
 The installer supports the following options:
+- `--core`: Install core rules only
+- `--web-stack`: Install web stack rules (includes core rules)
+- `--python`: Install Python rules (includes core rules)
+- `--all`: Install all rules
+- `--yes` or `-y`: Automatically answer yes to all prompts
+- `--destination=DIR`: Install to a custom directory (default: .cursor/rules)
+- `--debug`: Enable detailed debug output for troubleshooting installation issues
+- `--help` or `-h`: Show help message
 
+### Troubleshooting Installation
+
+If you encounter issues during installation, try running the installer with the debug option:
+
+```bash
+php install.php --debug
 ```
---help, -h           Show help message
---debug              Enable debug mode
---copy-only          Only copy files, don't perform additional setup
---destination=DIR    Specify destination directory (default: .cursor/rules)
---web-stack, -w      Install web stack rules (PHP, Drupal, JavaScript, etc.)
---python, -p         Install Python rules
---all, -a            Install all rules
---core, -c           Install core rules only
---yes, -y            Automatically answer yes to all prompts
-```
+
+This will provide detailed information about what the installer is doing, which can help identify the source of any problems.
+
+Common issues:
+- If only core rules are installed when selecting other options, make sure your internet connection is working properly as the installer needs to download additional rules from GitHub.
+- If you're behind a corporate firewall or proxy, you may need to configure PHP to use your proxy settings.
 
 ### Examples
 
