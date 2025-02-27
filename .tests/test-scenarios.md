@@ -2,13 +2,17 @@
 
 This document outlines the test scenarios for the Cursor Rules installer script.
 
+## ⚠️ Important Note
+
+**Core rules are always included** in all installation types (web-stack, python, all). This ensures that essential functionality such as Git commit standards, readme maintenance standards, and Cursor rules efficiency improvements are available regardless of the selected installation option.
+
 ## CLI Options to Test
 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--web-stack` | `-w` | Install core, web, and Drupal rules |
 | `--python` | `-p` | Install core and Python rules |
-| `--all` | `-a` | Install all rule sets |
+| `--all` | `-a` | Install all rule sets (includes all core, web, Drupal, and Python rules) |
 | `--core` | `-c` | Install only core rules |
 | `--custom` | | Enable selective installation (interactive) |
 | `--help` | `-h` | Display help information |
@@ -29,7 +33,7 @@ This document outlines the test scenarios for the Cursor Rules installer script.
 
 3. **All Rules Installation**
    - Command: `php install.php --all`
-   - Expected: All rule sets installed
+   - Expected: All rule sets installed (core, web, Drupal, and Python)
 
 4. **Core Rules Installation**
    - Command: `php install.php --core`
@@ -37,7 +41,7 @@ This document outlines the test scenarios for the Cursor Rules installer script.
 
 5. **Custom Selection**
    - Command: `php install.php --custom`
-   - Expected: Interactive prompts for selecting rule sets
+   - Expected: Interactive prompts for selecting rule sets (core rules remain mandatory)
 
 6. **Help Information**
    - Command: `php install.php --help`
