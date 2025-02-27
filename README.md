@@ -124,6 +124,8 @@ You can install these rules using one of the following methods:
 
 ### Option 1: Quick Install (Recommended)
 
+> **⚠️ Important Update**: Core rules (cursor-rules, improve-cursorrules-efficiency, git-commit-standards, readme-maintenance-standards) are automatically included in all installation types. This ensures essential functionality is always available regardless of your project type.
+
 Run this command in your project root:
 
 ```sh
@@ -133,9 +135,10 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 This will:
 1. Download and run the installer
 2. Prompt you to select your primary use case:
-   - **Web Stack** (Drupal, PHP, JavaScript, CSS)
-   - **Python** (Python, Django, Flask)
-   - **All Rules** (Install everything)
+   - **Web Stack** (Drupal, PHP, JavaScript, CSS + core rules)
+   - **Python** (Python, Django, Flask + core rules)
+   - **All Rules** (Install everything, includes core rules)
+   - **Core Rules Only** (Install only essential rules)
    - **Custom Selection** (Choose specific rule sets)
 3. Create the `.cursor/rules` directory if it doesn't exist
 4. Install all selected Cursor rules
@@ -147,13 +150,13 @@ This will:
 The installer supports the following command-line options:
 
 ```sh
-# Install Web Stack rules (Drupal, PHP, JS, CSS)
+# Install Web Stack rules (Drupal, PHP, JS, CSS) + Core rules
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --web-stack
 
-# Install Python rules
+# Install Python rules + Core rules
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --python
 
-# Install all rules
+# Install all rules (Core, Web Stack, Python)
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --all
 
 # Install only core rules
@@ -170,10 +173,10 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 ```
 
 Short options are also available:
-- `-w`: Web Stack
-- `-p`: Python
-- `-a`: All rules
-- `-c`: Core rules
+- `-w`: Web Stack (includes core rules)
+- `-p`: Python (includes core rules)
+- `-a`: All rules (includes core rules)
+- `-c`: Core rules only
 - `-y`: Auto-confirm
 - `-q`: Quiet mode
 - `-h`: Help

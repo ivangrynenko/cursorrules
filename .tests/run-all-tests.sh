@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# Cursor Rules Installer Test Runner
-# This script runs tests for the Cursor Rules installer
-
-set -e
+# Combined test script for Cursor Rules installer
 
 # Colors for output
 RED='\033[0;31m'
@@ -11,11 +8,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
-
-# Test counter
-TESTS_TOTAL=0
-TESTS_PASSED=0
-TESTS_FAILED=0
 
 # Base directory
 BASE_DIR=$(pwd)
@@ -25,8 +17,10 @@ INSTALLER_PATH="$BASE_DIR/install.php"
 # Import file maps
 source "$BASE_DIR/.tests/file-maps.sh"
 
-# Create temp directory if it doesn't exist
-mkdir -p "$TEMP_DIR"
+# Test counter
+TESTS_TOTAL=0
+TESTS_PASSED=0
+TESTS_FAILED=0
 
 # Function to print colored output
 print_message() {
@@ -94,6 +88,9 @@ run_test() {
   return 0
 }
 
+# Run the installation tests
+print_message "$BLUE" "Running installation tests..."
+
 # Test 1: Web Stack Installation
 run_test "Web Stack Installation" "php install.php --web-stack --yes" "validate_web_stack"
 
@@ -115,65 +112,34 @@ run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_sta
 # Test 7: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
 
-# Test 8: Invalid Option - Run directly
-print_message "$BLUE" "\n=== Running Test: Invalid Option ==="
-echo "Command: php install.php --invalid-option"
+# Run the error handling tests
+print_message "$BLUE" "Running error handling tests..."
 
-# Create a clean test directory
-TEST_DIR="$TEMP_DIR/test_invalid_option"
-rm -rf "$TEST_DIR"
-mkdir -p "$TEST_DIR"
-cp "$INSTALLER_PATH" "$TEST_DIR/"
-
-# Run the command
-cd "$TEST_DIR"
-php install.php --invalid-option > output.log 2>&1
-EXIT_CODE=$?
-cd "$BASE_DIR"
-
-# Display output
-print_message "$YELLOW" "Command output:"
-cat "$TEST_DIR/output.log"
-print_message "$YELLOW" "Exit code: $EXIT_CODE"
-
-# Check exit code
-if [ $EXIT_CODE -ne 1 ]; then
-  print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
-  TESTS_FAILED=$((TESTS_FAILED + 1))
-else
-  print_message "$GREEN" "✓ Test passed: Invalid Option"
+# Run the individual test scripts
+print_message "$BLUE" "Running invalid option test..."
+./.tests/test-invalid-option.sh
+if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
-# Test 9: Conflicting Options - Run directly
-print_message "$BLUE" "\n=== Running Test: Conflicting Options ==="
-echo "Command: php install.php --web-stack --python"
-
-# Create a clean test directory
-TEST_DIR="$TEMP_DIR/test_conflicting_options"
-rm -rf "$TEST_DIR"
-mkdir -p "$TEST_DIR"
-cp "$INSTALLER_PATH" "$TEST_DIR/"
-
-# Run the command
-cd "$TEST_DIR"
-php install.php --web-stack --python > output.log 2>&1
-EXIT_CODE=$?
-cd "$BASE_DIR"
-
-# Display output
-print_message "$YELLOW" "Command output:"
-cat "$TEST_DIR/output.log"
-print_message "$YELLOW" "Exit code: $EXIT_CODE"
-
-# Check exit code
-if [ $EXIT_CODE -ne 1 ]; then
-  print_message "$RED" "✗ Test failed: Expected exit code 1, got $EXIT_CODE"
-  TESTS_FAILED=$((TESTS_FAILED + 1))
-else
-  print_message "$GREEN" "✓ Test passed: Conflicting Options"
+print_message "$BLUE" "Running conflicting options test..."
+./.tests/test-conflicting-options.sh
+if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running missing file detection test..."
+./.tests/test-missing-files.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
