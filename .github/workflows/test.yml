@@ -16,7 +16,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Set up PHP ${{ matrix.php-version }}
       uses: shivammathur/setup-php@v2
@@ -110,7 +110,7 @@ jobs:
         
     - name: Upload test logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-logs-php-${{ matrix.php-version }}
         path: |

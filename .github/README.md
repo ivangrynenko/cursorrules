@@ -32,7 +32,9 @@ The workflow generates a test summary and uploads test logs as artifacts, which 
 
 ## Local Testing
 
-To run the tests locally:
+You can run the tests locally in two ways:
+
+### Option 1: Direct Script Execution
 
 ```bash
 # Run all tests
@@ -46,10 +48,30 @@ To run the tests locally:
 ./.tests/test-missing-files.sh
 ```
 
+### Option 2: Using GitHub Actions Locally
+
+You can test the GitHub Actions workflow locally using [act](https://github.com/nektos/act):
+
+```bash
+# Run the entire workflow
+./.github/test-workflow-locally.sh
+
+# Run a specific job
+./.github/test-workflow-locally.sh --job test
+```
+
+For detailed instructions on local testing, see [TESTING.md](TESTING.md).
+
 ## Workflow Configuration
 
 The workflow is configured to:
 - Run on PHP 8.1 and 8.2
 - Validate PHP syntax
 - Generate detailed test reports
-- Upload test logs as artifacts 
+- Upload test logs as artifacts
+
+## Best Practices
+
+- Always use the latest versions of GitHub Actions (e.g., `actions/checkout@v4`, `actions/upload-artifact@v4`)
+- Test workflow changes locally before pushing to GitHub
+- Keep workflow steps modular and well-documented 
