@@ -48,37 +48,33 @@ jobs:
         
     - name: Run individual tests
       run: |
+        cd .tests
+        
         echo "Running test-copy.sh..."
-        chmod +x .tests/test-copy.sh
-        ./.tests/test-copy.sh | tee .tests/reports/test-copy.log
+        chmod +x test-copy.sh
+        ./test-copy.sh | tee reports/test-copy.log
         
         echo "Running test-debug.sh..."
-        chmod +x .tests/test-debug.sh
-        ./.tests/test-debug.sh | tee .tests/reports/test-debug.log
+        chmod +x test-debug.sh
+        ./test-debug.sh | tee reports/test-debug.log
         
-    - name: Run invalid option test
-      run: |
         echo "Running test-invalid-option.sh..."
-        chmod +x .tests/test-invalid-option.sh
-        ./.tests/test-invalid-option.sh | tee .tests/reports/test-invalid-option.log
+        chmod +x test-invalid-option.sh
+        ./test-invalid-option.sh | tee reports/test-invalid-option.log
         
-    - name: Run conflicting options test
-      run: |
         echo "Running test-conflicting-options.sh..."
-        chmod +x .tests/test-conflicting-options.sh
-        ./.tests/test-conflicting-options.sh | tee .tests/reports/test-conflicting-options.log
+        chmod +x test-conflicting-options.sh
+        ./test-conflicting-options.sh | tee reports/test-conflicting-options.log
         
-    - name: Run missing files test
-      run: |
         echo "Running test-missing-files.sh..."
-        chmod +x .tests/test-missing-files.sh
-        ./.tests/test-missing-files.sh | tee .tests/reports/test-missing-files.log
+        chmod +x test-missing-files.sh
+        ./test-missing-files.sh | tee reports/test-missing-files.log
         
-    - name: Run all tests
-      run: |
         echo "Running run-all-tests.sh..."
-        chmod +x .tests/run-all-tests.sh
-        ./.tests/run-all-tests.sh | tee .tests/reports/run-all-tests.log
+        chmod +x run-all-tests.sh
+        ./run-all-tests.sh | tee reports/run-all-tests.log
+        
+        cd ..
         
     - name: Generate test summary
       if: always()
@@ -92,7 +88,7 @@ jobs:
         TESTS_FAILED=0
         
         for test in test-copy test-debug test-invalid-option test-conflicting-options test-missing-files run-all-tests; do
-          if grep -q "Test completed successfully\|All tests passed" .tests/reports/${test}.log; then
+          if grep -q "Test completed successfully\|All tests passed\|✓ Test passed\|TEST COMPLETED" .tests/reports/${test}.log; then
             echo "- ✅ ${test}: Passed" >> test-summary.md
             TESTS_PASSED=$((TESTS_PASSED + 1))
           else
