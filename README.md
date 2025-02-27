@@ -29,7 +29,25 @@ This repository is ideal for:
 You can install Cursor Rules with a single command:
 
 ```bash
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
+```
+
+Running the installer without options will launch interactive mode, allowing you to:
+- Choose which rule sets to install (Core, Web Stack, Python, or All)
+- Specify a custom installation directory if needed
+
+### Installation with Options
+
+To install with specific options and bypass the interactive mode:
+
+```bash
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- [options]
+```
+
+For example, to install all rules:
+
+```bash
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --all
 ```
 
 ### Installation Options
