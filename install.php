@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 // Define constants.
-define('CURSOR_RULES_VERSION', '1.0.0');
+define('CURSOR_RULES_VERSION', '1.0.2');
 define('CURSOR_RULES_DIR', '.cursor/rules');
 define('CURSOR_DIR', '.cursor');
 
@@ -156,6 +156,20 @@ function install_cursor_rules(array $options = []): bool {
   // Find the source directory containing the rule files
   $script_dir = dirname(__FILE__);
   
+  // Define a function to check if a directory contains at least some of the rule files
+  function is_valid_source_dir($dir, $rule_files, $min_files = 3) {
+    $found_files = 0;
+    foreach ($rule_files as $file) {
+      if (file_exists($dir . '/' . $file)) {
+        $found_files++;
+        if ($found_files >= $min_files) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
   $possible_source_dirs = [
     // Try current directory first
     getcwd() . '/.cursor/rules',
@@ -188,18 +202,82 @@ function install_cursor_rules(array $options = []): bool {
     $possible_source_dirs = array_merge($test_paths, $possible_source_dirs);
   }
   
+  // Try to download rules from GitHub if no local source is found
+  $github_source = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/rules/';
+  $temp_dir = sys_get_temp_dir() . '/cursor-rules-' . uniqid();
+  
   $source_dir = null;
   foreach ($possible_source_dirs as $dir) {
     if ($options['debug']) {
       echo "Checking for source directory: $dir\n";
     }
     
-    if (is_dir($dir)) {
+    if (is_dir($dir) && is_valid_source_dir($dir, $core_rules)) {
       $source_dir = $dir;
       if ($options['debug']) {
-        echo "Found source directory: $dir\n";
+        echo "Found valid source directory: $dir\n";
       }
       break;
+    }
+  }
+  
+  // If no local source found, try to download from GitHub
+  if ($source_dir === null) {
+    if ($options['debug']) {
+      echo "No local source found, attempting to download from GitHub...\n";
+    }
+    
+    if (!mkdir($temp_dir, 0755, true)) {
+      echo "Error: Failed to create temporary directory.\n";
+      return false;
+    }
+    
+    $download_success = true;
+    
+    // Download core rules first to validate the source
+    foreach ($core_rules as $rule_file) {
+      $url = $github_source . $rule_file;
+      $content = @file_get_contents($url);
+      
+      if ($content === false) {
+        $download_success = false;
+        break;
+      }
+      
+      file_put_contents($temp_dir . '/' . $rule_file, $content);
+    }
+    
+    if ($download_success) {
+      $source_dir = $temp_dir;
+      
+      // Download the rest of the rules based on options
+      $additional_rules = [];
+      if ($options['all'] || $options['web_stack']) {
+        $additional_rules = array_merge($additional_rules, $web_stack_rules);
+      }
+      if ($options['all'] || $options['python']) {
+        $additional_rules = array_merge($additional_rules, $python_rules);
+      }
+      
+      foreach ($additional_rules as $rule_file) {
+        $url = $github_source . $rule_file;
+        $content = @file_get_contents($url);
+        
+        if ($content !== false) {
+          file_put_contents($temp_dir . '/' . $rule_file, $content);
+        }
+      }
+      
+      if ($options['debug']) {
+        echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
+      }
+    } else {
+      // Clean up temp directory
+      @rmdir($temp_dir);
+      
+      echo "Error: Could not download rules from GitHub. Please check your internet connection or try again later.\n";
+      echo "Alternatively, you can manually download the rules from https://github.com/ivangrynenko/cursor-rules\n";
+      return false;
     }
   }
   
@@ -218,8 +296,66 @@ function install_cursor_rules(array $options = []): bool {
   
   // Ensure destination directory is not the same as source directory
   if (realpath($source_dir) === realpath($destination_dir)) {
-    echo "Error: Source and destination directories are the same.\n";
-    return false;
+    if ($options['debug']) {
+      echo "Source and destination directories are the same, downloading from GitHub instead...\n";
+    }
+    
+    // Create a temporary directory for downloading rules
+    $temp_dir = sys_get_temp_dir() . '/cursor-rules-' . uniqid();
+    if (!mkdir($temp_dir, 0755, true)) {
+      echo "Error: Failed to create temporary directory.\n";
+      return false;
+    }
+    
+    $download_success = true;
+    $github_source = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/rules/';
+    
+    // Download core rules first to validate the source
+    foreach ($core_rules as $rule_file) {
+      $url = $github_source . $rule_file;
+      $content = @file_get_contents($url);
+      
+      if ($content === false) {
+        $download_success = false;
+        break;
+      }
+      
+      file_put_contents($temp_dir . '/' . $rule_file, $content);
+    }
+    
+    if ($download_success) {
+      // Set the source directory to the temporary directory
+      $source_dir = $temp_dir;
+      
+      // Download the rest of the rules based on options
+      $additional_rules = [];
+      if ($options['all'] || $options['web_stack']) {
+        $additional_rules = array_merge($additional_rules, $web_stack_rules);
+      }
+      if ($options['all'] || $options['python']) {
+        $additional_rules = array_merge($additional_rules, $python_rules);
+      }
+      
+      foreach ($additional_rules as $rule_file) {
+        $url = $github_source . $rule_file;
+        $content = @file_get_contents($url);
+        
+        if ($content !== false) {
+          file_put_contents($temp_dir . '/' . $rule_file, $content);
+        }
+      }
+      
+      if ($options['debug']) {
+        echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
+      }
+    } else {
+      // Clean up temp directory
+      @rmdir($temp_dir);
+      
+      echo "Error: Could not download rules from GitHub. Please check your internet connection or try again later.\n";
+      echo "Alternatively, you can manually download the rules from https://github.com/ivangrynenko/cursor-rules\n";
+      return false;
+    }
   }
   
   $copied_count = 0;
@@ -254,6 +390,27 @@ function install_cursor_rules(array $options = []): bool {
   
   if ($options['debug']) {
     echo "Copied $copied_count files, failed to copy $failed_count files.\n";
+  }
+  
+  // Inform the user if we're updating existing rules
+  if (isset($temp_dir) && strpos($source_dir, $temp_dir) === 0 && is_dir($destination_dir)) {
+    echo "Updated existing Cursor Rules with the latest version.\n";
+  }
+  
+  // Clean up temporary directory if it was created
+  if (isset($temp_dir) && strpos($source_dir, $temp_dir) === 0) {
+    if ($options['debug']) {
+      echo "Cleaning up temporary directory: $temp_dir\n";
+    }
+    
+    // Remove all files in the temp directory
+    $files = glob($temp_dir . '/*');
+    foreach ($files as $file) {
+      @unlink($file);
+    }
+    
+    // Remove the directory
+    @rmdir($temp_dir);
   }
   
   return true;
