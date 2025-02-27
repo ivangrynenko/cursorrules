@@ -24,6 +24,29 @@ print_message() {
   echo -e "${color}${message}${NC}"
 }
 
+# Function to copy a fresh installer to the target path
+get_fresh_installer() {
+  local target_path=${1:-"$INSTALLER_PATH"}
+  print_message "$BLUE" "Copying installer to $target_path..."
+  
+  # Ensure the installer exists
+  if [ ! -f "$INSTALLER_PATH" ]; then
+    print_message "$RED" "Installer not found at $INSTALLER_PATH!"
+    return 1
+  fi
+  
+  # Create directory if it doesn't exist
+  mkdir -p "$(dirname "$target_path")"
+  
+  # Copy the installer
+  cp "$INSTALLER_PATH" "$target_path"
+  if [ $? -ne 0 ]; then
+    print_message "$RED" "Failed to copy installer!"
+    return 1
+  fi
+  return 0
+}
+
 # Test the invalid option case
 print_message "$BLUE" "\n=== Running Test: Invalid Option ==="
 echo "Command: php install.php --invalid-option"
@@ -32,7 +55,13 @@ echo "Command: php install.php --invalid-option"
 TEST_DIR="$TEMP_DIR/test_invalid_option"
 rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
-cp "$INSTALLER_PATH" "$TEST_DIR/"
+
+# Copy fresh installer to test directory
+get_fresh_installer "$TEST_DIR/install.php"
+if [ $? -ne 0 ]; then
+  print_message "$RED" "Failed to copy installer. Skipping test."
+  exit 1
+fi
 
 # Run the command
 cd "$TEST_DIR"
