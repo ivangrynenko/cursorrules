@@ -132,9 +132,51 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 
 This will:
 1. Download and run the installer
-2. Create the `.cursor/rules` directory if it doesn't exist
-3. Install all Cursor rules
-4. Remove the installer script automatically
+2. Prompt you to select your primary use case:
+   - **Web Stack** (Drupal, PHP, JavaScript, CSS)
+   - **Python** (Python, Django, Flask)
+   - **All Rules** (Install everything)
+   - **Custom Selection** (Choose specific rule sets)
+3. Create the `.cursor/rules` directory if it doesn't exist
+4. Install all selected Cursor rules
+5. Install the UPDATE.md file with instructions for future updates
+6. Remove the installer script automatically
+
+#### CLI Options
+
+The installer supports the following command-line options:
+
+```sh
+# Install Web Stack rules (Drupal, PHP, JS, CSS)
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --web-stack
+
+# Install Python rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --python
+
+# Install all rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --all
+
+# Install only core rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --core
+
+# Auto-confirm all prompts
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --yes
+
+# Quiet mode (minimal output)
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --quiet
+
+# Combine options
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --web-stack --yes --quiet
+```
+
+Short options are also available:
+- `-w`: Web Stack
+- `-p`: Python
+- `-a`: All rules
+- `-c`: Core rules
+- `-y`: Auto-confirm
+- `-q`: Quiet mode
+- `-h`: Help
 
 ### Option 2: Manual Installation
 
@@ -148,9 +190,14 @@ cd cursor-rules
 ```sh
 mkdir -p .cursor/rules
 cp .cursor/rules/*.mdc .cursor/rules/
+cp .cursor/UPDATE.md .cursor/
 ```
 
 After installation, the rules will automatically be used by Cursor AI in your workflow.
+
+### Updating Cursor Rules
+
+For information on updating your cursor rules, see the `.cursor/UPDATE.md` file that is installed along with the rules, or run the installer script again.
 
 ## 🤖 Using Cursor AI
 
