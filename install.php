@@ -168,16 +168,25 @@ function install_cursor_rules(array $options = []): bool {
           $rules_to_install = array_merge($core_rules, $web_stack_rules);
           $valid_choice = true;
           echo "Installing web stack rules...\n";
+          if ($options['debug']) {
+            echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack)\n";
+          }
           break;
         case '3':
           $rules_to_install = array_merge($core_rules, $python_rules);
           $valid_choice = true;
           echo "Installing Python rules...\n";
+          if ($options['debug']) {
+            echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($python_rules) . " python)\n";
+          }
           break;
         case '4':
           $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules);
           $valid_choice = true;
           echo "Installing all rules...\n";
+          if ($options['debug']) {
+            echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack + " . count($python_rules) . " python)\n";
+          }
           break;
         case '5':
           echo "Installation cancelled.\n";
@@ -226,6 +235,15 @@ function install_cursor_rules(array $options = []): bool {
     return false;
   }
   
+  // Add debug output for rules to install
+  if ($options['debug']) {
+    echo "\nRules to install (" . count($rules_to_install) . " total):\n";
+    foreach ($rules_to_install as $index => $rule) {
+      echo ($index + 1) . ". $rule\n";
+    }
+    echo "\n";
+  }
+  
   $possible_source_dirs = [
     // Try current directory first
     getcwd() . '/.cursor/rules',
@@ -262,13 +280,10 @@ function install_cursor_rules(array $options = []): bool {
   $github_source = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/rules/';
   $temp_dir = sys_get_temp_dir() . '/cursor-rules-' . uniqid();
   
+  // Find a valid source directory
   $source_dir = null;
   foreach ($possible_source_dirs as $dir) {
-    if ($options['debug']) {
-      echo "Checking for source directory: $dir\n";
-    }
-    
-    if (is_dir($dir) && is_valid_source_dir($dir, $core_rules)) {
+    if (is_valid_source_dir($dir, $core_rules)) {
       $source_dir = $dir;
       if ($options['debug']) {
         echo "Found valid source directory: $dir\n";
@@ -290,40 +305,31 @@ function install_cursor_rules(array $options = []): bool {
     
     $download_success = true;
     
-    // Download core rules first to validate the source
-    foreach ($core_rules as $rule_file) {
+    // Download all rules that need to be installed
+    if ($options['debug']) {
+      echo "Downloading " . count($rules_to_install) . " rules from GitHub...\n";
+    }
+    
+    foreach ($rules_to_install as $rule_file) {
       $url = $github_source . $rule_file;
       $content = @file_get_contents($url);
       
       if ($content === false) {
-        $download_success = false;
-        break;
+        if ($options['debug']) {
+          echo "Failed to download: $rule_file\n";
+        }
+        continue;
       }
       
       file_put_contents($temp_dir . '/' . $rule_file, $content);
+      if ($options['debug']) {
+        echo "Downloaded: $rule_file\n";
+      }
     }
     
-    if ($download_success) {
+    // Verify we have at least the core rules
+    if (is_valid_source_dir($temp_dir, $core_rules)) {
       $source_dir = $temp_dir;
-      
-      // Download the rest of the rules based on options
-      $additional_rules = [];
-      if ($options['all'] || $options['web_stack']) {
-        $additional_rules = array_merge($additional_rules, $web_stack_rules);
-      }
-      if ($options['all'] || $options['python']) {
-        $additional_rules = array_merge($additional_rules, $python_rules);
-      }
-      
-      foreach ($additional_rules as $rule_file) {
-        $url = $github_source . $rule_file;
-        $content = @file_get_contents($url);
-        
-        if ($content !== false) {
-          file_put_contents($temp_dir . '/' . $rule_file, $content);
-        }
-      }
-      
       if ($options['debug']) {
         echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
       }
@@ -337,6 +343,7 @@ function install_cursor_rules(array $options = []): bool {
     }
   }
   
+  // Final check to ensure we have a valid source directory
   if ($source_dir === null) {
     echo "Error: Could not find source directory containing rule files.\n";
     if ($options['debug']) {
@@ -366,41 +373,31 @@ function install_cursor_rules(array $options = []): bool {
     $download_success = true;
     $github_source = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/rules/';
     
-    // Download core rules first to validate the source
-    foreach ($core_rules as $rule_file) {
+    // Download all rules that need to be installed
+    if ($options['debug']) {
+      echo "Downloading " . count($rules_to_install) . " rules from GitHub...\n";
+    }
+    
+    foreach ($rules_to_install as $rule_file) {
       $url = $github_source . $rule_file;
       $content = @file_get_contents($url);
       
       if ($content === false) {
-        $download_success = false;
-        break;
+        if ($options['debug']) {
+          echo "Failed to download: $rule_file\n";
+        }
+        continue;
       }
       
       file_put_contents($temp_dir . '/' . $rule_file, $content);
+      if ($options['debug']) {
+        echo "Downloaded: $rule_file\n";
+      }
     }
     
-    if ($download_success) {
-      // Set the source directory to the temporary directory
+    // Verify we have at least the core rules
+    if (is_valid_source_dir($temp_dir, $core_rules)) {
       $source_dir = $temp_dir;
-      
-      // Download the rest of the rules based on options
-      $additional_rules = [];
-      if ($options['all'] || $options['web_stack']) {
-        $additional_rules = array_merge($additional_rules, $web_stack_rules);
-      }
-      if ($options['all'] || $options['python']) {
-        $additional_rules = array_merge($additional_rules, $python_rules);
-      }
-      
-      foreach ($additional_rules as $rule_file) {
-        $url = $github_source . $rule_file;
-        $content = @file_get_contents($url);
-        
-        if ($content !== false) {
-          file_put_contents($temp_dir . '/' . $rule_file, $content);
-        }
-      }
-      
       if ($options['debug']) {
         echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
       }
@@ -590,4 +587,84 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
     echo "Installation failed!\n";
     exit(1);
   }
+}
+
+// Parse command line arguments.
+function parse_args() {
+  global $argv;
+  
+  $options = [
+    'yes' => false,
+    'core' => false,
+    'web_stack' => false,
+    'python' => false,
+    'all' => false,
+    'destination' => getcwd() . '/.cursor/rules',
+    'debug' => false,
+  ];
+  
+  $option_count = 0;
+  
+  if (isset($argv) && count($argv) > 1) {
+    for ($i = 1; $i < count($argv); $i++) {
+      $arg = $argv[$i];
+      
+      switch ($arg) {
+        case '--help':
+        case '-h':
+          echo "Usage: php install.php [options]\n";
+          echo "Options:\n";
+          echo "  --help, -h          Show this help message\n";
+          echo "  --yes, -y           Automatically answer yes to all prompts\n";
+          echo "  --core              Install core rules only\n";
+          echo "  --web-stack         Install web stack rules (includes core rules)\n";
+          echo "  --python            Install Python rules (includes core rules)\n";
+          echo "  --all               Install all rules\n";
+          echo "  --destination=DIR   Install to a custom directory (default: .cursor/rules)\n";
+          echo "  --debug             Enable debug output for troubleshooting\n";
+          exit(0);
+        
+        case '--yes':
+        case '-y':
+          $options['yes'] = true;
+          break;
+        
+        case '--core':
+          $options['core'] = true;
+          $option_count++;
+          break;
+        
+        case '--web-stack':
+          $options['web_stack'] = true;
+          $option_count++;
+          break;
+        
+        case '--python':
+          $options['python'] = true;
+          $option_count++;
+          break;
+        
+        case '--all':
+          $options['all'] = true;
+          $option_count++;
+          break;
+          
+        case '--debug':
+          $options['debug'] = true;
+          break;
+        
+        default:
+          // Check for --destination=DIR format
+          if (str_starts_with($arg, '--destination=')) {
+            $options['destination'] = substr($arg, 14);
+          } else {
+            echo "Warning: Unknown option '$arg'\n";
+            exit(1);
+          }
+          break;
+      }
+    }
+  }
+  
+  return [$options, $option_count];
 } 
