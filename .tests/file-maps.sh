@@ -10,6 +10,7 @@ CORE_FILES=(
   "git-commit-standards.mdc"
   "readme-maintenance-standards.mdc"
   "github-actions-standards.mdc"
+  "testing-guidelines.mdc"
 )
 
 # Web rules

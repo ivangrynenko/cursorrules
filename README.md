@@ -141,6 +141,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages with proper prefixes and formatting |
 | [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Ensures README documentation is comprehensive and up-to-date |
 | [`github-actions-standards.mdc`](.cursor/rules/github-actions-standards.mdc) | Ensures GitHub Actions workflows follow best practices |
+| [`testing-guidelines.mdc`](.cursor/rules/testing-guidelines.mdc) | Ensures proper testing practices and separation between test and production code |
 
 ### Web Development Rules
 

@@ -1,0 +1,79 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Testing Guidelines
+
+Ensures proper testing practices and separation between test and production code.
+
+<rule>
+name: testing_guidelines
+description: Enforce standards for testing, test-production separation, and test documentation
+filters:
+  - type: file_extension
+    pattern: "\\.(php|js|ts|py|jsx|tsx|vue)$"
+  - type: file_path
+    pattern: "tests/|Test\\.php$|test\\.js$|\\.spec\\.|__tests__/"
+
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "\\btest\\b.*\\bproduction\\b.*\\bcode\\b"
+        message: "Maintain strict separation between test code and production code."
+
+      - pattern: "\\bmock\\b.*\\bproduction\\b"
+        message: "Use dependency injection or interfaces to swap real components with mocks or stubs in tests."
+
+      - pattern: "\\btest\\b.*\\bmodify\\b.*\\bproduction\\b"
+        message: "Document and justify any change made to production code solely for testing purposes."
+
+      - pattern: "\\btest\\b.*\\bdocumentation\\b"
+        message: "Write tests to validate behaviors as documented in product or code documentation."
+
+  - type: suggest
+    message: |
+      **Testing Best Practices:**
+      
+      **1. Test-Production Separation:**
+      - Place test code in dedicated test directories or modules, separate from production code.
+      - Allow test-specific helpers or hooks only in a controlled manner (e.g., via clearly isolated interfaces or configurations).
+      - Production code should remain unchanged for testing, unless using approved test extension points.
+      
+      **2. Testability (Mocks and Stubs):**
+      - Prefer dependency injection or interfaces to swap real components with mocks or stubs in tests.
+      - Avoid duplicating production logic in test code; tests should call into production code or use simplified mocks rather than reimplementing logic.
+      - Consider using test doubles (mocks, stubs, fakes) to isolate the code under test from external dependencies.
+      
+      **3. Exception Handling:**
+      - Document and justify any change made to production code solely for testing purposes.
+      - Obtain approval through a formal review process (e.g., code review by senior developers or architects) for such changes.
+      - Ensure that any approved change does not alter the intended functionality of the production code.
+      
+      **4. Documentation Alignment:**
+      - Write tests to validate behaviors as documented in product or code documentation.
+      - If a test reveals a discrepancy between actual behavior and documentation, address it by updating the documentation via the normal process, not by changing production code to fit tests.
+      - Keep production code comments and descriptions unchanged during testing; refine tests or documentation instead to resolve mismatches.
+      
+      **5. Industry Best Practices:**
+      - Clearly delineate test types (unit, integration, end-to-end) and ensure each is executed in appropriate environments.
+      - Isolate tests to avoid side effects, and clean up any test data or state after execution.
+      - Integrate tests into continuous integration workflows to run automatically without requiring changes to production code.
+      - Follow the Arrange-Act-Assert (AAA) pattern for structuring test cases.
+      - Ensure tests are deterministic and do not depend on external state or timing.
+
+  - type: validate
+    conditions:
+      - pattern: "test\\s+class\\s+\\w+\\s*\\{"
+        message: "Ensure test classes follow naming conventions and are placed in appropriate test directories."
+
+      - pattern: "assert|expect|should"
+        message: "Include proper assertions in test methods to validate expected behavior."
+
+      - pattern: "setUp|tearDown|beforeEach|afterEach"
+        message: "Consider using setup and teardown methods to manage test state and avoid duplication."
+
+metadata:
+  priority: high
+  version: 1.1
+</rule> 

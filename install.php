@@ -95,6 +95,7 @@ function install_cursor_rules(array $options = []): bool {
     'git-commit-standards.mdc',
     'readme-maintenance-standards.mdc',
     'github-actions-standards.mdc',
+    'testing-guidelines.mdc',
   ];
   
   $web_stack_rules = [
@@ -333,6 +334,15 @@ function install_cursor_rules(array $options = []): bool {
         if ($options['debug']) {
           echo "Failed to download: $rule_file\n";
         }
+        
+        // Check if the file exists locally in the destination directory
+        if (file_exists($options['destination'] . '/' . $rule_file)) {
+          if ($options['debug']) {
+            echo "File exists locally, will use local copy: $rule_file\n";
+          }
+          // Copy the local file to the temp directory
+          copy($options['destination'] . '/' . $rule_file, $temp_dir . '/' . $rule_file);
+        }
         continue;
       }
       
@@ -400,6 +410,15 @@ function install_cursor_rules(array $options = []): bool {
       if ($content === false) {
         if ($options['debug']) {
           echo "Failed to download: $rule_file\n";
+        }
+        
+        // Check if the file exists locally in the destination directory
+        if (file_exists($destination_dir . '/' . $rule_file)) {
+          if ($options['debug']) {
+            echo "File exists locally, will use local copy: $rule_file\n";
+          }
+          // Copy the local file to the temp directory
+          copy($destination_dir . '/' . $rule_file, $temp_dir . '/' . $rule_file);
         }
         continue;
       }
