@@ -223,15 +223,30 @@ function install_cursor_rules(array $options = []): bool {
   
   // Define a function to check if a directory contains at least some of the rule files
   function is_valid_source_dir($dir, $rule_files, $min_files = 3) {
+    global $options;
     $found_files = 0;
+    
+    if (isset($options['debug']) && $options['debug']) {
+      echo "Checking if directory is valid source: $dir\n";
+      echo "Looking for at least $min_files of " . count($rule_files) . " rule files\n";
+    }
+    
     foreach ($rule_files as $file) {
       if (file_exists($dir . '/' . $file)) {
         $found_files++;
+        if (isset($options['debug']) && $options['debug']) {
+          echo "  Found rule file: $file\n";
+        }
         if ($found_files >= $min_files) {
           return true;
         }
       }
     }
+    
+    if (isset($options['debug']) && $options['debug']) {
+      echo "  Found only $found_files files, need at least $min_files\n";
+    }
+    
     return false;
   }
   
@@ -283,7 +298,7 @@ function install_cursor_rules(array $options = []): bool {
   // Find a valid source directory
   $source_dir = null;
   foreach ($possible_source_dirs as $dir) {
-    if (is_valid_source_dir($dir, $core_rules)) {
+    if (is_valid_source_dir($dir, $rules_to_install)) {
       $source_dir = $dir;
       if ($options['debug']) {
         echo "Found valid source directory: $dir\n";
@@ -328,7 +343,7 @@ function install_cursor_rules(array $options = []): bool {
     }
     
     // Verify we have at least the core rules
-    if (is_valid_source_dir($temp_dir, $core_rules)) {
+    if (is_valid_source_dir($temp_dir, $rules_to_install)) {
       $source_dir = $temp_dir;
       if ($options['debug']) {
         echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
@@ -396,7 +411,7 @@ function install_cursor_rules(array $options = []): bool {
     }
     
     // Verify we have at least the core rules
-    if (is_valid_source_dir($temp_dir, $core_rules)) {
+    if (is_valid_source_dir($temp_dir, $rules_to_install)) {
       $source_dir = $temp_dir;
       if ($options['debug']) {
         echo "Successfully downloaded rules from GitHub to: $temp_dir\n";
