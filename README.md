@@ -38,7 +38,7 @@ php install.php
 
 This two-step process ensures you get the interactive experience with:
 - Prompts to choose which rule sets to install (Core, Web Stack, Python, or All)
-- Option to specify a custom installation directory
+- Option to remove the installer file after installation (defaults to yes)
 
 ### Quick Non-Interactive Installation
 
