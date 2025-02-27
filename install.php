@@ -186,19 +186,6 @@ function install_cursor_rules(array $options = []): bool {
           echo "Invalid choice. Please enter a number between 1 and 5.\n";
       }
     }
-    
-    // Ask for custom destination
-    echo "\nWould you like to install to a custom directory? (default: .cursor/rules) [y/N]: ";
-    $custom_dest = strtolower(trim(fgets(STDIN)));
-    
-    if ($custom_dest === 'y' || $custom_dest === 'yes') {
-      echo "Enter destination directory: ";
-      $custom_path = trim(fgets(STDIN));
-      if (!empty($custom_path)) {
-        $options['destination'] = $custom_path;
-        echo "Installing to: $custom_path\n";
-      }
-    }
   } else if ($option_count === 0 && !$stdin_available) {
     // If STDIN is not available (e.g., when piped through curl), default to core rules
     echo "⚠️ Interactive mode not available when using curl piping (STDIN is already in use).\n";
@@ -578,6 +565,26 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
   // Output result.
   if ($result) {
     echo "Cursor Rules installed successfully!\n";
+    
+    // Check if we should prompt to remove the installer file
+    $stdin_available = function_exists('stream_isatty') ? stream_isatty(STDIN) : false;
+    $script_path = $_SERVER['SCRIPT_FILENAME'] ?? __FILE__;
+    
+    if ($stdin_available && file_exists($script_path) && basename($script_path) === 'install.php') {
+      echo "\nWould you like to remove the installer file? (Y/n): ";
+      $remove_installer = strtolower(trim(fgets(STDIN)));
+      
+      if ($remove_installer === '' || $remove_installer === 'y' || $remove_installer === 'yes') {
+        if (unlink($script_path)) {
+          echo "Installer file removed successfully.\n";
+        } else {
+          echo "Failed to remove installer file. You may delete it manually.\n";
+        }
+      } else {
+        echo "Installer file kept. You may remove it manually if needed.\n";
+      }
+    }
+    
     exit(0);
   } else {
     echo "Installation failed!\n";
