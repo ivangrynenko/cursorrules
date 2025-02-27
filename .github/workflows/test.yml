@@ -1,0 +1,119 @@
+name: Cursor Rules Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: [8.1, 8.2]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up PHP ${{ matrix.php-version }}
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mbstring, xml
+        coverage: none
+        tools: composer:v2
+    
+    - name: Validate PHP syntax
+      run: |
+        echo "Validating PHP syntax of installer..."
+        php -l install.php
+        
+    - name: Validate installer file exists
+      run: |
+        if [ ! -f "install.php" ]; then
+          echo "Error: install.php not found!"
+          exit 1
+        fi
+        echo "Installer file found:"
+        ls -la install.php
+    
+    - name: Prepare test environment
+      run: |
+        mkdir -p .tests/temp
+        mkdir -p .tests/reports
+        chmod -R 755 .tests
+        
+    - name: Run individual tests
+      run: |
+        echo "Running test-copy.sh..."
+        chmod +x .tests/test-copy.sh
+        ./.tests/test-copy.sh | tee .tests/reports/test-copy.log
+        
+        echo "Running test-debug.sh..."
+        chmod +x .tests/test-debug.sh
+        ./.tests/test-debug.sh | tee .tests/reports/test-debug.log
+        
+    - name: Run invalid option test
+      run: |
+        echo "Running test-invalid-option.sh..."
+        chmod +x .tests/test-invalid-option.sh
+        ./.tests/test-invalid-option.sh | tee .tests/reports/test-invalid-option.log
+        
+    - name: Run conflicting options test
+      run: |
+        echo "Running test-conflicting-options.sh..."
+        chmod +x .tests/test-conflicting-options.sh
+        ./.tests/test-conflicting-options.sh | tee .tests/reports/test-conflicting-options.log
+        
+    - name: Run missing files test
+      run: |
+        echo "Running test-missing-files.sh..."
+        chmod +x .tests/test-missing-files.sh
+        ./.tests/test-missing-files.sh | tee .tests/reports/test-missing-files.log
+        
+    - name: Run all tests
+      run: |
+        echo "Running run-all-tests.sh..."
+        chmod +x .tests/run-all-tests.sh
+        ./.tests/run-all-tests.sh | tee .tests/reports/run-all-tests.log
+        
+    - name: Generate test summary
+      if: always()
+      run: |
+        echo "# Cursor Rules Test Results" > test-summary.md
+        echo "## PHP Version: ${{ matrix.php-version }}" >> test-summary.md
+        echo "## Test Results" >> test-summary.md
+        
+        # Check each test result
+        TESTS_PASSED=0
+        TESTS_FAILED=0
+        
+        for test in test-copy test-debug test-invalid-option test-conflicting-options test-missing-files run-all-tests; do
+          if grep -q "Test completed successfully\|All tests passed" .tests/reports/${test}.log; then
+            echo "- ✅ ${test}: Passed" >> test-summary.md
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+          else
+            echo "- ❌ ${test}: Failed" >> test-summary.md
+            TESTS_FAILED=$((TESTS_FAILED + 1))
+          fi
+        done
+        
+        echo "## Summary" >> test-summary.md
+        echo "- Total tests: $((TESTS_PASSED + TESTS_FAILED))" >> test-summary.md
+        echo "- Passed: ${TESTS_PASSED}" >> test-summary.md
+        echo "- Failed: ${TESTS_FAILED}" >> test-summary.md
+        
+        cat test-summary.md
+        
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-logs-php-${{ matrix.php-version }}
+        path: |
+          .tests/reports/
+          test-summary.md
+        retention-days: 7 
