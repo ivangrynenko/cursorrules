@@ -140,7 +140,63 @@ function install_cursor_rules(array $options = []): bool {
   // Determine which rules to install.
   $rules_to_install = [];
   
-  if ($options['all']) {
+  // Interactive mode if no specific option is selected and not in auto-yes mode
+  if ($option_count === 0 && !$options['yes']) {
+    echo "Welcome to Cursor Rules Installer v" . CURSOR_RULES_VERSION . "\n\n";
+    echo "Please select which rules to install:\n";
+    echo "1) Core rules only\n";
+    echo "2) Web stack rules (PHP, Drupal, JavaScript, etc.)\n";
+    echo "3) Python rules\n";
+    echo "4) All rules\n";
+    echo "5) Exit\n";
+    
+    $valid_choice = false;
+    while (!$valid_choice) {
+      echo "\nEnter your choice (1-5): ";
+      $choice = trim(fgets(STDIN));
+      
+      switch ($choice) {
+        case '1':
+          $rules_to_install = $core_rules;
+          $valid_choice = true;
+          echo "Installing core rules...\n";
+          break;
+        case '2':
+          $rules_to_install = array_merge($core_rules, $web_stack_rules);
+          $valid_choice = true;
+          echo "Installing web stack rules...\n";
+          break;
+        case '3':
+          $rules_to_install = array_merge($core_rules, $python_rules);
+          $valid_choice = true;
+          echo "Installing Python rules...\n";
+          break;
+        case '4':
+          $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules);
+          $valid_choice = true;
+          echo "Installing all rules...\n";
+          break;
+        case '5':
+          echo "Installation cancelled.\n";
+          return true;
+        default:
+          echo "Invalid choice. Please enter a number between 1 and 5.\n";
+      }
+    }
+    
+    // Ask for custom destination
+    echo "\nWould you like to install to a custom directory? (default: .cursor/rules) [y/N]: ";
+    $custom_dest = strtolower(trim(fgets(STDIN)));
+    
+    if ($custom_dest === 'y' || $custom_dest === 'yes') {
+      echo "Enter destination directory: ";
+      $custom_path = trim(fgets(STDIN));
+      if (!empty($custom_path)) {
+        $options['destination'] = $custom_path;
+        echo "Installing to: $custom_path\n";
+      }
+    }
+  } else if ($options['all']) {
     $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules);
   } elseif ($options['web_stack']) {
     $rules_to_install = array_merge($core_rules, $web_stack_rules);
@@ -149,7 +205,7 @@ function install_cursor_rules(array $options = []): bool {
   } elseif ($options['core']) {
     $rules_to_install = $core_rules;
   } else {
-    // Default to core rules if no option specified.
+    // Default to core rules if no option specified and in auto-yes mode.
     $rules_to_install = $core_rules;
   }
   
