@@ -11,11 +11,11 @@ NC='\033[0m' # No Color
 
 # Base directory
 BASE_DIR=$(pwd)
-TEMP_DIR="$BASE_DIR/.tests/temp"
-INSTALLER_PATH="$BASE_DIR/install.php"
+TEMP_DIR="$BASE_DIR/temp"
+INSTALLER_PATH="$BASE_DIR/../install.php"
 
 # Import file maps
-source "$BASE_DIR/.tests/file-maps.sh"
+source "$BASE_DIR/file-maps.sh"
 
 # Function to copy a fresh installer to the target path
 get_fresh_installer() {
@@ -147,7 +147,7 @@ print_message "$BLUE" "Running error handling tests..."
 
 # Run the individual test scripts
 print_message "$BLUE" "Running invalid option test..."
-./.tests/test-invalid-option.sh
+./test-invalid-option.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
@@ -156,7 +156,7 @@ fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 print_message "$BLUE" "Running conflicting options test..."
-./.tests/test-conflicting-options.sh
+./test-conflicting-options.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
@@ -165,7 +165,7 @@ fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 print_message "$BLUE" "Running missing file detection test..."
-./.tests/test-missing-files.sh
+./test-missing-files.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else

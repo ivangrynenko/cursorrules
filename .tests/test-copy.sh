@@ -4,8 +4,8 @@
 
 # Base directory
 BASE_DIR=$(pwd)
-TEMP_DIR="$BASE_DIR/.tests/temp"
-INSTALLER_PATH="$BASE_DIR/install.php"
+TEMP_DIR="$BASE_DIR/temp"
+INSTALLER_PATH="$BASE_DIR/../install.php"
 
 echo "BASE_DIR: $BASE_DIR"
 echo "TEMP_DIR: $TEMP_DIR"

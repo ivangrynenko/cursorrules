@@ -19,11 +19,11 @@ TESTS_FAILED=0
 
 # Base directory
 BASE_DIR=$(pwd)
-TEMP_DIR="$BASE_DIR/.tests/temp"
-INSTALLER_PATH="$BASE_DIR/install.php"
+TEMP_DIR="$BASE_DIR/temp"
+INSTALLER_PATH="$BASE_DIR/../install.php"
 
 # Import file maps
-source "$BASE_DIR/.tests/file-maps.sh"
+source "$BASE_DIR/file-maps.sh"
 
 # Create temp directory if it doesn't exist
 mkdir -p "$TEMP_DIR"

@@ -11,8 +11,8 @@ NC='\033[0m' # No Color
 
 # Base directory
 BASE_DIR=$(pwd)
-TEMP_DIR="$BASE_DIR/.tests/temp"
-INSTALLER_PATH="$BASE_DIR/install.php"
+TEMP_DIR="$BASE_DIR/temp"
+INSTALLER_PATH="$BASE_DIR/../install.php"
 
 # Create temp directory if it doesn't exist
 mkdir -p "$TEMP_DIR"
@@ -48,7 +48,7 @@ get_fresh_installer() {
 }
 
 # Import file maps
-source "$BASE_DIR/.tests/file-maps.sh"
+source "$BASE_DIR/file-maps.sh"
 
 # Create a modified validation function that expects a non-existent file
 validate_with_missing_file() {
