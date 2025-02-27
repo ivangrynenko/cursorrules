@@ -9,6 +9,7 @@ CORE_FILES=(
   "improve-cursorrules-efficiency.mdc"
   "git-commit-standards.mdc"
   "readme-maintenance-standards.mdc"
+  "github-actions-standards.mdc"
 )
 
 # Web rules

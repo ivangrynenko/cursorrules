@@ -49,7 +49,7 @@ get_fresh_installer() {
 
 # Test the conflicting options case
 print_message "$BLUE" "\n=== Running Test: Conflicting Options ==="
-echo "Command: php install.php --web-stack --python"
+echo "Command: php install.php --all --core"
 
 # Create a clean test directory
 TEST_DIR="$TEMP_DIR/test_conflicting_options"
@@ -63,9 +63,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Run the command
+# Run the command with a different set of conflicting options
 cd "$TEST_DIR"
-php install.php --web-stack --python > output.log 2>&1
+php install.php --all --core > output.log 2>&1
 EXIT_CODE=$?
 cd "$BASE_DIR"
 

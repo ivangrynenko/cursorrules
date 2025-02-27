@@ -63,7 +63,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Run the command
+# Run the command with an invalid option
 cd "$TEST_DIR"
 php install.php --invalid-option > output.log 2>&1
 EXIT_CODE=$?
