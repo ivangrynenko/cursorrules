@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent injection vulnerabilities in Python applications as defined in OWASP Top 10:2021-A03
+globs: *.py
 alwaysApply: false
 ---
  # Python Injection Security Standards (OWASP A03:2021)

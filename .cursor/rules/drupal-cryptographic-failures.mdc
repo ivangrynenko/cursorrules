@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent cryptographic failures in Drupal as defined in OWASP Top 10:2021-A02
+globs: *.php, *.install, *.module, *.inc, *.theme
 alwaysApply: false
 ---
 # Drupal Cryptographic Failures Security Standards (OWASP A02:2021)
