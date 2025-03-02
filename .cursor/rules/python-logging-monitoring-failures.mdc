@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent security logging and monitoring failures in Python applications as defined in OWASP Top 10:2021-A09
+globs: *.py, *.ini, *.cfg, *.yaml, *.json, *.yml, *.toml
 alwaysApply: false
 ---
  # Python Security Logging and Monitoring Failures Standards (OWASP A09:2021)

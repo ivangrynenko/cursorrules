@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent software and data integrity failures in Python applications as defined in OWASP Top 10:2021-A08
+globs: *.py, *.ini, *.cfg, *.yaml, *.json, *.yml, *.toml
 alwaysApply: false
 ---
 # Python Software and Data Integrity Failures Standards (OWASP A08:2021)
