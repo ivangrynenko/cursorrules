@@ -2,6 +2,8 @@
 
 [![Cursor Rules Tests](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml/badge.svg)](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml)
 
+[![Cursor Rules Tests](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml/badge.svg)](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml)
+
 ## 📌 About This Repository
 This repository contains a **set of Cursor AI rules** specifically designed to **enhance efficiency, enforce coding standards, and automate best practices** for **web developers**, particularly those working with **PHP, Drupal, JavaScript, and frontend frameworks**.
 
@@ -43,9 +45,36 @@ This two-step process ensures you get the interactive experience with:
 ### Quick Non-Interactive Installation
 
 For a quick installation without prompts (installs core rules only):
+## 📥 Installation
+
+### Interactive Installation (Recommended)
+
+For a fully interactive installation with prompts:
 
 ```bash
+# Step 1: Download the installer
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php -o install.php
+
+# Step 2: Run the installer interactively
+php install.php
+```
+
+This two-step process ensures you get the interactive experience with:
+- Prompts to choose which rule sets to install (Core, Web Stack, Python, or All)
+- Option to remove the installer file after installation (defaults to yes)
+
+### Quick Non-Interactive Installation
+
+For a quick installation without prompts (installs core rules only):
+
+```bash
+```bash
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
+```
+
+or install rules by tag expression
+```bash
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript category:security"
 ```
 
 ⚠️ **Note**: When using the curl piping method above, interactive mode is **not possible** because STDIN is already being used for the script input. The installer will automatically default to installing core rules only.
@@ -74,7 +103,25 @@ The installer supports the following options:
 - `--yes` or `-y`: Automatically answer yes to all prompts
 - `--destination=DIR`: Install to a custom directory (default: .cursor/rules)
 - `--debug`: Enable detailed debug output for troubleshooting installation issues
+- `--ignore-files <opt>`: Control installation of .cursorignore files (yes, no, ask), default's to yes
 - `--help` or `-h`: Show help message
+
+### .cursorignore Files
+
+The installer can automatically add recommended `.cursorignore` and `.cursorindexingignore` files to your project. These files tell Cursor AI which files and directories to exclude from processing, which helps to:
+
+- **Improve performance** by skipping large generated files, vendor directories, and node_modules
+- **Reduce noise** in AI responses by focusing only on relevant project files
+- **Prevent unnecessary context** from third-party code being included in AI prompts
+
+The `.cursorignore` file ensures files are not indexed by Cursior and they are not read by Cursor or sent to the models for processing. This is a good setting for files that may contain secrets or other information you'd prefer to keep private. The `.cursorindexingignore` file is just for indexing and is there mainly for performance reasons.
+
+By default, the installer will add these files (controlled by the `--ignore-files` option). You can:
+- Set to `yes` (default): Always install ignore files
+- Set to `no`: Never install ignore files
+- Set to `ask`: Prompt during installation
+
+If you need to modify the ignore patterns, you can edit the `.cursorignore` files manually after installation.
 
 ### Troubleshooting Installation
 
@@ -112,6 +159,45 @@ Install to a custom directory:
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --all --destination=my/custom/path
 ```
 
+#### Tag-Based Selection
+
+The installer now supports filtering rules by tags, allowing you to install only the rules relevant to your project:
+
+```sh
+# Install all JavaScript security rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript category:security"
+
+# Install all OWASP Top 10 rules for PHP
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:php standard:owasp-top10"
+
+# Install all React-related rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "framework:react"
+
+# Install rules matching multiple criteria with OR logic
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript OR language:php"
+```
+
+Available tag presets:
+- `web`: JavaScript, HTML, CSS, PHP
+- `frontend`: JavaScript, HTML, CSS
+- `drupal`: Drupal-specific rules
+- `react`: React-specific rules
+- `vue`: Vue-specific rules
+- `python`: Python-specific rules
+- `security`: Security-focused rules
+- `owasp`: OWASP Top 10 rules
+- `a11y`: Accessibility rules
+- `php-security`: PHP security-focused rules
+- `js-security`: JavaScript security-focused rules
+- `python-security`: Python security-focused rules
+- `drupal-security`: Drupal security-focused rules
+- `php-owasp`: PHP OWASP Top 10 rules
+- `js-owasp`: JavaScript OWASP Top 10 rules
+- `python-owasp`: Python OWASP Top 10 rules
+- `drupal-owasp`: Drupal OWASP Top 10 rules
+
+See the [TAG_STANDARDS.md](TAG_STANDARDS.md) file for detailed information about the tagging system.
+
 ### Manual Installation
 
 If you prefer to install manually:
@@ -126,18 +212,24 @@ If you prefer to install manually:
    mkdir -p /path/to/your/project/.cursor/rules
    cp -r cursor-rules/.cursor/rules/* /path/to/your/project/.cursor/rules/
    ```
+2. Copy the rules to your project:
+   ```bash
+   mkdir -p /path/to/your/project/.cursor/rules
+   cp -r cursor-rules/.cursor/rules/* /path/to/your/project/.cursor/rules/
+   ```
 
 ---
 
 ## 📜 Available Cursor Rules
+
 
 Each rule is written in `.mdc` format and structured to enforce best practices in different aspects of development.
 
 ### Core Rules
 | File Name | Purpose |
 |-----------|---------|
-| [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organizing Cursor rule files |
-| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
+| [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organising Cursor rule files |
+| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimises inefficient AI queries |
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages with proper prefixes and formatting |
 | [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Ensures README documentation is comprehensive and up-to-date |
 | [`github-actions-standards.mdc`](.cursor/rules/github-actions-standards.mdc) | Ensures GitHub Actions workflows follow best practices |
@@ -150,20 +242,20 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 |-----------|---------|
 | [`accessibility-standards.mdc`](.cursor/rules/accessibility-standards.mdc) | WCAG compliance and accessibility best practices |
 | [`api-standards.mdc`](.cursor/rules/api-standards.mdc) | RESTful API design and documentation standards |
-| [`build-optimization.mdc`](.cursor/rules/build-optimization.mdc) | Webpack/Vite configuration and build process optimization |
-| [`javascript-performance.mdc`](.cursor/rules/javascript-performance.mdc) | Best practices for optimizing JavaScript performance |
+| [`build-optimization.mdc`](.cursor/rules/build-optimization.mdc) | Webpack/Vite configuration and build process optimisation |
+| [`javascript-performance.mdc`](.cursor/rules/javascript-performance.mdc) | Best practices for optimising JavaScript performance |
 | [`javascript-standards.mdc`](.cursor/rules/javascript-standards.mdc) | Standards for JavaScript development in Drupal |
 | [`node-dependencies.mdc`](.cursor/rules/node-dependencies.mdc) | Node.js versioning and package management best practices |
 | [`react-patterns.mdc`](.cursor/rules/react-patterns.mdc) | React component patterns and hooks usage guidelines |
-| [`tailwind-standards.mdc`](.cursor/rules/tailwind-standards.mdc) | Tailwind CSS class organization and best practices |
-| [`vue-best-practices.mdc`](.cursor/rules/vue-best-practices.mdc) | Vue 3 and NuxtJS specific standards and optimizations |
+| [`tailwind-standards.mdc`](.cursor/rules/tailwind-standards.mdc) | Tailwind CSS class organisation and best practices |
+| [`vue-best-practices.mdc`](.cursor/rules/vue-best-practices.mdc) | Vue 3 and NuxtJS specific standards and optimisations |
 
 #### Backend Development
 | File Name | Purpose |
 |-----------|---------|
 | [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
 | [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
-| [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimization |
+| [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimisation |
 | [`drupal-file-permissions.mdc`](.cursor/rules/drupal-file-permissions.mdc) | Drupal file permissions security standards |
 | [`govcms-saas.mdc`](.cursor/rules/govcms-saas.mdc) | Constraints and best practices for GovCMS Distribution projects |
 
@@ -181,6 +273,16 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`drupal-integrity-failures.mdc`](.cursor/rules/drupal-integrity-failures.mdc) | Prevents integrity failures in Drupal |
 | [`drupal-logging-failures.mdc`](.cursor/rules/drupal-logging-failures.mdc) | Prevents logging failures in Drupal |
 | [`drupal-ssrf.mdc`](.cursor/rules/drupal-ssrf.mdc) | Prevents Server-Side Request Forgery in Drupal |
+| [`javascript-broken-access-control.mdc`](.cursor/rules/javascript-broken-access-control.mdc) | Prevents broken access control vulnerabilities in JavaScript applications |
+| [`javascript-cryptographic-failures.mdc`](.cursor/rules/javascript-cryptographic-failures.mdc) | Prevents cryptographic failures in JavaScript applications |
+| [`javascript-injection.mdc`](.cursor/rules/javascript-injection.mdc) | Prevents injection vulnerabilities in JavaScript applications |
+| [`javascript-insecure-design.mdc`](.cursor/rules/javascript-insecure-design.mdc) | Prevents insecure design patterns in JavaScript applications |
+| [`javascript-security-misconfiguration.mdc`](.cursor/rules/javascript-security-misconfiguration.mdc) | Prevents security misconfigurations in JavaScript applications |
+| [`javascript-vulnerable-outdated-components.mdc`](.cursor/rules/javascript-vulnerable-outdated-components.mdc) | Identifies and prevents vulnerable components in JavaScript applications |
+| [`javascript-identification-authentication-failures.mdc`](.cursor/rules/javascript-identification-authentication-failures.mdc) | Prevents authentication failures in JavaScript applications |
+| [`javascript-software-data-integrity-failures.mdc`](.cursor/rules/javascript-software-data-integrity-failures.mdc) | Prevents software and data integrity failures in JavaScript applications |
+| [`javascript-security-logging-monitoring-failures.mdc`](.cursor/rules/javascript-security-logging-monitoring-failures.mdc) | Prevents logging and monitoring failures in JavaScript applications |
+| [`javascript-server-side-request-forgery.mdc`](.cursor/rules/javascript-server-side-request-forgery.mdc) | Prevents Server-Side Request Forgery in JavaScript applications |
 
 #### DevOps & Infrastructure
 | File Name | Purpose |
@@ -190,12 +292,23 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`lagoon-yml-standards.mdc`](.cursor/rules/lagoon-yml-standards.mdc) | Standards for Lagoon configuration files and deployment workflows |
 | [`vortex-cicd-standards.mdc`](.cursor/rules/vortex-cicd-standards.mdc) | Standards for Vortex CI/CD and Renovate configuration |
 | [`vortex-scaffold-standards.mdc`](.cursor/rules/vortex-scaffold-standards.mdc) | Standards for Vortex/DrevOps scaffold usage and best practices |
+| [`docker-compose-standards.mdc`](.cursor/rules/docker-compose-standards.mdc) | Docker Compose standards |
+| [`lagoon-docker-compose-standards.mdc`](.cursor/rules/lagoon-docker-compose-standards.mdc) | Standards for Lagoon Docker Compose configuration |
+| [`lagoon-yml-standards.mdc`](.cursor/rules/lagoon-yml-standards.mdc) | Standards for Lagoon configuration files and deployment workflows |
+| [`vortex-cicd-standards.mdc`](.cursor/rules/vortex-cicd-standards.mdc) | Standards for Vortex CI/CD and Renovate configuration |
+| [`vortex-scaffold-standards.mdc`](.cursor/rules/vortex-scaffold-standards.mdc) | Standards for Vortex/DrevOps scaffold usage and best practices |
 
+#### Development Process
 #### Development Process
 | File Name | Purpose |
 |-----------|---------|
 | [`code-generation-standards.mdc`](.cursor/rules/code-generation-standards.mdc) | Standards for code generation and implementation |
+| [`code-generation-standards.mdc`](.cursor/rules/code-generation-standards.mdc) | Standards for code generation and implementation |
 | [`debugging-standards.mdc`](.cursor/rules/debugging-standards.mdc) | Standards for debugging and error handling |
+| [`multi-agent-coordination.mdc`](.cursor/rules/multi-agent-coordination.mdc) | Multi-agent coordination and workflow standards |
+| [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Require tests for new functionality and enforce documentation updates |
+| [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
+| [`generic_bash_style.mdc`](.cursor/rules/generic_bash_style.mdc) | Enforce general Bash scripting standards with enhanced logging |
 | [`multi-agent-coordination.mdc`](.cursor/rules/multi-agent-coordination.mdc) | Multi-agent coordination and workflow standards |
 | [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Require tests for new functionality and enforce documentation updates |
 | [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
@@ -228,11 +341,11 @@ Once installed, Cursor AI will automatically use these rules when working with y
 2. **Enforce Standards**: Flag code that doesn't meet the defined standards
 3. **Automate Repetitive Tasks**: Generate boilerplate code, documentation, and tests
 4. **Improve Security**: Identify potential security vulnerabilities
-5. **Optimize Performance**: Suggest performance improvements
+5. **Optimise Performance**: Suggest performance improvements
 
-### Rule Customization
+### Rule Customisation
 
-You can customize the rules by:
+You can customise the rules by:
 
 1. **Editing Rule Files**: Modify the `.mdc` files to match your project's specific requirements
 2. **Adding New Rules**: Create new `.mdc` files following the same format
@@ -310,7 +423,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### For Teams
 
-1. **Standardization**:
+1. **Standardisation**:
    - Enforce team-wide coding standards
    - Reduce code review friction
    - Maintain consistent documentation
@@ -325,10 +438,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Ensure security best practices are followed
    - Maintain high code quality across the team
 
-### For Organizations
+### For Organisations
 
 1. **Governance**:
-   - Enforce organizational standards
+   - Enforce organisational standards
    - Ensure compliance with security requirements
    - Maintain consistent code quality across teams
 
@@ -337,6 +450,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Decrease technical debt accumulation
    - Streamline development processes
 
+3. **Knowledge Management**:
+   - Preserve institutional knowledge in rules
 3. **Knowledge Management**:
    - Preserve institutional knowledge in rules
    - Simplified onboarding for new team members
@@ -382,41 +497,3 @@ While maintaining all rules in a single repository currently provides the best d
    - User feedback helps identify optimisation opportunities
 
 If you encounter any issues with rule management or have suggestions for improving organisation, please submit an issue or pull request.
-
-## Categorisation System
-
-Cursor Rules now feature a structured hierarchical tagging system that enables precise rule filtering based on project requirements:
-
-### Standardised Tag Structure
-
-- **Language tags**: `language:php`, `language:javascript`, `language:python`, etc.
-- **Framework tags**: `framework:drupal`, `framework:react`, `framework:django`, etc.
-- **Category tags**: `category:security`, `category:performance`, `category:accessibility`, etc.
-- **Subcategory tags**: `subcategory:injection`, `subcategory:authentication`, `subcategory:xss`, etc.
-- **Standard tags**: `standard:owasp-top10`, `standard:wcag`, `standard:pci-dss`, etc.
-- **Risk tags**: `risk:a01-broken-access-control`, `risk:a05-security-misconfiguration`, etc.
-
-### Tag-Based Rule Selection
-
-The enhanced tagging system enables selective installation of rules:
-
-- **Project-specific rules**: Automatically select rules based on your project's languages and frameworks
-- **Security-focused installations**: Target specific security concerns (e.g., only OWASP Top 10 rules)
-- **Composite filtering**: Combine multiple criteria (e.g., PHP Drupal security rules)
-
-For complete documentation of the tagging system, see [TAG_STANDARDS.md](TAG_STANDARDS.md).
-
-### Rule Selection Script
-
-A Python script (`select_rules.py`) is provided to automate rule selection based on tags:
-
-```bash
-# Auto-detect project type and select appropriate rules
-python select_rules.py --auto
-
-# Select rules by specific tags
-python select_rules.py --tags "language:python standard:owasp-top10"
-
-# List all available tags
-python select_rules.py --list-tags
-```
