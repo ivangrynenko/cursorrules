@@ -12,6 +12,7 @@ These rules help **Cursor AI** assist developers by:
 - Ensuring tests and documentation remain up to date
 - Detecting inefficiencies in AI query usage and improving response quality
 - Providing automated suggestions for commit messages, dependencies, and performance optimisations
+- Providing automated suggestions for commit messages, dependencies, and performance optimisations
 
 ---
 
@@ -464,12 +465,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Consider creating custom installation scripts that only install relevant rules
 
 2. **Performance Optimisation**:
+2. **Performance Optimisation**:
    - If experiencing slowdowns, review which rules are most frequently triggered
    - Consider disabling computationally expensive rules for very large files
+   - Report performance issues so rule patterns can be optimised
    - Report performance issues so rule patterns can be optimised
 
 3. **Custom Rule Development**:
    - When creating custom rules, follow the patterns established in existing rules
+   - Use specific file filters to minimise unnecessary rule evaluation
    - Use specific file filters to minimise unnecessary rule evaluation
    - Test new rules thoroughly in isolation before adding to the collection
 
@@ -478,10 +482,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 While maintaining all rules in a single repository currently provides the best developer experience, we're preparing for potential future growth:
 
 1. **Enhanced Categorisation**:
+1. **Enhanced Categorisation**:
    - Rules include clear language/framework tagging with a structured hierarchical system (As seen in the OWASP Top Ten Rules):
      - `language:php` - Explicitly identifies the programming language
      - `framework:drupal` - Specifies the framework or CMS
      - `category:security` - Defines the primary functional category
+     - `subcategory:injection` - Provides more granular categorisation (e.g., injection, authentication)
      - `subcategory:injection` - Provides more granular categorisation (e.g., injection, authentication)
      - `standard:owasp-top10` - Identifies the security standard being applied
      - `risk:a01-broken-access-control` - Specifies the exact risk identifier
@@ -491,9 +497,11 @@ While maintaining all rules in a single repository currently provides the best d
 2. **Modular Design**:
    - Rule file structure supports potential future separation
    - Consistent naming conventions facilitate organisation
+   - Consistent naming conventions facilitate organisation
 
 3. **Monitoring and Feedback**:
    - Repository growth and performance impacts are monitored
+   - User feedback helps identify optimisation opportunities
    - User feedback helps identify optimisation opportunities
 
 If you encounter any issues with rule management or have suggestions for improving organisation, please submit an issue or pull request.
