@@ -1,3 +1,8 @@
+---
+description: Detect and prevent broken access control vulnerabilities in Python applications as defined in OWASP Top 10:2021-A01
+globs: *.py
+alwaysApply: false
+---
 # Python Broken Access Control Security Standards (OWASP A01:2021)
 
 This rule enforces security best practices to prevent broken access control vulnerabilities in Python applications, as defined in OWASP Top 10:2021-A01.
@@ -117,26 +122,28 @@ actions:
         message: "Using FastAPI's security dependency injection."
 
 metadata:
-  priority: high
-  version: 1.0
+  priority: 90
+  version: "1.0"
   tags:
-    - security
     - python
-    - access-control
-    - permissions
+    - security
+    - access_control
     - owasp
     - language:python
-    - framework:django
-    - framework:flask
-    - framework:fastapi
     - category:security
+    - subcategory:authorisation
     - subcategory:access-control
     - standard:owasp-top10
     - risk:a01-broken-access-control
+    - framework:django
+    - framework:flask
+    - framework:fastapi
   references:
-    - "https://owasp.org/Top10/A01_2021-Broken_Access_Control/"
-    - "https://docs.djangoproject.com/en/stable/topics/auth/default/"
-    - "https://flask-login.readthedocs.io/en/latest/"
-    - "https://fastapi.tiangolo.com/tutorial/security/"
-    - "https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html"
+    - https://owasp.org/Top10/A01_2021-Broken_Access_Control/
+    - https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+    - https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html
+    - https://docs.djangoproject.com/en/stable/topics/auth/default/
+    - https://flask-login.readthedocs.io/en/latest/
+    - https://fastapi.tiangolo.com/tutorial/security/
+    - https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html
 </rule> 

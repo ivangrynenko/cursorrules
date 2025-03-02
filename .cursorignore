@@ -1,0 +1,193 @@
+# Cursor Ignore File
+# This file tells Cursor AI which files and directories to exclude from analysis
+# Add patterns here to prevent Cursor from accessing sensitive or irrelevant files
+
+# Version Control
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+
+# Dependency Directories
+node_modules/
+vendor/
+bower_components/
+jspm_packages/
+package-lock.json
+yarn.lock
+composer.lock
+
+# Environment and Secrets
+.env
+.env.*
+*.key
+*secret*
+*Secret*
+*SECRET*
+*password*
+*Password*
+*PASSWORD*
+*.pem
+*.crt
+*.cer
+*.der
+*.p12
+*.pfx
+id_rsa
+id_dsa
+*.gpg
+*.asc
+htpasswd
+.htpasswd
+credentials.*
+oauth*token*
+*_token
+auth_token
+jwt_token
+*.keystore
+*apikey*
+*api_key*
+*ApiKey*
+*client_secret*
+
+# Build and Distribution
+dist/
+build/
+out/
+target/
+.next/
+coverage/
+.nyc_output/
+.coverage
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.installed.cfg
+*.egg
+*.egg-info/
+.eggs/
+.tox/
+.nox/
+.hypothesis/
+.ruff_cache/
+
+# Cache Directories
+.cache/
+.sass-cache/
+.babel-cache/
+.npm/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.webpack/
+
+# Logs and Databases
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+logs/
+*.mdb
+*.ldb
+*.dmp
+
+# Minified Files
+*.min.js
+*.min.css
+*-min.js
+*-min.css
+*.bundle.js
+*.chunk.js
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Large Media Files 
+# (Uncomment as necessary - these are large binary files Cursor typically shouldn't analyze)
+# *.mp4
+# *.webm
+# *.mov
+# *.wmv
+# *.avi
+# *.mkv
+# Large image files
+# *.psd
+# *.ai
+# *.indd
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
+# *.tiff
+# *.webp
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+
+# IDE and Editor Files
+.idea/
+.vscode/
+*.sublime-*
+*.iml
+.project
+.classpath
+.settings/
+.history/
+nbproject/
+.ensime
+.ensime_cache/
+*.code-workspace
+
+# Specific to frameworks
+.nuxt/
+.angular/
+.meteor/
+.quasar/
+.umi/
+.vuepress/dist/
+
+# Large Data Files
+# *.csv
+# *.tsv
+# *.xls
+# *.xlsx
+# *.parquet
+# *.avro
+
+# Container and Virtualization
+.vagrant/
+.docker/
+
+# CDN and Vendor Assets
+cdn/
+public/vendor/
+public/assets/
+assets/vendor/
+
+# Binary executables
+*.exe
+*.dll
+*.bin
+*.out
+*.o
+*.a
+*.lib
+*.pyc
+*.class 

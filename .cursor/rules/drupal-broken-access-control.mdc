@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent broken access control vulnerabilities in Drupal as defined in OWASP Top 10:2021-A01
+globs: *.php, *.install, *.module, *.inc, *.theme
 alwaysApply: false
 ---
 # Drupal Broken Access Control Security Standards (OWASP A01:2021)

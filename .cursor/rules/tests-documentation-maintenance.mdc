@@ -1,9 +1,5 @@
 ---
 description: Require tests for new functionality and enforce documentation updates.
-globs: 
----
----
-description: Ensure tests and documentation are up to date
 globs: *.php, *.feature, README.md, *.md
 ---
 # Tests & Documentation Maintenance

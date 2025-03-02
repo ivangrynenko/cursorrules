@@ -1,10 +1,5 @@
 ---
 description: AI Query Efficiency & Auto-Optimization
-globs: 
-alwaysApply: false
----
----
-description: AI Query Efficiency & Auto-Optimization
 globs: *.mdc
 ---
 # AI Query Efficiency & Auto-Optimization

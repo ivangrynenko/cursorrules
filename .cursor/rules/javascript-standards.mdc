@@ -4,14 +4,9 @@ globs: *.js
 ---
 # JavaScript Development Standards
 
-Ensures proper JavaScript implementation in Drupal projects.
-
 <rule>
 name: javascript_standards
 description: Enforce JavaScript development standards for Drupal
-filters:
-  - type: file_extension
-    pattern: "\\.js$"
 
 actions:
   - type: enforce

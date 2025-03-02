@@ -1,9 +1,5 @@
 ---
 description: Enforce Node.js versioning and package management best practices.
-globs: 
----
----
-description: Node.js & Dependency Management
 globs: package.json, .nvmrc
 ---
 # Node.js & Dependency Management

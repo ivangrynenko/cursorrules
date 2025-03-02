@@ -1,21 +1,12 @@
 ---
-description: Enforce best practices for optimizing JavaScript performance.
-globs: 
----
----
 description: JavaScript Performance Optimization
 globs: *.js, *.ts
 ---
 # JavaScript Performance Optimization
 
-Ensures optimal JavaScript performance and best practices.
-
 <rule>
 name: javascript_performance_optimization
 description: Enforce best practices for optimizing JavaScript performance.
-filters:
-  - type: file_extension
-    pattern: "\\.(js|ts)$"
 
 actions:
   - type: enforce

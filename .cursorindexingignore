@@ -1,0 +1,116 @@
+# Cursor Indexing Ignore File
+# This file tells Cursor AI which files and directories to exclude from semantic indexing
+# but still allow direct access when needed
+# 
+# Note: Items in .cursorignore are already completely excluded from analysis,
+# so this file only contains additional items that should be excluded from indexing
+# but might still need to be accessed directly
+
+# Framework-Specific Generated Files (that aren't security concerns)
+# React/Next.js
+.next/client/
+.next/static/
+.next/cache/
+# Vue
+.output/
+# Laravel
+bootstrap/cache/
+storage/framework/
+storage/logs/
+# Django
+migrations/
+# Rails
+tmp/
+log/
+
+# Test Data and Fixtures
+test/fixtures/
+test/data/
+__tests__/fixtures/
+__tests__/data/
+spec/fixtures/
+spec/data/
+fixtures/
+cypress/fixtures/
+cypress/screenshots/
+cypress/videos/
+
+# Documentation (often large and already searchable elsewhere)
+docs/generated/
+docs/api/
+typedoc/
+javadoc/
+doxygen/
+
+# Generated API Documentation
+swagger/
+openapi/
+api-docs/
+
+# Large Generated Files
+*.generated.*
+*.auto-generated.*
+**/locales/*.json
+**/i18n/*.json
+
+# Binary and Media Files (not necessarily security concerns)
+*.pdf
+*.ico
+*.ttf
+*.woff
+*.woff2
+*.eot
+*.mp3
+*.svg
+*.mov
+*.avi
+*.webm
+
+# Specific Large JSON Files (but not all JSON)
+**/translations/*.json
+**/messages/*.json
+*-data.json
+*-large.json
+stats.json
+
+# Language-specific Generated Files
+# Python
+*.py[cod]
+.Python
+.installed.cfg
+*.egg
+*.egg-info/
+.eggs/
+# JavaScript/TypeScript
+*.js.map
+*.css.map
+*.tsbuildinfo
+# Java
+*.class
+.gradle/
+
+# CI/CD Configuration (not security concerns, but rarely need to be searched)
+.github/workflows/
+.circleci/
+.jenkins/
+
+# Data Analysis and Machine Learning
+*.h5
+*.npz
+*.npy
+*.pb
+*.onnx
+*.pt
+*.pth
+*.tfrecord
+**/datasets/
+**/training_data/
+
+# Mobile Development
+ios/build/
+android/build/
+android/app/build/
+
+# Container Configuration
+docker-compose.*.yml
+Dockerfile.* 

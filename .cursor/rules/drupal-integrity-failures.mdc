@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent software and data integrity failures in Drupal as defined in OWASP Top 10:2021-A08
+globs: *.php, *.install, *.module, *.inc, *.theme, *.yml, *.json
 alwaysApply: false
 ---
 # Drupal Software and Data Integrity Failures Standards (OWASP A08:2021)

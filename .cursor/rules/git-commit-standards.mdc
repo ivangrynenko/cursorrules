@@ -1,9 +1,5 @@
 ---
 description: Enforce structured Git commit messages.
-globs: 
----
----
-description: Git Commit Standards
 globs: .git/*
 ---
 # Git Commit Standards

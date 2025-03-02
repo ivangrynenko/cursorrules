@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent identification and authentication failures in Drupal as defined in OWASP Top 10:2021-A07
+globs: *.php, *.install, *.module, *.inc, *.theme, *.yml
 alwaysApply: false
 ---
 # Drupal Identification and Authentication Failures Standards (OWASP A07:2021)

@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent vulnerabilities related to outdated or vulnerable components in Drupal as defined in OWASP Top 10:2021-A06
+globs: *.php, *.install, *.module, *.inc, *.theme, *.yml, *.info
 alwaysApply: false
 ---
 # Drupal Vulnerable and Outdated Components Standards (OWASP A06:2021)
