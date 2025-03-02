@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent security misconfigurations in Drupal as defined in OWASP Top 10:2021-A05
+globs: *.php, *.install, *.module, *.inc, *.theme, *.yml, *.info
 alwaysApply: false
 ---
 # Drupal Security Misconfiguration Standards (OWASP A05:2021)

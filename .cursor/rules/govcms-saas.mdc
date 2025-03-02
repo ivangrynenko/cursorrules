@@ -2,7 +2,6 @@
 description: This rule defines the constraints and best practices for working with GovCMS Distribution projects. The primary focus is theme-level development only, as the distribution's infrastructure and core functionality should remain unchanged.
 globs: 
 ---
----
 name: govcms-distribution-development-standards
 id: govcms_distribution
 

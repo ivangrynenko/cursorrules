@@ -9,7 +9,7 @@ These rules help **Cursor AI** assist developers by:
 - Enforcing coding standards and best practices
 - Ensuring tests and documentation remain up to date
 - Detecting inefficiencies in AI query usage and improving response quality
-- Providing automated suggestions for commit messages, dependencies, and performance optimizations
+- Providing automated suggestions for commit messages, dependencies, and performance optimisations
 
 ---
 
@@ -348,26 +348,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Configure rule priorities based on your project's needs
    - Consider creating custom installation scripts that only install relevant rules
 
-2. **Performance Optimization**:
+2. **Performance Optimisation**:
    - If experiencing slowdowns, review which rules are most frequently triggered
    - Consider disabling computationally expensive rules for very large files
-   - Report performance issues so rule patterns can be optimized
+   - Report performance issues so rule patterns can be optimised
 
 3. **Custom Rule Development**:
    - When creating custom rules, follow the patterns established in existing rules
-   - Use specific file filters to minimize unnecessary rule evaluation
+   - Use specific file filters to minimise unnecessary rule evaluation
    - Test new rules thoroughly in isolation before adding to the collection
 
 ### Future Scalability Plans
 
 While maintaining all rules in a single repository currently provides the best developer experience, we're preparing for potential future growth:
 
-1. **Enhanced Categorization**:
+1. **Enhanced Categorisation**:
    - Rules include clear language/framework tagging with a structured hierarchical system (As seen in the OWASP Top Ten Rules):
      - `language:php` - Explicitly identifies the programming language
      - `framework:drupal` - Specifies the framework or CMS
      - `category:security` - Defines the primary functional category
-     - `subcategory:injection` - Provides more granular categorization (e.g., injection, authentication)
+     - `subcategory:injection` - Provides more granular categorisation (e.g., injection, authentication)
      - `standard:owasp-top10` - Identifies the security standard being applied
      - `risk:a01-broken-access-control` - Specifies the exact risk identifier
    - This tagging system enables selective installation based on language, framework, or security concern
@@ -375,10 +375,48 @@ While maintaining all rules in a single repository currently provides the best d
 
 2. **Modular Design**:
    - Rule file structure supports potential future separation
-   - Consistent naming conventions facilitate organization
+   - Consistent naming conventions facilitate organisation
 
 3. **Monitoring and Feedback**:
    - Repository growth and performance impacts are monitored
-   - User feedback helps identify optimization opportunities
+   - User feedback helps identify optimisation opportunities
 
-If you encounter any issues with rule management or have suggestions for improving organization, please submit an issue or pull request.
+If you encounter any issues with rule management or have suggestions for improving organisation, please submit an issue or pull request.
+
+## Categorisation System
+
+Cursor Rules now feature a structured hierarchical tagging system that enables precise rule filtering based on project requirements:
+
+### Standardised Tag Structure
+
+- **Language tags**: `language:php`, `language:javascript`, `language:python`, etc.
+- **Framework tags**: `framework:drupal`, `framework:react`, `framework:django`, etc.
+- **Category tags**: `category:security`, `category:performance`, `category:accessibility`, etc.
+- **Subcategory tags**: `subcategory:injection`, `subcategory:authentication`, `subcategory:xss`, etc.
+- **Standard tags**: `standard:owasp-top10`, `standard:wcag`, `standard:pci-dss`, etc.
+- **Risk tags**: `risk:a01-broken-access-control`, `risk:a05-security-misconfiguration`, etc.
+
+### Tag-Based Rule Selection
+
+The enhanced tagging system enables selective installation of rules:
+
+- **Project-specific rules**: Automatically select rules based on your project's languages and frameworks
+- **Security-focused installations**: Target specific security concerns (e.g., only OWASP Top 10 rules)
+- **Composite filtering**: Combine multiple criteria (e.g., PHP Drupal security rules)
+
+For complete documentation of the tagging system, see [TAG_STANDARDS.md](TAG_STANDARDS.md).
+
+### Rule Selection Script
+
+A Python script (`select_rules.py`) is provided to automate rule selection based on tags:
+
+```bash
+# Auto-detect project type and select appropriate rules
+python select_rules.py --auto
+
+# Select rules by specific tags
+python select_rules.py --tags "language:python standard:owasp-top10"
+
+# List all available tags
+python select_rules.py --list-tags
+```
