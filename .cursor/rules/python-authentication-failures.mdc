@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent identification and authentication failures in Python applications as defined in OWASP Top 10:2021-A07
+globs: *.py, *.ini, *.cfg, *.yaml, *.json, *.yml, *.toml
 alwaysApply: false
 ---
  # Python Identification and Authentication Failures Standards (OWASP A07:2021)

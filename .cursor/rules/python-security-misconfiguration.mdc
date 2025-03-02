@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent security misconfigurations in Python applications as defined in OWASP Top 10:2021-A05
+globs: *.py, *.ini, *.cfg, *.yaml, *.json, *.yml, *.toml
 alwaysApply: false
 ---
  # Python Security Misconfiguration Standards (OWASP A05:2021)
