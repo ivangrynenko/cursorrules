@@ -12,6 +12,7 @@
  * --core, -c: Install only core rules
  * --custom: Enable selective installation (interactive)
  * --tags: Filter rules by tag expression (e.g., "language:php category:security")
+ * --tags: Filter rules by tag expression (e.g., "language:php category:security")
  * --help, -h: Display help information
  * --quiet, -q: Suppress verbose output
  * --yes, -y: Automatically confirm all prompts
@@ -33,6 +34,28 @@ const COLORS = [
     'cyan' => "\033[0;36m",
     'white' => "\033[1;37m",
     'reset' => "\033[0m",
+];
+
+// Define tag presets for common use cases
+const TAG_PRESETS = [
+    'web' => 'language:javascript OR language:html OR language:css OR language:php',
+    'frontend' => 'language:javascript OR language:html OR language:css',
+    'drupal' => 'framework:drupal',
+    'react' => 'framework:react',
+    'vue' => 'framework:vue',
+    'python' => 'language:python',
+    'security' => 'category:security',
+    'owasp' => 'standard:owasp-top10',
+    'a11y' => 'category:accessibility',
+    // New language-specific security presets
+    'php-security' => 'language:php category:security',
+    'js-security' => 'language:javascript category:security',
+    'python-security' => 'language:python category:security',
+    'drupal-security' => 'framework:drupal category:security',
+    'php-owasp' => 'language:php standard:owasp-top10',
+    'js-owasp' => 'language:javascript standard:owasp-top10',
+    'python-owasp' => 'language:python standard:owasp-top10',
+    'drupal-owasp' => 'framework:drupal standard:owasp-top10',
 ];
 
 // Define tag presets for common use cases
