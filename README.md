@@ -68,7 +68,7 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 
 The installer supports the following options:
 - `--core`: Install core rules only
-- `--web-stack`: Install web stack rules (includes core rules)
+- `--web-stack` or `--ws`: Install web stack rules (includes core rules)
 - `--python`: Install Python rules (includes core rules)
 - `--all`: Install all rules
 - `--yes` or `-y`: Automatically answer yes to all prompts
@@ -100,6 +100,8 @@ curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install
 Install web stack rules (includes core rules):
 ```bash
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --web-stack
+# Or using the shorter alias
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --ws
 ```
 
 Install all rules:
@@ -165,6 +167,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimization |
 | [`drupal-file-permissions.mdc`](.cursor/rules/drupal-file-permissions.mdc) | Drupal file permissions security standards |
 | [`govcms-saas.mdc`](.cursor/rules/govcms-saas.mdc) | Constraints and best practices for GovCMS Distribution projects |
+| [`govcms-saas-project-documentation-creation.mdc`](.cursor/rules/govcms-saas-project-documentation-creation.mdc) | GovCMS SaaS Documentation Generator. This rule helps generate comprehensive technical documentation for GovCMS SaaS projects, automatically detecting frameworks and dependencies, and providing structured documentation that aligns with government standards. |
 | [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
 | [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
 

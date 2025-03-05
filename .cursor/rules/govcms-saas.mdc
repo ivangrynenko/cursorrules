@@ -1,6 +1,7 @@
 ---
 description: This rule defines the constraints and best practices for working with GovCMS Distribution projects. The primary focus is theme-level development only, as the distribution's infrastructure and core functionality should remain unchanged.
 globs: 
+alwaysApply: false
 ---
 ---
 name: govcms-distribution-development-standards
@@ -14,6 +15,7 @@ project_identification:
   - ".lagoon.yml configuration"
   - ".ahoy.yml for GovCMS commands"
   - "Standard GovCMS directory structure"
+  - "The .version file will contain 'type: saas'"
 
 development_constraints:
   restricted_areas:
