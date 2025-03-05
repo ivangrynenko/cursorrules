@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 // Define constants.
-define('CURSOR_RULES_VERSION', '1.0.2');
+define('CURSOR_RULES_VERSION', '1.0.3');
 define('CURSOR_RULES_DIR', '.cursor/rules');
 define('CURSOR_DIR', '.cursor');
 
@@ -96,6 +96,7 @@ function install_cursor_rules(array $options = []): bool {
     'readme-maintenance-standards.mdc',
     'github-actions-standards.mdc',
     'testing-guidelines.mdc',
+    'pull-request-changelist-instructions.mdc',
   ];
   
   $web_stack_rules = [
@@ -109,7 +110,6 @@ function install_cursor_rules(array $options = []): bool {
     'tailwind-standards.mdc',
     'third-party-integration.mdc',
     'vue-best-practices.mdc',
-    'security-practices.mdc',
     'php-drupal-best-practices.mdc',
     'drupal-database-standards.mdc',
     'govcms-saas.mdc',
@@ -136,6 +136,7 @@ function install_cursor_rules(array $options = []): bool {
     'python-integrity-failures.mdc',
     'python-logging-monitoring-failures.mdc',
     'python-ssrf.mdc',
+    'security-practices.mdc',
   ];
   
   // Determine which rules to install.
