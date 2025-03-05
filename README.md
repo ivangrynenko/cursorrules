@@ -137,10 +137,11 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | File Name | Purpose |
 |-----------|---------|
 | [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organizing Cursor rule files |
-| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages with proper prefixes and formatting |
-| [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Ensures README documentation is comprehensive and up-to-date |
 | [`github-actions-standards.mdc`](.cursor/rules/github-actions-standards.mdc) | Ensures GitHub Actions workflows follow best practices |
+| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
+| [`pull-request-changelist-instructions.mdc`](.cursor/rules/pull-request-changelist-instructions.mdc) | Guidelines for creating consistent pull request changelists in markdown format with proper code block formatting |
+| [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Ensures README documentation is comprehensive and up-to-date |
 | [`testing-guidelines.mdc`](.cursor/rules/testing-guidelines.mdc) | Ensures proper testing practices and separation between test and production code |
 
 ### Web Development Rules
@@ -161,26 +162,26 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 #### Backend Development
 | File Name | Purpose |
 |-----------|---------|
-| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
-| [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
 | [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimization |
 | [`drupal-file-permissions.mdc`](.cursor/rules/drupal-file-permissions.mdc) | Drupal file permissions security standards |
 | [`govcms-saas.mdc`](.cursor/rules/govcms-saas.mdc) | Constraints and best practices for GovCMS Distribution projects |
+| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
+| [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
 
 #### Security Rules
 | File Name | Purpose |
 |-----------|---------|
-| [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
+| [`drupal-authentication-failures.mdc`](.cursor/rules/drupal-authentication-failures.mdc) | Prevents authentication failures in Drupal |
 | [`drupal-broken-access-control.mdc`](.cursor/rules/drupal-broken-access-control.mdc) | Prevents broken access control vulnerabilities in Drupal |
 | [`drupal-cryptographic-failures.mdc`](.cursor/rules/drupal-cryptographic-failures.mdc) | Prevents cryptographic failures in Drupal applications |
 | [`drupal-injection.mdc`](.cursor/rules/drupal-injection.mdc) | Prevents injection vulnerabilities in Drupal |
 | [`drupal-insecure-design.mdc`](.cursor/rules/drupal-insecure-design.mdc) | Prevents insecure design patterns in Drupal |
-| [`drupal-security-misconfiguration.mdc`](.cursor/rules/drupal-security-misconfiguration.mdc) | Prevents security misconfigurations in Drupal |
-| [`drupal-vulnerable-components.mdc`](.cursor/rules/drupal-vulnerable-components.mdc) | Identifies and prevents vulnerable components in Drupal |
-| [`drupal-authentication-failures.mdc`](.cursor/rules/drupal-authentication-failures.mdc) | Prevents authentication failures in Drupal |
 | [`drupal-integrity-failures.mdc`](.cursor/rules/drupal-integrity-failures.mdc) | Prevents integrity failures in Drupal |
 | [`drupal-logging-failures.mdc`](.cursor/rules/drupal-logging-failures.mdc) | Prevents logging failures in Drupal |
+| [`drupal-security-misconfiguration.mdc`](.cursor/rules/drupal-security-misconfiguration.mdc) | Prevents security misconfigurations in Drupal |
 | [`drupal-ssrf.mdc`](.cursor/rules/drupal-ssrf.mdc) | Prevents Server-Side Request Forgery in Drupal |
+| [`drupal-vulnerable-components.mdc`](.cursor/rules/drupal-vulnerable-components.mdc) | Identifies and prevents vulnerable components in Drupal |
+| [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
 
 #### DevOps & Infrastructure
 | File Name | Purpose |
@@ -196,25 +197,26 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 |-----------|---------|
 | [`code-generation-standards.mdc`](.cursor/rules/code-generation-standards.mdc) | Standards for code generation and implementation |
 | [`debugging-standards.mdc`](.cursor/rules/debugging-standards.mdc) | Standards for debugging and error handling |
+| [`generic_bash_style.mdc`](.cursor/rules/generic_bash_style.mdc) | Enforce general Bash scripting standards with enhanced logging |
 | [`multi-agent-coordination.mdc`](.cursor/rules/multi-agent-coordination.mdc) | Multi-agent coordination and workflow standards |
+| [`project-definition-template.mdc`](.cursor/rules/project-definition-template.mdc) | Template for defining project context |
 | [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Require tests for new functionality and enforce documentation updates |
 | [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
-| [`generic_bash_style.mdc`](.cursor/rules/generic_bash_style.mdc) | Enforce general Bash scripting standards with enhanced logging |
-| [`project-definition-template.mdc`](.cursor/rules/project-definition-template.mdc) | Template for defining project context |
 
 ### Python Rules
 | File Name | Purpose |
 |-----------|---------|
+| [`python-authentication-failures.mdc`](.cursor/rules/python-authentication-failures.mdc) | Prevents authentication failures in Python |
 | [`python-broken-access-control.mdc`](.cursor/rules/python-broken-access-control.mdc) | Prevents broken access control vulnerabilities in Python |
 | [`python-cryptographic-failures.mdc`](.cursor/rules/python-cryptographic-failures.mdc) | Prevents cryptographic failures in Python applications |
 | [`python-injection.mdc`](.cursor/rules/python-injection.mdc) | Prevents injection vulnerabilities in Python |
 | [`python-insecure-design.mdc`](.cursor/rules/python-insecure-design.mdc) | Prevents insecure design patterns in Python |
-| [`python-security-misconfiguration.mdc`](.cursor/rules/python-security-misconfiguration.mdc) | Prevents security misconfigurations in Python |
-| [`python-vulnerable-outdated-components.mdc`](.cursor/rules/python-vulnerable-outdated-components.mdc) | Identifies and prevents vulnerable components in Python |
-| [`python-authentication-failures.mdc`](.cursor/rules/python-authentication-failures.mdc) | Prevents authentication failures in Python |
 | [`python-integrity-failures.mdc`](.cursor/rules/python-integrity-failures.mdc) | Prevents integrity failures in Python |
 | [`python-logging-monitoring-failures.mdc`](.cursor/rules/python-logging-monitoring-failures.mdc) | Prevents logging and monitoring failures in Python |
+| [`python-security-misconfiguration.mdc`](.cursor/rules/python-security-misconfiguration.mdc) | Prevents security misconfigurations in Python |
 | [`python-ssrf.mdc`](.cursor/rules/python-ssrf.mdc) | Prevents Server-Side Request Forgery in Python |
+| [`python-vulnerable-outdated-components.mdc`](.cursor/rules/python-vulnerable-outdated-components.mdc) | Identifies and prevents vulnerable components in Python |
+| [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
 
 ---
 

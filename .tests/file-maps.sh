@@ -25,7 +25,6 @@ WEB_FILES=(
   "tailwind-standards.mdc"
   "third-party-integration.mdc"
   "vue-best-practices.mdc"
-  "security-practices.mdc"
 )
 
 # Drupal rules
@@ -47,16 +46,17 @@ DRUPAL_FILES=(
 
 # Python rules
 PYTHON_FILES=(
+  "python-authentication-failures.mdc"
   "python-broken-access-control.mdc"
   "python-cryptographic-failures.mdc"
   "python-injection.mdc"
   "python-insecure-design.mdc"
-  "python-security-misconfiguration.mdc"
-  "python-vulnerable-outdated-components.mdc"
-  "python-authentication-failures.mdc"
   "python-integrity-failures.mdc"
   "python-logging-monitoring-failures.mdc"
+  "python-security-misconfiguration.mdc"
   "python-ssrf.mdc"
+  "python-vulnerable-outdated-components.mdc"
+  "security-practices.mdc"
 )
 
 # Function to validate files
