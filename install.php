@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 // Define constants.
-define('CURSOR_RULES_VERSION', '1.0.3');
+define('CURSOR_RULES_VERSION', '1.0.4');
 define('CURSOR_RULES_DIR', '.cursor/rules');
 define('CURSOR_DIR', '.cursor');
 
@@ -113,6 +113,7 @@ function install_cursor_rules(array $options = []): bool {
     'php-drupal-best-practices.mdc',
     'drupal-database-standards.mdc',
     'govcms-saas.mdc',
+    'govcms-saas-project-documentation-creation.mdc',
     'drupal-broken-access-control.mdc',
     'drupal-cryptographic-failures.mdc',
     'drupal-injection.mdc',
@@ -515,7 +516,7 @@ function show_help(): void {
   echo "  --debug              Enable debug mode\n";
   echo "  --copy-only          Only copy files, don't perform additional setup\n";
   echo "  --destination=DIR    Specify destination directory (default: .cursor/rules)\n";
-  echo "  --web-stack, -w      Install web stack rules (PHP, Drupal, JavaScript, etc.)\n";
+  echo "  --web-stack, --ws     Install web stack rules (PHP, Drupal, JavaScript, etc.)\n";
   echo "  --python, -p         Install Python rules\n";
   echo "  --all, -a            Install all rules\n";
   echo "  --core, -c           Install core rules only\n";
@@ -555,7 +556,7 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
           $options['copy_only'] = true;
           break;
         case '--web-stack':
-        case '-w':
+        case '--ws':
           $options['web_stack'] = true;
           break;
         case '--python':
@@ -652,7 +653,7 @@ function parse_args() {
           echo "  --help, -h          Show this help message\n";
           echo "  --yes, -y           Automatically answer yes to all prompts\n";
           echo "  --core              Install core rules only\n";
-          echo "  --web-stack         Install web stack rules (includes core rules)\n";
+          echo "  --web-stack, --ws   Install web stack rules (includes core rules)\n";
           echo "  --python            Install Python rules (includes core rules)\n";
           echo "  --all               Install all rules\n";
           echo "  --destination=DIR   Install to a custom directory (default: .cursor/rules)\n";
@@ -670,6 +671,7 @@ function parse_args() {
           break;
         
         case '--web-stack':
+        case '--ws':
           $options['web_stack'] = true;
           $option_count++;
           break;
