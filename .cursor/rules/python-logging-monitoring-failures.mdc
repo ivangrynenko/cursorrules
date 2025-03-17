@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
 alwaysApply: false
 ---
  # Python Security Logging and Monitoring Failures Standards (OWASP A09:2021)

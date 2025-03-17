@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.php,*.inc,*.module,*.install,*.info.yml, *.theme,**/modules/**,**/themes/**,**/profiles/**
 alwaysApply: false
 ---
 # Drupal Injection Security Standards (OWASP A03:2021)

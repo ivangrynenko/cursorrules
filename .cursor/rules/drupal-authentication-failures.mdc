@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.php,*.inc,*.module,*.install,*.info.yml,*.theme
 alwaysApply: false
 ---
 # Drupal Identification and Authentication Failures Standards (OWASP A07:2021)

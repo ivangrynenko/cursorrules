@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: .github/workflows/*.yml
 alwaysApply: false
 ---
  # GitHub Actions Standards
