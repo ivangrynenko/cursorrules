@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py,*.txt,*.ini,*.cfg,*.yml,*.yaml,*.json,*.toml
 alwaysApply: false
 ---
  # Python Vulnerable and Outdated Components Standards (OWASP A06:2021)

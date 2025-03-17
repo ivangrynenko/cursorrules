@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
 alwaysApply: false
 ---
  # Python Security Misconfiguration Standards (OWASP A05:2021)

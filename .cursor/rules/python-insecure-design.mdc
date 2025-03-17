@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
 alwaysApply: false
 ---
  # Python Insecure Design Security Standards (OWASP A04:2021)

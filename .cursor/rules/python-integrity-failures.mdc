@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
 alwaysApply: false
 ---
 # Python Software and Data Integrity Failures Standards (OWASP A08:2021)

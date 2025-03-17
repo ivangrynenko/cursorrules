@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
 alwaysApply: false
 ---
  # Python Injection Security Standards (OWASP A03:2021)
