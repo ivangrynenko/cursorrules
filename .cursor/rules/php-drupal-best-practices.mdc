@@ -1,7 +1,6 @@
 ---
 description: PHP & Drupal Development Standards and Best Practices
 globs: *.php, *.module, *.theme, *.inc, *.info, *.install
-alwaysApply: false
 ---
 # Enhanced PHP & Drupal Development Standards
 
@@ -54,24 +53,266 @@ actions:
 
       - pattern: "\\$this->config\\('\\w+'\\)"
         message: "Use ConfigFactory for configuration management."
+      
+      - pattern: "array\\s*\\("
+        message: "Use short array syntax ([]) instead of array() for consistent code style."
+      
+      - pattern: "(?<!\\()\\s+\\(int\\)\\s*\\$"
+        message: "Put a space between the (type) and the $variable in a cast: (int) $mynumber."
+      
+      - pattern: "\\n[\\t ]+\\n"
+        message: "Remove whitespace from empty lines."
+      
+      - pattern: "\\s+$"
+        message: "Remove trailing whitespace at the end of lines."
+      
+      - pattern: "^(?!.*\\n$)"
+        message: "Ensure files end with a single newline character."
+      
+      - pattern: "if\\s*\\([^)]*\\)\\s*\\{[^{]*\\}\\s*else\\s*\\{"
+        message: "Place the opening brace on the same line as the statement for control structures."
+      
+      - pattern: "\\$_GET|\\$_POST|\\$_REQUEST"
+        message: "Never use superglobals directly; use Drupal's input methods."
+      
+      - pattern: "mysql_|mysqli_"
+        message: "Use Drupal's database API instead of direct MySQL functions."
+      
+      - pattern: "\\t+"
+        message: "Use 2 spaces for indentation, not tabs."
+      
+      - pattern: "function\\s+\\w+\\s*\\([^)]*\\)\\s*\\{[^}]*\\becho\\b"
+        message: "Don't use echo; use return values or Drupal's messenger service."
+      
+      - pattern: "(?<!\\/\\*\\*)\\s*\\*\\s+@"
+        message: "Use proper DocBlock formatting for documentation."
+      
+      - pattern: "\\bdie\\b|\\bexit\\b"
+        message: "Don't use die() or exit(); throw exceptions instead."
+      
+      - pattern: "\\$entity->get\\([^)]+\\)->getValue\\(\\)"
+        message: "Use $entity->get('field_name')->value instead of getValue() when possible."
+      
+      - pattern: "\\bvar_dump\\b|\\bprint_r\\b|\\bdump\\b"
+        message: "Don't use debug functions in production code; use Drupal's logger instead."
+      
+      - pattern: "\\bnew\\s+DateTime\\b"
+        message: "Use Drupal's DateTimeInterface and DrupalDateTime instead of PHP's DateTime."
+      
+      - pattern: "\\beval\\b"
+        message: "Never use eval() as it poses security risks."
+      
+      - pattern: "function\\s+\\w+_menu_callback\\("
+        message: "Use controller classes with route definitions instead of hook_menu() callbacks."
+      
+      - pattern: "\\/\\*\\*(?:[^*]|\\*[^/])*?@file(?:[^*]|\\*[^/])*?\\*\\/"
+        message: "All PHP files must include proper @file documentation in the docblock."
+      
+      - pattern: "function\\s+\\w+\\s*\\((?:[^)]|\\([^)]*\\))*\\)\\s*\\{(?:[^}]|\\{[^}]*\\})*\\$_SESSION"
+        message: "Use Drupal's user session handling instead of $_SESSION."
+      
+      - pattern: "function\\s+theme_\\w+\\("
+        message: "Theme functions should be replaced with Twig templates in Drupal 8+."
+      
+      - pattern: "drupal_add_js|drupal_add_css"
+        message: "Use #attached in render arrays instead of drupal_add_js() or drupal_add_css()."
+      
+      - pattern: "function\\s+\\w+_implements_hook_\\w+\\("
+        message: "Use proper hook implementation format: module_name_hook_name()."
 
   - type: suggest
     message: |
       **PHP/Drupal Development Best Practices:**
-      - **Fields API:** Utilize the Fields API for managing entity fields.
-      - **Exception Handling:** Use try/catch for exception handling to manage errors gracefully.
-      - **Database Layer:** Use Drupal's database abstraction layer for all database operations.
+      
+      ### General Code Structure
+      - **File Structure:** Each PHP file should have the proper structures: <?php tag, namespace declaration (if applicable), use statements, docblock, and implementation.
+      - **Line Length:** Keep lines under 80 characters whenever possible.
+      - **Indentation:** Use 2 spaces for indentation, never tabs.
+      - **Empty Lines:** Use empty lines to separate logical blocks of code, but avoid multiple empty lines.
+      - **File Endings:** All files must end with a single newline character.
+      
+      ### PHP Language Features
+      - **PHP Version:** Use PHP 8.3+ features where appropriate.
+      - **Strict Types:** Use declare(strict_types=1) at the top of files to enforce type safety.
+      - **Type Hints:** Always use parameter and return type hints.
+      - **Named Arguments:** Use named arguments for clarity in complex function calls.
+      - **Attributes:** Use PHP 8 attributes like #[Override] for better code comprehension.
+      - **Match Expressions:** Prefer match over switch for cleaner conditionals.
+      - **Null Coalescing:** Use ?? and ??= operators where appropriate.
+      
+      ### Drupal-Specific Standards
+      - **Fields API:** Use hasField(), get(), and value() methods when working with entity fields.
+      - **Exception Handling:** Use try/catch for exception handling with proper logging.
+      - **Database Layer:** Use Drupal's database abstraction layer for all queries.
       - **Schema Updates:** Implement hook_update_N() for schema changes during updates.
-      - **File Structure:** Place module files in `web/modules/custom/[module_name]/`.
-      - **Module Files:** Include required files like .info.yml, .module, .libraries.yml, .services.yml.
-      - **Dependencies:** Use hook_requirements() to check for external dependencies.
-      - **Forms:** Use FormBase or ConfigFormBase for creating forms; ensure CSRF protection.
-      - **Caching:** Implement proper use of cache tags and contexts for performance.
-      - **Error Handling:** Add comprehensive error handling and logging using Drupal's systems.
-      - **Type Safety:** Leverage PHP 8+ features for type safety in form methods.
-      - **Dependency Injection:** Follow Drupal's dependency injection patterns for better code organization.
-      - **Service Container:** Use Drupal's service container for managing dependencies.
-      - **Security:** Always validate user input, use sanitized data, and follow Drupal security practices.
+      - **Dependency Injection:** Use services.yml and proper container injection.
+      - **Routing:** Define routes in routing.yml with proper access checks.
+      - **Forms:** Extend FormBase or ConfigFormBase with proper validation and submission handling.
+      - **Entity API:** Follow entity API best practices for loading, creating, and editing entities.
+      - **Plugins:** Use plugin system appropriately with proper annotations.
+      
+      ### Security Practices
+      - **Input Validation:** Always validate and sanitize user input.
+      - **Access Checks:** Implement proper access checks for all routes and content.
+      - **CSRF Protection:** Use Form API with proper form tokens for all forms.
+      - **SQL Injection:** Use parameterized queries with placeholders.
+      - **XSS Prevention:** Use Xss::filter() or t() with appropriate placeholders.
+      - **File Security:** Validate uploaded files and restrict access properly.
+      
+      ### Documentation and Comments
+      - **PHPDoc Blocks:** Document all classes, methods, and properties with proper PHPDoc.
+      - **Function Comments:** Describe parameters, return values, and exceptions.
+      - **Inline Comments:** Use meaningful comments for complex logic.
+      - **Comment Format:** Begin comments with a capital letter and end with a period.
+      - **API Documentation:** Follow Drupal's API documentation standards.
+      
+      ### Performance
+      - **Caching:** Implement proper cache tags, contexts, and max-age.
+      - **Database Queries:** Optimize queries with proper indices and JOINs.
+      - **Lazy Loading:** Use lazy loading for expensive operations.
+      - **Batch Processing:** Use batch API for long-running operations.
+      - **Static Caching:** Implement static caching for repeated operations.
+      
+      ### Testing
+      - **Unit Tests:** Write PHPUnit tests for business logic.
+      - **Kernel Tests:** Use kernel tests for integration with Drupal subsystems.
+      - **Functional Tests:** Implement functional tests for user interactions.
+      - **Mocking:** Use proper mocking techniques for dependencies.
+      - **Test Coverage:** Aim for high test coverage of critical functionality.
+      
+      ### API Documentation Examples
+      
+      #### File Documentation
+      
+      **Module Files (.module)**
+      ```php
+      <?php
+      
+      /**
+       * @file
+       * Provides [module functionality description].
+       */
+      ```
+      
+      **Install Files (.install)**
+      ```php
+      <?php
+      
+      /**
+       * @file
+       * Install, update and uninstall functions for the [module name] module.
+       */
+      ```
+      
+      **Include Files (.inc)**
+      ```php
+      <?php
+      
+      /**
+       * @file
+       * [Specific functionality] for the [module name] module.
+       */
+      ```
+      
+      **Class Files (in namespaced directories)**
+      ```php
+      <?php
+      
+      namespace Drupal\module_name\ClassName;
+      
+      use Drupal\Core\SomeClass;
+      
+      /**
+       * Provides [class functionality description].
+       *
+       * [Extended description if needed]
+       */
+      class ClassName implements InterfaceName {
+      ```
+      
+      #### Function Documentation
+      
+      **Standard Function**
+      ```php
+      /**
+       * Returns [what the function returns or does].
+       *
+       * [Additional explanation if needed]
+       *
+       * @param string $param1
+       *   Description of parameter.
+       * @param int $param2
+       *   Description of parameter.
+       *
+       * @return array
+       *   Description of returned data.
+       *
+       * @throws \Exception
+       *   Exception thrown when [condition].
+       *
+       * @see related_function()
+       */
+      function module_function_name($param1, $param2) {
+      ```
+      
+      **Hook Implementation**
+      ```php
+      /**
+       * Implements hook_form_alter().
+       */
+      function module_name_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+      ```
+      
+      **Update Hook**
+      ```php
+      /**
+       * Implements hook_update_N().
+       *
+       * [Description of what the update does].
+       */
+      function module_name_update_8001() {
+      ```
+      
+      #### Class Documentation
+      
+      **Class Properties**
+      ```php
+      /**
+       * The entity type manager.
+       *
+       * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+       */
+      protected $entityTypeManager;
+      ```
+      
+      **Method Documentation**
+      ```php
+      /**
+       * Gets entities of a specific type.
+       *
+       * @param string $entity_type
+       *   The entity type ID.
+       * @param array $conditions
+       *   (optional) An array of conditions to match. Defaults to an empty array.
+       *
+       * @return \Drupal\Core\Entity\EntityInterface[]
+       *   An array of entity objects indexed by their IDs.
+       *
+       * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+       *   Thrown if the entity type doesn't exist.
+       * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+       *   Thrown if the storage handler couldn't be loaded.
+       */
+      public function getEntities(string $entity_type, array $conditions = []): array {
+      ```
+      
+      **Interface Method**
+      ```php
+      /**
+       * Implements \SomeInterface::methodName().
+       */
+      public function methodName() {
+      ```
 
   - type: validate
     conditions:
@@ -86,8 +327,50 @@ actions:
 
       - pattern: "try\\s*\\{[^}]*\\}\\s*catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
         message: "Implement proper exception handling in catch blocks."
+      
+      - pattern: "namespace\\s+Drupal\\\\(?!\\w+\\\\)"
+        message: "Namespace should be Drupal\\ModuleName\\..."
+      
+      - pattern: "class\\s+[^\\s]+\\s+implements\\s+[^\\s]+Interface"
+        message: "Follow PSR-4 for class naming and organization."
+      
+      - pattern: "\\*\\s+@return\\s+[a-z]+\\|null"
+        message: "Use nullable return types (e.g., ?string) instead of type|null in docblocks."
+      
+      - pattern: "function\\s+__construct\\([^)]*\\)\\s*\\{[^}]*parent::"
+        message: "Call parent::__construct() if extending a class with a constructor."
+      
+      - pattern: "function\\s+[gs]et[A-Z]\\w+\\("
+        message: "Use camelCase for method names (e.g., getId instead of get_id)."
+      
+      - pattern: "\\/\\*\\*(?:(?!\\@file).)*?\\*\\/"
+        message: "Add proper @file docblock for PHP files."
+      
+      - pattern: "function\\s+hook_[a-z0-9_]+\\("
+        message: "Replace 'hook_' prefix with your module name in hook implementations."
+      
+      - pattern: "(?<!\\s\\*)\\s+@(?:param|return|throws)\\b"
+        message: "DocBlock tags should be properly aligned with leading asterisks."
+      
+      - pattern: "@param\\s+(?!(?:array|bool|callable|float|int|mixed|object|resource|string|void|null|\\\\)[\\s|])"
+        message: "Use proper data types in @param tags (array, bool, int, string, etc.)."
+      
+      - pattern: "@return\\s+(?!(?:array|bool|callable|float|int|mixed|object|resource|string|void|null|\\\\)[\\s|])"
+        message: "Use proper data types in @return tags (array, bool, int, string, etc.)."
+      
+      - pattern: "\\*\\s*@param[^\\n]*?(?:(?!\\s{3,})[^\\n])*$"
+        message: "Parameter description should be separated by at least 3 spaces from the param type/name."
+      
+      - pattern: "function\\s+theme\\w+\\([^)]*\\)\\s*\\{[^}]*?(?!\\@ingroup\\s+themeable)"
+        message: "Theme functions should include @ingroup themeable in their docblock."
+      
+      - pattern: "\\*\\s*@code(?!\\s+[a-z]+\\s+)"
+        message: "@code blocks should specify the language (e.g., @code php)."
+      
+      - pattern: "namespace\\s+(?!Drupal\\\\)"
+        message: "Namespaces should start with 'Drupal\\'."
 
 metadata:
   priority: critical
-  version: 1.1
+  version: 1.3
 </rule>
