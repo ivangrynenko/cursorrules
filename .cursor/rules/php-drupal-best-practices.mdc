@@ -1,6 +1,7 @@
 ---
 description: PHP & Drupal Development Standards and Best Practices
 globs: *.php, *.module, *.theme, *.inc, *.info, *.install
+alwaysApply: false
 ---
 # Enhanced PHP & Drupal Development Standards
 
