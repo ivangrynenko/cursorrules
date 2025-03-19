@@ -137,6 +137,18 @@ actions:
         
       - pattern: "Drupal\\\\(?!Core|Component)[A-Z]"
         message: "Module namespaces should be Drupal\\module_name, not Drupal\\ModuleName (camelCase not PascalCase)."
+        
+      - pattern: "\\\\Drupal::request\\(\\)->attributes->set\\('([^_][^']*)',"
+        message: "Request attributes added by modules should be prefixed with underscore (e.g., '_context_value')."
+        
+      - pattern: "\\\\Drupal::request\\(\\)->attributes->get\\('(_(system_path|title|route|route_object|controller|content|account))'\\)"
+        message: "Avoid overwriting reserved Symfony or Drupal core request attributes."
+        
+      - pattern: "(?<!service provider)\\s+class\\s+\\w+Provider(?!Interface)"
+        message: "Classes that provide services should use the 'Provider' suffix (e.g., MyServiceProvider)."
+        
+      - pattern: "\\.services\\.yml[^}]*\\s+class:\\s+[^\\n]+\\s+arguments:"
+        message: "Services should use dependency injection through constructor arguments defined in services.yml."
 
   - type: suggest
     message: |
@@ -168,6 +180,14 @@ actions:
       - **Forms:** Extend FormBase or ConfigFormBase with proper validation and submission handling.
       - **Entity API:** Follow entity API best practices for loading, creating, and editing entities.
       - **Plugins:** Use plugin system appropriately with proper annotations.
+      
+      ### Service & Request Standards
+      - **Service Naming:** Use descriptive service names and appropriate naming patterns (Provider suffix for service providers).
+      - **Service Definition:** Define services in the module's *.services.yml file with appropriate tags and arguments.
+      - **Request Attributes:** When adding attributes to the Request object, prefix custom attributes with underscore (e.g., `_context_value`).
+      - **Reserved Attributes:** Avoid overwriting core-reserved request attributes like `_system_path`, `_title`, `_account`, `_route`, `_route_object`, `_controller`, `_content`.
+      - **Service Container:** Use dependency injection rather than the service container directly.
+      - **Factory Services:** Use factory methods for complex service instantiation.
       
       ### Namespace Standards
       - **Module Namespace:** Use Drupal\\module_name\\... for all custom module code.
@@ -391,6 +411,27 @@ actions:
         }
       }
       ```
+      
+      #### Service Definition Example
+      
+      **services.yml File**
+      ```yaml
+      services:
+        mymodule.my_service:
+          class: Drupal\mymodule\MyService
+          arguments: ['@entity_type.manager', '@current_user']
+          tags:
+            - { name: cache.context }
+      ```
+      
+      **Request Attribute Handling**
+      ```php
+      // Correctly adding a request attribute (with underscore prefix)
+      \Drupal::request()->attributes->set('_context_value', $myvalue);
+      
+      // Correctly retrieving a request attribute
+      $contextValue = \Drupal::request()->attributes->get('_context_value');
+      ```
 
   - type: validate
     conditions:
@@ -447,8 +488,14 @@ actions:
       
       - pattern: "namespace\\s+(?!Drupal\\\\)"
         message: "Namespaces should start with 'Drupal\\'."
+        
+      - pattern: "web/modules/custom/[^/]+/\\.services\\.yml$"
+        message: "Every module using services should have a services.yml file."
+      
+      - pattern: "web/modules/custom/[^/]+/src/[^/]+Provider\\.php$"
+        message: "Service providers should be in the module's root namespace (src/ directory)."
 
 metadata:
   priority: critical
-  version: 1.4
+  version: 1.5
 </rule>
