@@ -1,7 +1,6 @@
 ---
 description: PHP & Drupal Development Standards and Best Practices
 globs: *.php, *.module, *.theme, *.inc, *.info, *.install
-alwaysApply: false
 ---
 # Enhanced PHP & Drupal Development Standards
 
@@ -120,6 +119,24 @@ actions:
       
       - pattern: "function\\s+\\w+_implements_hook_\\w+\\("
         message: "Use proper hook implementation format: module_name_hook_name()."
+        
+      - pattern: "use\\s+[^;]+,\\s*[^;]+"
+        message: "Specify a single class per use statement. Do not specify multiple classes in a single use statement."
+        
+      - pattern: "use\\s+\\\\[A-Za-z]"
+        message: "When importing a class with 'use', do not include a leading backslash (\\)."
+        
+      - pattern: "\\bnew\\s+\\\\DateTime\\(\\)"
+        message: "Non-namespaced global classes (like Exception) must be fully qualified with a leading backslash (\\) when used in a namespaced file."
+        
+      - pattern: "(?<!namespace )Drupal\\\\(?!\\w+\\\\)"
+        message: "Modules should place classes inside a custom namespace: Drupal\\module_name\\..."
+        
+      - pattern: "class\\s+\\w+\\s*(?:extends|implements)(?:[^{]+)\\{\\s*[^\\s]"
+        message: "Leave an empty line between start of class/interface definition and property/method definition."
+        
+      - pattern: "Drupal\\\\(?!Core|Component)[A-Z]"
+        message: "Module namespaces should be Drupal\\module_name, not Drupal\\ModuleName (camelCase not PascalCase)."
 
   - type: suggest
     message: |
@@ -151,6 +168,16 @@ actions:
       - **Forms:** Extend FormBase or ConfigFormBase with proper validation and submission handling.
       - **Entity API:** Follow entity API best practices for loading, creating, and editing entities.
       - **Plugins:** Use plugin system appropriately with proper annotations.
+      
+      ### Namespace Standards
+      - **Module Namespace:** Use Drupal\\module_name\\... for all custom module code.
+      - **PSR-4 Autoloading:** Class in folder module/src/SubFolder should use namespace Drupal\\module_name\\SubFolder.
+      - **Use Statements:** Each class should have its own use statement; don't combine multiple classes in one use.
+      - **No Leading Backslash:** Don't add a leading backslash (\\) in use statements.
+      - **Global Classes:** Global classes (like Exception) must be fully qualified with a leading backslash (\\) when used in a namespaced file.
+      - **Class Aliasing:** Only alias classes to avoid name collisions, using meaningful names like BarBaz and ThingBaz.
+      - **String Class Names:** When specifying a class name in a string, use full name including namespace without leading backslash. Prefer single quotes.
+      - **Class Placement:** A class named Drupal\\module_name\\Foo should be in file module_name/src/Foo.php.
       
       ### Security Practices
       - **Input Validation:** Always validate and sanitize user input.
@@ -314,6 +341,56 @@ actions:
        */
       public function methodName() {
       ```
+      
+      #### Namespace Examples
+      
+      **Using Classes From Other Namespaces**
+      ```php
+      namespace Drupal\mymodule\Tests\Foo;
+      
+      use Drupal\simpletest\WebTestBase;
+      
+      /**
+       * Tests that the foo bars.
+       */
+      class BarTest extends WebTestBase {
+      ```
+      
+      **Class Aliasing for Name Collisions**
+      ```php
+      use Foo\Bar\Baz as BarBaz;
+      use Stuff\Thing\Baz as ThingBaz;
+      
+      /**
+       * Tests stuff for the whichever.
+       */
+      function test() {
+        $a = new BarBaz(); // This will be Foo\Bar\Baz
+        $b = new ThingBaz(); // This will be Stuff\Thing\Baz
+      }
+      ```
+      
+      **Using Global Classes in Namespaced Files**
+      ```php
+      namespace Drupal\Subsystem;
+      
+      // Bar is a class in the Drupal\Subsystem namespace in another file.
+      // It is already available without any importing.
+      
+      /**
+       * Defines a Foo.
+       */
+      class Foo {
+      
+        /**
+         * Constructs a new Foo object.
+         */
+        public function __construct(Bar $b) {
+          // Global classes must be prefixed with a \ character.
+          $d = new \DateTime();
+        }
+      }
+      ```
 
   - type: validate
     conditions:
@@ -373,5 +450,5 @@ actions:
 
 metadata:
   priority: critical
-  version: 1.3
+  version: 1.4
 </rule>
