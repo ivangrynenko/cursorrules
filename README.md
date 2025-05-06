@@ -205,6 +205,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`project-definition-template.mdc`](.cursor/rules/project-definition-template.mdc) | Template for defining project context |
 | [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Require tests for new functionality and enforce documentation updates |
 | [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
+| [`behat-steps.mdc`](.cursor/rules/behat-steps.mdc) | Documentation for available Behat testing steps in Drupal projects |
 
 ### Python Rules
 | File Name | Purpose |
