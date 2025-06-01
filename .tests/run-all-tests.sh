@@ -133,13 +133,22 @@ run_test "All Rules Installation" "php install.php --all --yes" "validate_all"
 # Test 4: Core Rules Installation
 run_test "Core Rules Installation" "php install.php --core --yes" "validate_core"
 
-# Test 5: Help Information
+# Test 5: JavaScript OWASP Installation
+run_test "JavaScript OWASP Installation" "php install.php --javascript --yes" "validate_javascript"
+
+# Test 6: Tag Filtering - JavaScript Security
+run_test "Tag Filtering - JavaScript Security" "php install.php --tags 'language:javascript category:security' --yes" "validate_javascript"
+
+# Test 7: Tag Preset - JavaScript OWASP
+run_test "Tag Preset - JavaScript OWASP" "php install.php --tag-preset js-owasp --yes" "validate_javascript"
+
+# Test 8: Help Information
 run_test "Help Information" "php install.php --help" "" 0
 
-# Test 6: Web Stack with Short Option
+# Test 9: Web Stack with Short Option
 run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_stack"
 
-# Test 7: Python with Short Option
+# Test 10: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
 
 # Run the error handling tests
