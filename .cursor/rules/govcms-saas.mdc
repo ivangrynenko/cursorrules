@@ -3,7 +3,6 @@ description: This rule defines the constraints and best practices for working wi
 globs: 
 alwaysApply: false
 ---
----
 name: govcms-distribution-development-standards
 id: govcms_distribution
 
