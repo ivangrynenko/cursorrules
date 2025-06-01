@@ -358,6 +358,11 @@ function install_cursor_rules(array $options = []): bool {
     getcwd() . '/.cursor/rules',
   ];
 
+  // Filter out false values (realpath returns false if path doesn't exist)
+  $possible_source_dirs = array_filter($possible_source_dirs, function($dir) {
+    return $dir !== false;
+  });
+
   // Check if we're in the cloned repo root
   if (file_exists(__DIR__ . '/.cursor/rules')) {
     // We're likely in the root of the cloned repository
@@ -893,11 +898,9 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
   // Check for command line arguments
   if (isset($_SERVER['argv']) && is_array($_SERVER['argv']) && count($_SERVER['argv']) > 1) {
     // Process arguments
-    foreach ($_SERVER['argv'] as $i => $arg) {
-      // Skip the script name (first argument)
-      if ($i === 0) {
-        continue;
-      }
+    $argv_count = count($_SERVER['argv']);
+    for ($i = 1; $i < $argv_count; $i++) {
+      $arg = $_SERVER['argv'][$i];
 
       // Process argument
       switch ($arg) {
@@ -909,6 +912,7 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
           break;
         case '--web-stack':
         case '--ws':
+        case '-w':
           $options['web_stack'] = true;
           break;
         case '--python':
@@ -934,6 +938,42 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
         case '--help':
         case '-h':
           $options['help'] = true;
+          break;
+        case '--tags':
+          // Get the next argument as the value
+          if ($i + 1 < count($_SERVER['argv'])) {
+            $options['tags'] = $_SERVER['argv'][$i + 1];
+            $i++; // Skip the next argument
+          } else {
+            echo "Error: --tags requires a value\n";
+            exit(1);
+          }
+          break;
+        case '--tag-preset':
+          // Get the next argument as the value
+          if ($i + 1 < count($_SERVER['argv'])) {
+            $options['tag-preset'] = $_SERVER['argv'][$i + 1];
+            $i++; // Skip the next argument
+          } else {
+            echo "Error: --tag-preset requires a value\n";
+            exit(1);
+          }
+          break;
+        case '--ignore-files':
+          // Get the next argument as the value
+          if ($i + 1 < count($_SERVER['argv'])) {
+            $value = $_SERVER['argv'][$i + 1];
+            if (in_array($value, ['yes', 'no', 'ask', 'y', 'n', 'a'])) {
+              $options['ignore-files'] = $value;
+              $i++; // Skip the next argument
+            } else {
+              echo "Warning: Invalid value for --ignore-files. Use yes, no, or ask.\n";
+              exit(1);
+            }
+          } else {
+            echo "Error: --ignore-files requires a value\n";
+            exit(1);
+          }
           break;
         default:
           // Check for --destination=DIR format
