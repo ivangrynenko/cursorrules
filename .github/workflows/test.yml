@@ -50,31 +50,52 @@ jobs:
       run: |
         cd .tests
         
+        # Track test results
+        FAILED_TESTS=0
+        
         echo "Running test-copy.sh..."
         chmod +x test-copy.sh
-        ./test-copy.sh | tee reports/test-copy.log
+        if ! ./test-copy.sh | tee reports/test-copy.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         echo "Running test-debug.sh..."
         chmod +x test-debug.sh
-        ./test-debug.sh | tee reports/test-debug.log
+        if ! ./test-debug.sh | tee reports/test-debug.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         echo "Running test-invalid-option.sh..."
         chmod +x test-invalid-option.sh
-        ./test-invalid-option.sh | tee reports/test-invalid-option.log
+        if ! ./test-invalid-option.sh | tee reports/test-invalid-option.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         echo "Running test-conflicting-options.sh..."
         chmod +x test-conflicting-options.sh
-        ./test-conflicting-options.sh | tee reports/test-conflicting-options.log
+        if ! ./test-conflicting-options.sh | tee reports/test-conflicting-options.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         echo "Running test-missing-files.sh..."
         chmod +x test-missing-files.sh
-        ./test-missing-files.sh | tee reports/test-missing-files.log
+        if ! ./test-missing-files.sh | tee reports/test-missing-files.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         echo "Running run-all-tests.sh..."
         chmod +x run-all-tests.sh
-        ./run-all-tests.sh | tee reports/run-all-tests.log
+        if ! ./run-all-tests.sh | tee reports/run-all-tests.log; then
+          FAILED_TESTS=$((FAILED_TESTS + 1))
+        fi
         
         cd ..
+        
+        # Exit with failure if any tests failed
+        if [ $FAILED_TESTS -gt 0 ]; then
+          echo "❌ $FAILED_TESTS test(s) failed!"
+          exit 1
+        fi
         
     - name: Generate test summary
       if: always()
@@ -104,6 +125,9 @@ jobs:
         
         cat test-summary.md
         
+        # Store test results for later use
+        echo "TESTS_FAILED=${TESTS_FAILED}" >> $GITHUB_ENV
+        
     - name: Upload test logs
       if: always()
       uses: actions/upload-artifact@v4
@@ -112,4 +136,14 @@ jobs:
         path: |
           .tests/reports/
           test-summary.md
-        retention-days: 7 
+        retention-days: 7
+        
+    - name: Check test results
+      if: always()
+      run: |
+        if [ "${TESTS_FAILED:-0}" -gt 0 ]; then
+          echo "❌ Tests failed! See test-summary.md for details."
+          exit 1
+        else
+          echo "✅ All tests passed!"
+        fi 
