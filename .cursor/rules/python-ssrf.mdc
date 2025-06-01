@@ -1,5 +1,5 @@
 ---
-description: 
+description: Detect and prevent Server-Side Request Forgery (SSRF) vulnerabilities in Python applications as defined in OWASP Top 10:2021-A10
 globs: *.py
 alwaysApply: false
 ---

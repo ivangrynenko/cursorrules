@@ -9,7 +9,7 @@ These rules help **Cursor AI** assist developers by:
 - Enforcing coding standards and best practices
 - Ensuring tests and documentation remain up to date
 - Detecting inefficiencies in AI query usage and improving response quality
-- Providing automated suggestions for commit messages, dependencies, and performance optimizations
+- Providing automated suggestions for commit messages, dependencies, and performance optimisations
 
 ---
 
@@ -48,6 +48,11 @@ For a quick installation without prompts (installs core rules only):
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php
 ```
 
+or install rules by tag expression
+```bash
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript category:security"
+```
+
 ⚠️ **Note**: When using the curl piping method above, interactive mode is **not possible** because STDIN is already being used for the script input. The installer will automatically default to installing core rules only.
 
 ### Installation with Specific Options
@@ -74,7 +79,25 @@ The installer supports the following options:
 - `--yes` or `-y`: Automatically answer yes to all prompts
 - `--destination=DIR`: Install to a custom directory (default: .cursor/rules)
 - `--debug`: Enable detailed debug output for troubleshooting installation issues
+- `--ignore-files <opt>`: Control installation of .cursorignore files (yes, no, ask), default's to yes
 - `--help` or `-h`: Show help message
+
+### .cursorignore Files
+
+The installer can automatically add recommended `.cursorignore` and `.cursorindexingignore` files to your project. These files tell Cursor AI which files and directories to exclude from processing, which helps to:
+
+- **Improve performance** by skipping large generated files, vendor directories, and node_modules
+- **Reduce noise** in AI responses by focusing only on relevant project files
+- **Prevent unnecessary context** from third-party code being included in AI prompts
+
+The `.cursorignore` file ensures files are not indexed by Cursior and they are not read by Cursor or sent to the models for processing. This is a good setting for files that may contain secrets or other information you'd prefer to keep private. The `.cursorindexingignore` file is just for indexing and is there mainly for performance reasons.
+
+By default, the installer will add these files (controlled by the `--ignore-files` option). You can:
+- Set to `yes` (default): Always install ignore files
+- Set to `no`: Never install ignore files
+- Set to `ask`: Prompt during installation
+
+If you need to modify the ignore patterns, you can edit the `.cursorignore` files manually after installation.
 
 ### Troubleshooting Installation
 
@@ -114,6 +137,45 @@ Install to a custom directory:
 curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --all --destination=my/custom/path
 ```
 
+#### Tag-Based Selection
+
+The installer now supports filtering rules by tags, allowing you to install only the rules relevant to your project:
+
+```sh
+# Install all JavaScript security rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript category:security"
+
+# Install all OWASP Top 10 rules for PHP
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:php standard:owasp-top10"
+
+# Install all React-related rules
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "framework:react"
+
+# Install rules matching multiple criteria with OR logic
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --tags "language:javascript OR language:php"
+```
+
+Available tag presets:
+- `web`: JavaScript, HTML, CSS, PHP
+- `frontend`: JavaScript, HTML, CSS
+- `drupal`: Drupal-specific rules
+- `react`: React-specific rules
+- `vue`: Vue-specific rules
+- `python`: Python-specific rules
+- `security`: Security-focused rules
+- `owasp`: OWASP Top 10 rules
+- `a11y`: Accessibility rules
+- `php-security`: PHP security-focused rules
+- `js-security`: JavaScript security-focused rules
+- `python-security`: Python security-focused rules
+- `drupal-security`: Drupal security-focused rules
+- `php-owasp`: PHP OWASP Top 10 rules
+- `js-owasp`: JavaScript OWASP Top 10 rules
+- `python-owasp`: Python OWASP Top 10 rules
+- `drupal-owasp`: Drupal OWASP Top 10 rules
+
+See the [TAG_STANDARDS.md](TAG_STANDARDS.md) file for detailed information about the tagging system.
+
 ### Manual Installation
 
 If you prefer to install manually:
@@ -138,10 +200,10 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 ### Core Rules
 | File Name | Purpose |
 |-----------|---------|
-| [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organizing Cursor rule files |
+| [`cursor-rules.mdc`](.cursor/rules/cursor-rules.mdc) | Defines standards for creating and organising Cursor rule files |
 | [`git-commit-standards.mdc`](.cursor/rules/git-commit-standards.mdc) | Enforces structured Git commit messages with proper prefixes and formatting |
 | [`github-actions-standards.mdc`](.cursor/rules/github-actions-standards.mdc) | Ensures GitHub Actions workflows follow best practices |
-| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimizes inefficient AI queries |
+| [`improve-cursorrules-efficiency.mdc`](.cursor/rules/improve-cursorrules-efficiency.mdc) | Detects and optimises inefficient AI queries |
 | [`pull-request-changelist-instructions.mdc`](.cursor/rules/pull-request-changelist-instructions.mdc) | Guidelines for creating consistent pull request changelists in markdown format with proper code block formatting |
 | [`readme-maintenance-standards.mdc`](.cursor/rules/readme-maintenance-standards.mdc) | Ensures README documentation is comprehensive and up-to-date |
 | [`testing-guidelines.mdc`](.cursor/rules/testing-guidelines.mdc) | Ensures proper testing practices and separation between test and production code |
@@ -153,23 +215,23 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 |-----------|---------|
 | [`accessibility-standards.mdc`](.cursor/rules/accessibility-standards.mdc) | WCAG compliance and accessibility best practices |
 | [`api-standards.mdc`](.cursor/rules/api-standards.mdc) | RESTful API design and documentation standards |
-| [`build-optimization.mdc`](.cursor/rules/build-optimization.mdc) | Webpack/Vite configuration and build process optimization |
-| [`javascript-performance.mdc`](.cursor/rules/javascript-performance.mdc) | Best practices for optimizing JavaScript performance |
+| [`build-optimization.mdc`](.cursor/rules/build-optimization.mdc) | Webpack/Vite configuration and build process optimisation |
+| [`javascript-performance.mdc`](.cursor/rules/javascript-performance.mdc) | Best practices for optimising JavaScript performance |
 | [`javascript-standards.mdc`](.cursor/rules/javascript-standards.mdc) | Standards for JavaScript development in Drupal |
 | [`node-dependencies.mdc`](.cursor/rules/node-dependencies.mdc) | Node.js versioning and package management best practices |
 | [`react-patterns.mdc`](.cursor/rules/react-patterns.mdc) | React component patterns and hooks usage guidelines |
-| [`tailwind-standards.mdc`](.cursor/rules/tailwind-standards.mdc) | Tailwind CSS class organization and best practices |
-| [`vue-best-practices.mdc`](.cursor/rules/vue-best-practices.mdc) | Vue 3 and NuxtJS specific standards and optimizations |
+| [`tailwind-standards.mdc`](.cursor/rules/tailwind-standards.mdc) | Tailwind CSS class organisation and best practices |
+| [`vue-best-practices.mdc`](.cursor/rules/vue-best-practices.mdc) | Vue 3 and NuxtJS specific standards and optimisations |
 
 #### Backend Development
 | File Name | Purpose |
 |-----------|---------|
-| [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimization |
+| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
+| [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
+| [`drupal-database-standards.mdc`](.cursor/rules/drupal-database-standards.mdc) | Database schema changes, migrations, and query optimisation |
 | [`drupal-file-permissions.mdc`](.cursor/rules/drupal-file-permissions.mdc) | Drupal file permissions security standards |
 | [`govcms-saas.mdc`](.cursor/rules/govcms-saas.mdc) | Constraints and best practices for GovCMS Distribution projects |
 | [`govcms-saas-project-documentation-creation.mdc`](.cursor/rules/govcms-saas-project-documentation-creation.mdc) | GovCMS SaaS Documentation Generator. This rule helps generate comprehensive technical documentation for GovCMS SaaS projects, automatically detecting frameworks and dependencies, and providing structured documentation that aligns with government standards. |
-| [`php-drupal-best-practices.mdc`](.cursor/rules/php-drupal-best-practices.mdc) | PHP & Drupal Development Standards and Best Practices |
-| [`php-drupal-development-standards.mdc`](.cursor/rules/php-drupal-development-standards.mdc) | Standards for PHP and Drupal development |
 
 #### Security Rules
 | File Name | Purpose |
@@ -184,7 +246,18 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`drupal-security-misconfiguration.mdc`](.cursor/rules/drupal-security-misconfiguration.mdc) | Prevents security misconfigurations in Drupal |
 | [`drupal-ssrf.mdc`](.cursor/rules/drupal-ssrf.mdc) | Prevents Server-Side Request Forgery in Drupal |
 | [`drupal-vulnerable-components.mdc`](.cursor/rules/drupal-vulnerable-components.mdc) | Identifies and prevents vulnerable components in Drupal |
+| [`javascript-broken-access-control.mdc`](.cursor/rules/javascript-broken-access-control.mdc) | Prevents broken access control vulnerabilities in JavaScript applications |
+| [`javascript-cryptographic-failures.mdc`](.cursor/rules/javascript-cryptographic-failures.mdc) | Prevents cryptographic failures in JavaScript applications |
+| [`javascript-injection.mdc`](.cursor/rules/javascript-injection.mdc) | Prevents injection vulnerabilities in JavaScript applications |
+| [`javascript-insecure-design.mdc`](.cursor/rules/javascript-insecure-design.mdc) | Prevents insecure design patterns in JavaScript applications |
+| [`javascript-security-misconfiguration.mdc`](.cursor/rules/javascript-security-misconfiguration.mdc) | Prevents security misconfigurations in JavaScript applications |
+| [`javascript-vulnerable-outdated-components.mdc`](.cursor/rules/javascript-vulnerable-outdated-components.mdc) | Identifies and prevents vulnerable components in JavaScript applications |
+| [`javascript-identification-authentication-failures.mdc`](.cursor/rules/javascript-identification-authentication-failures.mdc) | Prevents authentication failures in JavaScript applications |
+| [`javascript-software-data-integrity-failures.mdc`](.cursor/rules/javascript-software-data-integrity-failures.mdc) | Prevents software and data integrity failures in JavaScript applications |
+| [`javascript-security-logging-monitoring-failures.mdc`](.cursor/rules/javascript-security-logging-monitoring-failures.mdc) | Prevents logging and monitoring failures in JavaScript applications |
+| [`javascript-server-side-request-forgery.mdc`](.cursor/rules/javascript-server-side-request-forgery.mdc) | Prevents Server-Side Request Forgery in JavaScript applications |
 | [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
+| [`secret-detection.mdc`](.cursor/rules/secret-detection.mdc) | Detects and prevents secrets from being committed to code |
 
 #### DevOps & Infrastructure
 | File Name | Purpose |
@@ -220,7 +293,6 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`python-security-misconfiguration.mdc`](.cursor/rules/python-security-misconfiguration.mdc) | Prevents security misconfigurations in Python |
 | [`python-ssrf.mdc`](.cursor/rules/python-ssrf.mdc) | Prevents Server-Side Request Forgery in Python |
 | [`python-vulnerable-outdated-components.mdc`](.cursor/rules/python-vulnerable-outdated-components.mdc) | Identifies and prevents vulnerable components in Python |
-| [`security-practices.mdc`](.cursor/rules/security-practices.mdc) | Security best practices for PHP, JavaScript, and Drupal |
 
 ---
 
@@ -234,11 +306,11 @@ Once installed, Cursor AI will automatically use these rules when working with y
 2. **Enforce Standards**: Flag code that doesn't meet the defined standards
 3. **Automate Repetitive Tasks**: Generate boilerplate code, documentation, and tests
 4. **Improve Security**: Identify potential security vulnerabilities
-5. **Optimize Performance**: Suggest performance improvements
+5. **Optimise Performance**: Suggest performance improvements
 
-### Rule Customization
+### Rule Customisation
 
-You can customize the rules by:
+You can customise the rules by:
 
 1. **Editing Rule Files**: Modify the `.mdc` files to match your project's specific requirements
 2. **Adding New Rules**: Create new `.mdc` files following the same format
@@ -316,7 +388,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### For Teams
 
-1. **Standardization**:
+1. **Standardisation**:
    - Enforce team-wide coding standards
    - Reduce code review friction
    - Maintain consistent documentation
@@ -331,10 +403,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Ensure security best practices are followed
    - Maintain high code quality across the team
 
-### For Organizations
+### For Organisations
 
 1. **Governance**:
-   - Enforce organizational standards
+   - Enforce organisational standards
    - Ensure compliance with security requirements
    - Maintain consistent code quality across teams
 
@@ -354,26 +426,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Configure rule priorities based on your project's needs
    - Consider creating custom installation scripts that only install relevant rules
 
-2. **Performance Optimization**:
+2. **Performance Optimisation**:
    - If experiencing slowdowns, review which rules are most frequently triggered
    - Consider disabling computationally expensive rules for very large files
-   - Report performance issues so rule patterns can be optimized
+   - Report performance issues so rule patterns can be optimised
 
 3. **Custom Rule Development**:
    - When creating custom rules, follow the patterns established in existing rules
-   - Use specific file filters to minimize unnecessary rule evaluation
+   - Use specific file filters to minimise unnecessary rule evaluation
    - Test new rules thoroughly in isolation before adding to the collection
 
 ### Future Scalability Plans
 
 While maintaining all rules in a single repository currently provides the best developer experience, we're preparing for potential future growth:
 
-1. **Enhanced Categorization**:
+1. **Enhanced Categorisation**:
    - Rules include clear language/framework tagging with a structured hierarchical system (As seen in the OWASP Top Ten Rules):
      - `language:php` - Explicitly identifies the programming language
      - `framework:drupal` - Specifies the framework or CMS
      - `category:security` - Defines the primary functional category
-     - `subcategory:injection` - Provides more granular categorization (e.g., injection, authentication)
+     - `subcategory:injection` - Provides more granular categorisation (e.g., injection, authentication)
      - `standard:owasp-top10` - Identifies the security standard being applied
      - `risk:a01-broken-access-control` - Specifies the exact risk identifier
    - This tagging system enables selective installation based on language, framework, or security concern
@@ -381,10 +453,10 @@ While maintaining all rules in a single repository currently provides the best d
 
 2. **Modular Design**:
    - Rule file structure supports potential future separation
-   - Consistent naming conventions facilitate organization
+   - Consistent naming conventions facilitate organisation
 
 3. **Monitoring and Feedback**:
    - Repository growth and performance impacts are monitored
-   - User feedback helps identify optimization opportunities
+   - User feedback helps identify optimisation opportunities
 
-If you encounter any issues with rule management or have suggestions for improving organization, please submit an issue or pull request.
+If you encounter any issues with rule management or have suggestions for improving organisation, please submit an issue or pull request.
