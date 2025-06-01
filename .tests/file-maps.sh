@@ -153,4 +153,39 @@ validate_javascript() {
 validate_core() {
   local test_dir=$1
   validate_files "$test_dir" "${CORE_FILES[@]}"
+}
+
+# Function to validate JavaScript security files only (without core)
+validate_javascript_security_only() {
+  local test_dir=$1
+  validate_files "$test_dir" "${JAVASCRIPT_FILES[@]}"
+}
+
+# Function to validate ignore files
+validate_ignore_files() {
+  local test_dir=$1
+  local missing_files=0
+  local missing_file_list=()
+  
+  # Check for .cursorignore
+  if [ ! -f "$test_dir/.cursorignore" ]; then
+    missing_files=$((missing_files + 1))
+    missing_file_list+=(".cursorignore")
+  fi
+  
+  # Check for .cursorindexingignore
+  if [ ! -f "$test_dir/.cursorindexingignore" ]; then
+    missing_files=$((missing_files + 1))
+    missing_file_list+=(".cursorindexingignore")
+  fi
+  
+  if [ $missing_files -gt 0 ]; then
+    echo "Missing ignore files: $missing_files"
+    for file in "${missing_file_list[@]}"; do
+      echo "  - $file"
+    done
+    return 1
+  fi
+  
+  return 0
 } 
