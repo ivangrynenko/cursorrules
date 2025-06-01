@@ -239,14 +239,17 @@ function install_cursor_rules(array $options = []): bool {
       echo "Welcome to Cursor Rules Installer v" . CURSOR_RULES_VERSION . "\n\n";
       echo "Please select which rules to install:\n";
       echo "1) Core rules only\n";
-      echo "2) Web stack rules (PHP, Drupal, JavaScript, etc.)\n";
+      echo "2) Web stack rules (PHP, Drupal, etc.)\n";
       echo "3) Python rules\n";
-      echo "4) All rules\n";
-      echo "5) Exit\n";
+      echo "4) JavaScript security rules (OWASP Top 10)\n";
+      echo "5) All rules\n";
+      echo "6) Tag-based installation (advanced)\n";
+      echo "7) Install .cursorignore files\n";
+      echo "8) Exit\n";
 
       $valid_choice = false;
       while (!$valid_choice) {
-        echo "\nEnter your choice (1-5): ";
+        echo "\nEnter your choice (1-8): ";
         $choice = trim(fgets(STDIN));
 
         switch ($choice) {
@@ -256,11 +259,11 @@ function install_cursor_rules(array $options = []): bool {
             echo "Installing core rules...\n";
             break;
           case '2':
-            $rules_to_install = array_merge($core_rules, $web_stack_rules, $javascript_rules);
+            $rules_to_install = array_merge($core_rules, $web_stack_rules);
             $valid_choice = true;
             echo "Installing web stack rules...\n";
             if ($options['debug']) {
-              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack + " . count($javascript_rules) . " JavaScript OWASP)\n";
+              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack)\n";
             }
             break;
           case '3':
@@ -272,6 +275,14 @@ function install_cursor_rules(array $options = []): bool {
             }
             break;
           case '4':
+            $rules_to_install = array_merge($core_rules, $javascript_rules);
+            $valid_choice = true;
+            echo "Installing JavaScript security rules...\n";
+            if ($options['debug']) {
+              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($javascript_rules) . " JavaScript)\n";
+            }
+            break;
+          case '5':
             $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules, $javascript_rules);
             $valid_choice = true;
             echo "Installing all rules...\n";
@@ -279,11 +290,38 @@ function install_cursor_rules(array $options = []): bool {
               echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack + " . count($python_rules) . " python + " . count($javascript_rules) . " JavaScript)\n";
             }
             break;
-          case '5':
+          case '6':
+            // Tag-based installation
+            echo "Available tag presets:\n";
+            foreach (TAG_PRESETS as $preset => $expression) {
+              echo "  - $preset: $expression\n";
+            }
+            echo "\nEnter tag preset name or custom tag expression: ";
+            $tag_input = trim(fgets(STDIN));
+            
+            if (array_key_exists($tag_input, TAG_PRESETS)) {
+              $tag_expression = TAG_PRESETS[$tag_input];
+            } else {
+              $tag_expression = $tag_input;
+            }
+            
+            echo "Installing rules matching: $tag_expression\n";
+            $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules, $javascript_rules);
+            $options['tags'] = $tag_expression;
+            $valid_choice = true;
+            break;
+          case '7':
+            // Install only .cursorignore files
+            $rules_to_install = [];
+            $options['ignore-files'] = true;
+            $valid_choice = true;
+            echo "Installing .cursorignore files...\n";
+            break;
+          case '8':
             echo "Installation cancelled.\n";
             return true;
           default:
-            echo "Invalid choice. Please enter a number between 1 and 5.\n";
+            echo "Invalid choice. Please enter a number between 1 and 8.\n";
         }
       }
     } else if ($option_count === 0 && !$stdin_available) {
@@ -680,6 +718,49 @@ function install_cursor_rules(array $options = []): bool {
     }
   }
   
+  // Create UPDATE.md file to track version
+  $cursor_parent_dir = dirname($options['destination']);
+  $update_file_path = $cursor_parent_dir . '/UPDATE.md';
+  
+  $update_content = "# Cursor Rules Installation\n\n";
+  $update_content .= "**Version:** " . CURSOR_RULES_VERSION . "\n";
+  $update_content .= "**Installation Date:** " . date('Y-m-d H:i:s T') . "\n";
+  $update_content .= "**Rules Installed:** " . $copied_count . " files\n\n";
+  
+  if (($options['tags'] || $options['tag-preset']) && $filtered_count > 0) {
+    $tag_expression = $options['tags'] ?: (TAG_PRESETS[$options['tag-preset']] ?? '');
+    $update_content .= "**Tag Filter:** $tag_expression\n";
+    $update_content .= "**Filtered Out:** $filtered_count rules\n\n";
+  }
+  
+  $update_content .= "## Installation Type\n";
+  if ($options['all']) {
+    $update_content .= "- All rules (core, web stack, Python, JavaScript)\n";
+  } elseif ($options['web_stack']) {
+    $update_content .= "- Web stack rules (core, web, Drupal, JavaScript)\n";
+  } elseif ($options['python']) {
+    $update_content .= "- Python rules (core + Python security)\n";
+  } elseif ($options['javascript']) {
+    $update_content .= "- JavaScript rules (core + JavaScript security)\n";
+  } elseif ($options['core']) {
+    $update_content .= "- Core rules only\n";
+  } elseif ($options['tags'] || $options['tag-preset']) {
+    $update_content .= "- Tag-based installation\n";
+  } else {
+    $update_content .= "- Core rules (default)\n";
+  }
+  
+  $update_content .= "\n## Source\n";
+  $update_content .= "Rules downloaded from: https://github.com/ivangrynenko/cursor-rules\n";
+  
+  if (file_put_contents($update_file_path, $update_content)) {
+    if ($options['debug']) {
+      echo "Created UPDATE.md file at: $update_file_path\n";
+    }
+  } else {
+    echo "Warning: Failed to create UPDATE.md file\n";
+  }
+  
   return true;
 }
 
@@ -699,7 +780,7 @@ function rule_matches_tag_filter($file_path, $options) {
   
   // Extract tags from the metadata section
   $tags = [];
-  if (preg_match('/tags:\s*\n((?:\s*-\s*[^\n]+\n)+)/m', $content, $matches)) {
+  if (preg_match('/metadata:\s*\n(?:[^\n]*\n)*?\s*tags:\s*\n((?:\s*-\s*[^\n]+\n)+)/m', $content, $matches)) {
     $tag_lines = explode("\n", trim($matches[1]));
     foreach ($tag_lines as $line) {
       if (preg_match('/^\s*-\s*(.+)$/', $line, $tag_match)) {
