@@ -1,3 +1,8 @@
+---
+description: Detect and prevent cryptographic failures in Python applications as defined in OWASP Top 10:2021-A02
+globs: *.py
+alwaysApply: false
+---
 # Python Cryptographic Failures Security Standards (OWASP A02:2021)
 
 This rule enforces security best practices to prevent cryptographic failures in Python applications, as defined in OWASP Top 10:2021-A02.

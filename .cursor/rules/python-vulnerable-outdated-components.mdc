@@ -1,6 +1,6 @@
 ---
-description: 
-globs: *.py,*.txt,*.ini,*.cfg,*.yml,*.yaml,*.json,*.toml
+description: Detect and prevent vulnerabilities related to outdated dependencies and components in Python applications as defined in OWASP Top 10:2021-A06
+globs: *.py, *.txt, *.ini, *.cfg, *.yml, *.yaml, *.json, *.toml
 alwaysApply: false
 ---
  # Python Vulnerable and Outdated Components Standards (OWASP A06:2021)

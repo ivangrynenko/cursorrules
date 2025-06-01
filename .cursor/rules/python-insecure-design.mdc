@@ -1,6 +1,6 @@
 ---
-description: 
-globs: *.py, *.ini, *.cfg ,*.yml ,*.yaml ,*.json ,*.toml
+description: Detect and prevent insecure design patterns in Python applications as defined in OWASP Top 10:2021-A04
+globs: *.py, *.ini, *.cfg, *.yml, *.yaml, *.json, *.toml
 alwaysApply: false
 ---
  # Python Insecure Design Security Standards (OWASP A04:2021)

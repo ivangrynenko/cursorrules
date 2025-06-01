@@ -1,6 +1,6 @@
 ---
-description: 
-globs: *.php,*.inc,*.module,*.install,*.info.yml, *.theme,**/modules/**,**/themes/**,**/profiles/**
+description: Detect and prevent injection vulnerabilities in Drupal as defined in OWASP Top 10:2021-A03
+globs: *.php, *.inc, *.module, *.install, *.info.yml, *.theme, **/modules/**, **/themes/**, **/profiles/**
 alwaysApply: false
 ---
 # Drupal Injection Security Standards (OWASP A03:2021)
