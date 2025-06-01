@@ -1,182 +1,321 @@
 #!/bin/bash
 
-# Test script for .cursorignore files installation functionality
+# Test for --ignore-files option functionality
+# This test validates the ignore files installation functionality
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Base directory
-BASE_DIR=$(dirname "$0")
-TEMP_DIR="$BASE_DIR/temp"
-INSTALLER_PATH="$BASE_DIR/../install.php"
+# Define paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INSTALLER_PATH="$SCRIPT_DIR/../install.php"
+TEST_ROOT_DIR="$SCRIPT_DIR/tmp"
 
-# Function to copy a fresh installer to the target path
-get_fresh_installer() {
-  local target_path=${1:-"$INSTALLER_PATH"}
-  echo -e "${BLUE}Copying installer to $target_path...${NC}"
-  
-  # Ensure the installer exists
-  if [ ! -f "$INSTALLER_PATH" ]; then
-    echo -e "${RED}Installer not found at $INSTALLER_PATH!${NC}"
-    return 1
-  fi
-  
-  # Create directory if it doesn't exist
-  mkdir -p "$(dirname "$target_path")"
-  
-  # Copy the installer
-  cp "$INSTALLER_PATH" "$target_path"
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Failed to copy installer!${NC}"
-    return 1
-  fi
-  return 0
-}
+# Source file maps
+source "$SCRIPT_DIR/file-maps.sh"
 
-# Function to print colored output
+# Function to print colored messages
 print_message() {
   local color=$1
   local message=$2
   echo -e "${color}${message}${NC}"
 }
 
-# Test counter
-TESTS_TOTAL=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Function to run ignore files test
-run_ignore_test() {
-  local test_name="$1"
-  local ignore_option="$2"
-  local should_install_ignore_files="$3"
-  
-  TESTS_TOTAL=$((TESTS_TOTAL + 1))
-  
-  print_message "$BLUE" "\n=== Testing Ignore Files: $test_name ==="
-  echo "Ignore option: $ignore_option"
-  echo "Should install ignore files: $should_install_ignore_files"
-  
-  # Create a clean test directory
-  local test_dir="$TEMP_DIR/ignore_test_$TESTS_TOTAL"
-  rm -rf "$test_dir"
-  mkdir -p "$test_dir"
-  
-  # Copy fresh installer to test directory
-  get_fresh_installer "$test_dir/install.php"
+# Function to copy installer to test directory
+copy_installer() {
+  local test_dir=$1
+  cp "$INSTALLER_PATH" "$test_dir/"
   if [ $? -ne 0 ]; then
-    print_message "$RED" "Failed to copy installer for test $test_name. Skipping."
-    TESTS_FAILED=$((TESTS_FAILED + 1))
+    print_message "$RED" "❌ Failed to copy installer to $test_dir"
     return 1
   fi
-  
-  # Build command
-  local command="php install.php --core --yes"
-  if [ "$ignore_option" != "default" ]; then
-    command="$command --ignore-files=$ignore_option"
-  fi
-  
-  # Run the command
-  cd "$test_dir"
-  bash -c "$command" > output.log 2>&1
-  local exit_code=$?
-  cd "$BASE_DIR"
-  
-  # Check exit code
-  if [ $exit_code -ne 0 ]; then
-    print_message "$RED" "✗ Test failed: Command exited with code $exit_code"
-    print_message "$YELLOW" "Command output:"
-    cat "$test_dir/output.log"
-    TESTS_FAILED=$((TESTS_FAILED + 1))
-    return 1
-  fi
-  
-  # Check if ignore files exist based on expectation
-  local validation_passed=true
-  
-  if [ "$should_install_ignore_files" = "yes" ]; then
-    # Should have .cursorignore and .cursorindexingignore files
-    if [ ! -f "$test_dir/.cursorignore" ]; then
-      print_message "$RED" "Missing expected .cursorignore file"
-      validation_passed=false
-    fi
-    if [ ! -f "$test_dir/.cursorindexingignore" ]; then
-      print_message "$RED" "Missing expected .cursorindexingignore file"
-      validation_passed=false
-    fi
-    
-    # Validate that files have content
-    if [ -f "$test_dir/.cursorignore" ]; then
-      ignore_size=$(wc -l < "$test_dir/.cursorignore")
-      if [ $ignore_size -lt 10 ]; then
-        print_message "$RED" ".cursorignore file seems too small ($ignore_size lines)"
-        validation_passed=false
-      fi
-    fi
-    
-    if [ -f "$test_dir/.cursorindexingignore" ]; then
-      indexing_ignore_size=$(wc -l < "$test_dir/.cursorindexingignore")
-      if [ $indexing_ignore_size -lt 5 ]; then
-        print_message "$RED" ".cursorindexingignore file seems too small ($indexing_ignore_size lines)"
-        validation_passed=false
-      fi
-    fi
-  elif [ "$should_install_ignore_files" = "no" ]; then
-    # Should NOT have ignore files
-    if [ -f "$test_dir/.cursorignore" ]; then
-      print_message "$RED" "Unexpected .cursorignore file found"
-      validation_passed=false
-    fi
-    if [ -f "$test_dir/.cursorindexingignore" ]; then
-      print_message "$RED" "Unexpected .cursorindexingignore file found"
-      validation_passed=false
-    fi
-  fi
-  
-  # Always check that rules were installed
-  if [ ! -d "$test_dir/.cursor/rules" ]; then
-    print_message "$RED" "Rules directory not created"
-    validation_passed=false
-  fi
-  
-  if [ "$validation_passed" = false ]; then
-    print_message "$RED" "✗ Validation failed for $test_name"
-    print_message "$YELLOW" "Command output:"
-    cat "$test_dir/output.log"
-    TESTS_FAILED=$((TESTS_FAILED + 1))
-    return 1
-  fi
-  
-  # Test passed
-  print_message "$GREEN" "✓ Test passed: $test_name"
-  TESTS_PASSED=$((TESTS_PASSED + 1))
   return 0
 }
 
-# Run ignore files tests
-print_message "$BLUE" "Running ignore files installation tests..."
+# Test ignore files installation with core rules
+test_ignore_files_with_core() {
+  local test_name="Ignore Files with Core Rules Test"
+  local test_dir="$TEST_ROOT_DIR/test_ignore_core"
+  
+  print_message "$BLUE" "🧪 Running: $test_name"
+  
+  # Create test directory
+  mkdir -p "$test_dir"
+  
+  # Copy installer
+  if ! copy_installer "$test_dir"; then
+    return 1
+  fi
+  
+  # Run installer with --ignore-files and --core
+  cd "$test_dir"
+  output=$(php install.php --ignore-files --core 2>&1)
+  exit_code=$?
+  
+  # Save output to log
+  echo "$output" > "ignore_files_core_test.log"
+  
+  # Check exit code
+  if [ $exit_code -ne 0 ]; then
+    print_message "$RED" "❌ $test_name failed with exit code $exit_code"
+    print_message "$YELLOW" "Command output:"
+    echo "$output"
+    return 1
+  fi
+  
+  # Validate core files
+  if ! validate_core "$test_dir"; then
+    print_message "$RED" "❌ $test_name failed core validation"
+    return 1
+  fi
+  
+  # Validate ignore files
+  if validate_ignore_files "$test_dir"; then
+    print_message "$GREEN" "✅ $test_name passed"
+    return 0
+  else
+    print_message "$RED" "❌ $test_name failed ignore files validation"
+    return 1
+  fi
+}
 
-# Test 1: Default behavior (should install ignore files)
-run_ignore_test "Default Ignore Files Installation" "default" "yes"
+# Test ignore files installation with all rules
+test_ignore_files_with_all() {
+  local test_name="Ignore Files with All Rules Test"
+  local test_dir="$TEST_ROOT_DIR/test_ignore_all"
+  
+  print_message "$BLUE" "🧪 Running: $test_name"
+  
+  # Create test directory
+  mkdir -p "$test_dir"
+  
+  # Copy installer
+  if ! copy_installer "$test_dir"; then
+    return 1
+  fi
+  
+  # Run installer with --ignore-files and --all
+  cd "$test_dir"
+  output=$(php install.php --ignore-files --all 2>&1)
+  exit_code=$?
+  
+  # Save output to log
+  echo "$output" > "ignore_files_all_test.log"
+  
+  # Check exit code
+  if [ $exit_code -ne 0 ]; then
+    print_message "$RED" "❌ $test_name failed with exit code $exit_code"
+    print_message "$YELLOW" "Command output:"
+    echo "$output"
+    return 1
+  fi
+  
+  # Validate all files
+  if ! validate_all "$test_dir"; then
+    print_message "$RED" "❌ $test_name failed all rules validation"
+    return 1
+  fi
+  
+  # Validate ignore files
+  if validate_ignore_files "$test_dir"; then
+    print_message "$GREEN" "✅ $test_name passed"
+    return 0
+  else
+    print_message "$RED" "❌ $test_name failed ignore files validation"
+    return 1
+  fi
+}
 
-# Test 2: Explicitly enable ignore files
-run_ignore_test "Explicitly Enable Ignore Files" "yes" "yes"
+# Test ignore files only (without other rules)
+test_ignore_files_only() {
+  local test_name="Ignore Files Only Test"
+  local test_dir="$TEST_ROOT_DIR/test_ignore_only"
+  
+  print_message "$BLUE" "🧪 Running: $test_name"
+  
+  # Create test directory
+  mkdir -p "$test_dir"
+  
+  # Copy installer
+  if ! copy_installer "$test_dir"; then
+    return 1
+  fi
+  
+  # Run installer with only --ignore-files
+  cd "$test_dir"
+  output=$(php install.php --ignore-files 2>&1)
+  exit_code=$?
+  
+  # Save output to log
+  echo "$output" > "ignore_files_only_test.log"
+  
+  # Check exit code
+  if [ $exit_code -ne 0 ]; then
+    print_message "$RED" "❌ $test_name failed with exit code $exit_code"
+    print_message "$YELLOW" "Command output:"
+    echo "$output"
+    return 1
+  fi
+  
+  # Validate ignore files
+  if validate_ignore_files "$test_dir"; then
+    print_message "$GREEN" "✅ $test_name passed"
+    return 0
+  else
+    print_message "$RED" "❌ $test_name failed ignore files validation"
+    return 1
+  fi
+}
 
-# Test 3: Disable ignore files
-run_ignore_test "Disable Ignore Files" "no" "no"
+# Test ignore files content
+test_ignore_files_content() {
+  local test_name="Ignore Files Content Test"
+  local test_dir="$TEST_ROOT_DIR/test_ignore_content"
+  
+  print_message "$BLUE" "🧪 Running: $test_name"
+  
+  # Create test directory
+  mkdir -p "$test_dir"
+  
+  # Copy installer
+  if ! copy_installer "$test_dir"; then
+    return 1
+  fi
+  
+  # Run installer with --ignore-files
+  cd "$test_dir"
+  output=$(php install.php --ignore-files 2>&1)
+  exit_code=$?
+  
+  # Save output to log
+  echo "$output" > "ignore_files_content_test.log"
+  
+  # Check exit code
+  if [ $exit_code -ne 0 ]; then
+    print_message "$RED" "❌ $test_name failed with exit code $exit_code"
+    print_message "$YELLOW" "Command output:"
+    echo "$output"
+    return 1
+  fi
+  
+  # Check that ignore files have content
+  if [ -s "$test_dir/.cursorignore" ] && [ -s "$test_dir/.cursorindexingignore" ]; then
+    # Check for common ignore patterns
+    if grep -q "node_modules" "$test_dir/.cursorignore" && grep -q "\.git" "$test_dir/.cursorignore"; then
+      print_message "$GREEN" "✅ $test_name passed (ignore files have expected content)"
+      return 0
+    else
+      print_message "$RED" "❌ $test_name failed - ignore files missing expected patterns"
+      return 1
+    fi
+  else
+    print_message "$RED" "❌ $test_name failed - ignore files are empty"
+    return 1
+  fi
+}
 
-# Print summary
-print_message "$BLUE" "\n=== Ignore Files Test Summary ==="
-print_message "$BLUE" "Total tests: $TESTS_TOTAL"
-print_message "$GREEN" "Passed: $TESTS_PASSED"
-if [ $TESTS_FAILED -gt 0 ]; then
-  print_message "$RED" "Failed: $TESTS_FAILED"
-  exit 1
-else
-  print_message "$GREEN" "All ignore files tests passed!"
-  exit 0
-fi
+# Test without ignore files (default behavior)
+test_without_ignore_files() {
+  local test_name="Without Ignore Files Test"
+  local test_dir="$TEST_ROOT_DIR/test_no_ignore"
+  
+  print_message "$BLUE" "🧪 Running: $test_name"
+  
+  # Create test directory
+  mkdir -p "$test_dir"
+  
+  # Copy installer
+  if ! copy_installer "$test_dir"; then
+    return 1
+  fi
+  
+  # Run installer without --ignore-files
+  cd "$test_dir"
+  output=$(php install.php --core 2>&1)
+  exit_code=$?
+  
+  # Save output to log
+  echo "$output" > "no_ignore_files_test.log"
+  
+  # Check exit code
+  if [ $exit_code -ne 0 ]; then
+    print_message "$RED" "❌ $test_name failed with exit code $exit_code"
+    print_message "$YELLOW" "Command output:"
+    echo "$output"
+    return 1
+  fi
+  
+  # Validate core files
+  if ! validate_core "$test_dir"; then
+    print_message "$RED" "❌ $test_name failed core validation"
+    return 1
+  fi
+  
+  # Check that ignore files were NOT installed
+  if [ ! -f "$test_dir/.cursorignore" ] && [ ! -f "$test_dir/.cursorindexingignore" ]; then
+    print_message "$GREEN" "✅ $test_name passed (ignore files not installed by default)"
+    return 0
+  else
+    print_message "$RED" "❌ $test_name failed - ignore files were installed without --ignore-files"
+    return 1
+  fi
+}
+
+# Main test execution
+main() {
+  print_message "$BLUE" "🚀 Starting Ignore Files Tests"
+  
+  # Cleanup any previous test directories
+  rm -rf "$TEST_ROOT_DIR"
+  
+  local total_tests=0
+  local passed_tests=0
+  
+  # Test ignore files with core rules
+  ((total_tests++))
+  if test_ignore_files_with_core; then
+    ((passed_tests++))
+  fi
+  
+  # Test ignore files with all rules
+  ((total_tests++))
+  if test_ignore_files_with_all; then
+    ((passed_tests++))
+  fi
+  
+  # Test ignore files only
+  ((total_tests++))
+  if test_ignore_files_only; then
+    ((passed_tests++))
+  fi
+  
+  # Test ignore files content
+  ((total_tests++))
+  if test_ignore_files_content; then
+    ((passed_tests++))
+  fi
+  
+  # Test without ignore files
+  ((total_tests++))
+  if test_without_ignore_files; then
+    ((passed_tests++))
+  fi
+  
+  # Summary
+  print_message "$BLUE" "📊 Ignore Files Test Results: $passed_tests/$total_tests tests passed"
+  
+  if [ $passed_tests -eq $total_tests ]; then
+    print_message "$GREEN" "🎉 All ignore files tests passed!"
+    return 0
+  else
+    print_message "$RED" "❌ Some ignore files tests failed"
+    return 1
+  fi
+}
+
+# Run tests
+main "$@"

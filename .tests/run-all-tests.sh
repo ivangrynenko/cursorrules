@@ -148,6 +148,21 @@ run_test "JavaScript Installation" "php install.php --javascript --yes" "validat
 # Test 9: JavaScript with Short Option
 run_test "JavaScript with Short Option" "php install.php -j -y" "validate_javascript"
 
+# Test 10: Tag-based installation (JavaScript language)
+run_test "Tags JavaScript Language" "php install.php --tags \"language:javascript\" --yes" ""
+
+# Test 11: Tag preset (js-owasp)
+run_test "Tag Preset js-owasp" "php install.php --tag-preset js-owasp --yes" ""
+
+# Test 12: Tag preset (security)
+run_test "Tag Preset security" "php install.php --tag-preset security --yes" ""
+
+# Test 13: Ignore files with core
+run_test "Ignore Files with Core" "php install.php --ignore-files --core --yes" "validate_core"
+
+# Test 14: Ignore files only
+run_test "Ignore Files Only" "php install.php --ignore-files --yes" "validate_ignore_files"
+
 # Run the error handling tests
 print_message "$BLUE" "Running error handling tests..."
 
@@ -180,8 +195,8 @@ fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 # Run the new functionality tests
-print_message "$BLUE" "Running tag filtering tests..."
-./test-tag-filtering.sh
+print_message "$BLUE" "Running JavaScript installation test..."
+./test-javascript.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
@@ -189,7 +204,25 @@ else
 fi
 TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
-print_message "$BLUE" "Running ignore files tests..."
+print_message "$BLUE" "Running tags functionality test..."
+./test-tags.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running tag presets test..."
+./test-tag-presets.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running ignore files test..."
 ./test-ignore-files.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
