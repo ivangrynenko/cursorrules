@@ -76,8 +76,8 @@ validate_ignore_files() {
 test_ignore_files_option() {
   print_message "$BLUE" "\n=== Testing Ignore Files Option ==="
   
-  # Test 1: --ignore-files option with core installation
-  print_message "$BLUE" "Testing: php install.php --core --ignore-files --yes"
+  # Test 1: --ignore-files=yes option with core installation
+  print_message "$BLUE" "Testing: php install.php --core --ignore-files=yes --yes"
   local test_dir="$TEMP_DIR/test_ignore_files"
   rm -rf "$test_dir"
   mkdir -p "$test_dir"
@@ -89,12 +89,12 @@ test_ignore_files_option() {
   fi
   
   cd "$test_dir"
-  php install.php --core --ignore-files --yes > output.log 2>&1
+  php install.php --core --ignore-files=yes --yes > output.log 2>&1
   local exit_code=$?
   cd "$BASE_DIR"
   
   if [ $exit_code -ne 0 ]; then
-    print_message "$RED" "✗ Installation with --ignore-files failed with exit code $exit_code"
+    print_message "$RED" "✗ Installation with --ignore-files=yes failed with exit code $exit_code"
     print_message "$YELLOW" "Command output:"
     cat "$test_dir/output.log"
     return 1
@@ -128,63 +128,63 @@ test_ignore_files_option() {
   
   print_message "$GREEN" "✓ Ignore files have content"
   
-  # Test 2: Installation without --ignore-files should not install ignore files
-  print_message "$BLUE" "Testing: php install.php --core --yes (without --ignore-files)"
+  # Test 2: Installation with --ignore-files=no should not install ignore files
+  print_message "$BLUE" "Testing: php install.php --core --ignore-files=no --yes"
   local test_dir_no_ignore="$TEMP_DIR/test_no_ignore_files"
   rm -rf "$test_dir_no_ignore"
   mkdir -p "$test_dir_no_ignore"
   
   get_fresh_installer "$test_dir_no_ignore/install.php"
   cd "$test_dir_no_ignore"
-  php install.php --core --yes > output.log 2>&1
+  php install.php --core --ignore-files=no --yes > output.log 2>&1
   local exit_code_no_ignore=$?
   cd "$BASE_DIR"
   
   if [ $exit_code_no_ignore -ne 0 ]; then
-    print_message "$RED" "✗ Installation without --ignore-files failed with exit code $exit_code_no_ignore"
+    print_message "$RED" "✗ Installation with --ignore-files=no failed with exit code $exit_code_no_ignore"
     return 1
   fi
   
   # Validate ignore files were NOT installed
   if [ -f "$test_dir_no_ignore/.cursorignore" ]; then
-    print_message "$RED" "✗ .cursorignore should not be installed without --ignore-files option"
+    print_message "$RED" "✗ .cursorignore should not be installed with --ignore-files=no option"
     return 1
   fi
   
   if [ -f "$test_dir_no_ignore/.cursorindexingignore" ]; then
-    print_message "$RED" "✗ .cursorindexingignore should not be installed without --ignore-files option"
+    print_message "$RED" "✗ .cursorindexingignore should not be installed with --ignore-files=no option"
     return 1
   fi
   
-  print_message "$GREEN" "✓ Ignore files correctly not installed without --ignore-files option"
+  print_message "$GREEN" "✓ Ignore files correctly not installed with --ignore-files=no option"
   
-  # Test 3: Short option -i
-  print_message "$BLUE" "Testing: php install.php --core -i -y (short option)"
-  local test_dir_short="$TEMP_DIR/test_ignore_files_short"
-  rm -rf "$test_dir_short"
-  mkdir -p "$test_dir_short"
+  # Test 3: Default behavior (--ignore-files=yes is default)
+  print_message "$BLUE" "Testing: php install.php --core --yes (default should install ignore files)"
+  local test_dir_default="$TEMP_DIR/test_ignore_files_default"
+  rm -rf "$test_dir_default"
+  mkdir -p "$test_dir_default"
   
-  get_fresh_installer "$test_dir_short/install.php"
-  cd "$test_dir_short"
-  php install.php --core -i -y > output.log 2>&1
-  local exit_code_short=$?
+  get_fresh_installer "$test_dir_default/install.php"
+  cd "$test_dir_default"
+  php install.php --core --yes > output.log 2>&1
+  local exit_code_default=$?
   cd "$BASE_DIR"
   
-  if [ $exit_code_short -ne 0 ]; then
-    print_message "$RED" "✗ Installation with -i failed with exit code $exit_code_short"
+  if [ $exit_code_default -ne 0 ]; then
+    print_message "$RED" "✗ Installation with default settings failed with exit code $exit_code_default"
     return 1
   fi
   
-  # Validate ignore files were installed with short option
-  validation_output_short=$(validate_ignore_files "$test_dir_short" 2>&1)
-  validation_result_short=$?
+  # Validate ignore files were installed by default
+  validation_output_default=$(validate_ignore_files "$test_dir_default" 2>&1)
+  validation_result_default=$?
   
-  if [ $validation_result_short -ne 0 ]; then
-    print_message "$RED" "✗ Ignore files validation failed for -i option:"
-    print_message "$YELLOW" "$validation_output_short"
+  if [ $validation_result_default -ne 0 ]; then
+    print_message "$RED" "✗ Ignore files should be installed by default:"
+    print_message "$YELLOW" "$validation_output_default"
     return 1
   else
-    print_message "$GREEN" "✓ Ignore files short option (-i) works correctly"
+    print_message "$GREEN" "✓ Ignore files correctly installed by default"
   fi
   
   print_message "$GREEN" "✓ Ignore files option tests passed"
