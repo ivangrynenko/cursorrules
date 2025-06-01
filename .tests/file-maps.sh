@@ -63,14 +63,16 @@ PYTHON_FILES=(
 JAVASCRIPT_FILES=(
   "javascript-broken-access-control.mdc"
   "javascript-cryptographic-failures.mdc"
+  "javascript-identification-authentication-failures.mdc"
   "javascript-injection.mdc"
   "javascript-insecure-design.mdc"
-  "javascript-security-misconfiguration.mdc"
-  "javascript-vulnerable-outdated-components.mdc"
-  "javascript-identification-authentication-failures.mdc"
-  "javascript-software-data-integrity-failures.mdc"
+  "javascript-performance.mdc"
   "javascript-security-logging-monitoring-failures.mdc"
+  "javascript-security-misconfiguration.mdc"
   "javascript-server-side-request-forgery.mdc"
+  "javascript-software-data-integrity-failures.mdc"
+  "javascript-standards.mdc"
+  "javascript-vulnerable-outdated-components.mdc"
 )
 
 # Function to validate files
@@ -107,7 +109,7 @@ validate_files() {
 # Function to validate web stack installation
 validate_web_stack() {
   local test_dir=$1
-  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${JAVASCRIPT_FILES[@]}")
+  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}")
   validate_files "$test_dir" "${all_files[@]}"
 }
 
@@ -136,4 +138,33 @@ validate_all() {
 validate_core() {
   local test_dir=$1
   validate_files "$test_dir" "${CORE_FILES[@]}"
+}
+
+# Function to validate ignore files installation
+validate_ignore_files() {
+  local test_dir=$1
+  local missing_files=0
+  local missing_file_list=()
+  
+  # Check for .cursorignore
+  if [ ! -f "$test_dir/.cursorignore" ]; then
+    missing_files=$((missing_files + 1))
+    missing_file_list+=(".cursorignore")
+  fi
+  
+  # Check for .cursorindexingignore
+  if [ ! -f "$test_dir/.cursorindexingignore" ]; then
+    missing_files=$((missing_files + 1))
+    missing_file_list+=(".cursorindexingignore")
+  fi
+  
+  if [ $missing_files -gt 0 ]; then
+    echo "Missing ignore files: $missing_files"
+    for file in "${missing_file_list[@]}"; do
+      echo "  - $file"
+    done
+    return 1
+  fi
+  
+  return 0
 } 
