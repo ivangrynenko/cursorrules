@@ -239,14 +239,17 @@ function install_cursor_rules(array $options = []): bool {
       echo "Welcome to Cursor Rules Installer v" . CURSOR_RULES_VERSION . "\n\n";
       echo "Please select which rules to install:\n";
       echo "1) Core rules only\n";
-      echo "2) Web stack rules (PHP, Drupal, JavaScript, etc.)\n";
+      echo "2) Web stack rules (PHP, Drupal, etc.)\n";
       echo "3) Python rules\n";
-      echo "4) All rules\n";
-      echo "5) Exit\n";
+      echo "4) JavaScript security rules (OWASP Top 10)\n";
+      echo "5) All rules\n";
+      echo "6) Tag-based installation (advanced)\n";
+      echo "7) Install .cursorignore files\n";
+      echo "8) Exit\n";
 
       $valid_choice = false;
       while (!$valid_choice) {
-        echo "\nEnter your choice (1-5): ";
+        echo "\nEnter your choice (1-8): ";
         $choice = trim(fgets(STDIN));
 
         switch ($choice) {
@@ -256,11 +259,11 @@ function install_cursor_rules(array $options = []): bool {
             echo "Installing core rules...\n";
             break;
           case '2':
-            $rules_to_install = array_merge($core_rules, $web_stack_rules, $javascript_rules);
+            $rules_to_install = array_merge($core_rules, $web_stack_rules);
             $valid_choice = true;
             echo "Installing web stack rules...\n";
             if ($options['debug']) {
-              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack + " . count($javascript_rules) . " JavaScript OWASP)\n";
+              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack)\n";
             }
             break;
           case '3':
@@ -272,6 +275,14 @@ function install_cursor_rules(array $options = []): bool {
             }
             break;
           case '4':
+            $rules_to_install = array_merge($core_rules, $javascript_rules);
+            $valid_choice = true;
+            echo "Installing JavaScript security rules...\n";
+            if ($options['debug']) {
+              echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($javascript_rules) . " JavaScript)\n";
+            }
+            break;
+          case '5':
             $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules, $javascript_rules);
             $valid_choice = true;
             echo "Installing all rules...\n";
@@ -279,11 +290,38 @@ function install_cursor_rules(array $options = []): bool {
               echo "Selected " . count($rules_to_install) . " rules to install (" . count($core_rules) . " core + " . count($web_stack_rules) . " web stack + " . count($python_rules) . " python + " . count($javascript_rules) . " JavaScript)\n";
             }
             break;
-          case '5':
+          case '6':
+            // Tag-based installation
+            echo "Available tag presets:\n";
+            foreach (TAG_PRESETS as $preset => $expression) {
+              echo "  - $preset: $expression\n";
+            }
+            echo "\nEnter tag preset name or custom tag expression: ";
+            $tag_input = trim(fgets(STDIN));
+            
+            if (array_key_exists($tag_input, TAG_PRESETS)) {
+              $tag_expression = TAG_PRESETS[$tag_input];
+            } else {
+              $tag_expression = $tag_input;
+            }
+            
+            echo "Installing rules matching: $tag_expression\n";
+            $rules_to_install = array_merge($core_rules, $web_stack_rules, $python_rules, $javascript_rules);
+            $options['tags'] = $tag_expression;
+            $valid_choice = true;
+            break;
+          case '7':
+            // Install only .cursorignore files
+            $rules_to_install = [];
+            $options['ignore-files'] = true;
+            $valid_choice = true;
+            echo "Installing .cursorignore files...\n";
+            break;
+          case '8':
             echo "Installation cancelled.\n";
             return true;
           default:
-            echo "Invalid choice. Please enter a number between 1 and 5.\n";
+            echo "Invalid choice. Please enter a number between 1 and 8.\n";
         }
       }
     } else if ($option_count === 0 && !$stdin_available) {
