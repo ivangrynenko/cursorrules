@@ -59,6 +59,20 @@ PYTHON_FILES=(
   "security-practices.mdc"
 )
 
+# JavaScript OWASP rules
+JAVASCRIPT_OWASP_FILES=(
+  "javascript-broken-access-control.mdc"
+  "javascript-cryptographic-failures.mdc"
+  "javascript-identification-authentication-failures.mdc"
+  "javascript-injection.mdc"
+  "javascript-insecure-design.mdc"
+  "javascript-security-logging-monitoring-failures.mdc"
+  "javascript-security-misconfiguration.mdc"
+  "javascript-server-side-request-forgery.mdc"
+  "javascript-software-data-integrity-failures.mdc"
+  "javascript-vulnerable-outdated-components.mdc"
+)
+
 # Function to validate files
 validate_files() {
   local test_dir=$1
@@ -90,12 +104,6 @@ validate_files() {
   return 0
 }
 
-# Function to validate web stack installation
-validate_web_stack() {
-  local test_dir=$1
-  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}")
-  validate_files "$test_dir" "${all_files[@]}"
-}
 
 # Function to validate Python installation
 validate_python() {
@@ -104,10 +112,24 @@ validate_python() {
   validate_files "$test_dir" "${all_files[@]}"
 }
 
+# Function to validate JavaScript OWASP installation
+validate_javascript() {
+  local test_dir=$1
+  local all_files=("${CORE_FILES[@]}" "${JAVASCRIPT_OWASP_FILES[@]}")
+  validate_files "$test_dir" "${all_files[@]}"
+}
+
+# Function to validate web stack installation (now includes JavaScript OWASP)
+validate_web_stack() {
+  local test_dir=$1
+  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${JAVASCRIPT_OWASP_FILES[@]}")
+  validate_files "$test_dir" "${all_files[@]}"
+}
+
 # Function to validate all rules installation
 validate_all() {
   local test_dir=$1
-  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${PYTHON_FILES[@]}")
+  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${PYTHON_FILES[@]}" "${JAVASCRIPT_OWASP_FILES[@]}")
   validate_files "$test_dir" "${all_files[@]}"
 }
 
