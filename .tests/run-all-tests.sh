@@ -137,10 +137,10 @@ run_test "Core Rules Installation" "php install.php --core --yes" "validate_core
 run_test "JavaScript OWASP Installation" "php install.php --javascript --yes" "validate_javascript"
 
 # Test 6: Tag Filtering - JavaScript Security
-run_test "Tag Filtering - JavaScript Security" "php install.php --tags 'language:javascript category:security' --yes" "validate_javascript"
+run_test "Tag Filtering - JavaScript Security" "php install.php --tags 'language:javascript category:security' --yes" "validate_javascript_security_only"
 
 # Test 7: Tag Preset - JavaScript OWASP
-run_test "Tag Preset - JavaScript OWASP" "php install.php --tag-preset js-owasp --yes" "validate_javascript"
+run_test "Tag Preset - JavaScript OWASP" "php install.php --tag-preset js-owasp --yes" "validate_javascript_security_only"
 
 # Test 8: Help Information
 run_test "Help Information" "php install.php --help" "" 0

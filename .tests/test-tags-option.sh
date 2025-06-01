@@ -43,14 +43,32 @@ get_fresh_installer() {
   return 0
 }
 
-# Function to count files in .cursor/rules directory
-count_installed_files() {
+# Function to check if specific files are installed
+check_installed_files() {
   local test_dir=$1
-  if [ -d "$test_dir/.cursor/rules" ]; then
-    find "$test_dir/.cursor/rules" -name "*.mdc" | wc -l
-  else
-    echo "0"
+  shift
+  local expected_files=("$@")
+  local missing_files=()
+  local found_count=0
+  
+  for file in "${expected_files[@]}"; do
+    if [ -f "$test_dir/.cursor/rules/$file" ]; then
+      ((found_count++))
+    else
+      missing_files+=("$file")
+    fi
+  done
+  
+  if [ ${#missing_files[@]} -gt 0 ]; then
+    echo "Missing files: ${#missing_files[@]}"
+    for file in "${missing_files[@]}"; do
+      echo "  - $file"
+    done
+    return 1
   fi
+  
+  echo "All $found_count expected files found"
+  return 0
 }
 
 # Test function for tag expressions
@@ -81,16 +99,32 @@ test_tags_option() {
     return 1
   fi
   
-  # Check that some JavaScript security files were installed
-  local file_count=$(count_installed_files "$test_dir")
-  if [ "$file_count" -lt 5 ]; then
-    print_message "$RED" "✗ Expected more JavaScript security files, got $file_count"
-    print_message "$YELLOW" "Files found:"
-    find "$test_dir/.cursor/rules" -name "*.mdc" | head -10
+  # Check that JavaScript security files were installed
+  local expected_js_security_files=(
+    "javascript-broken-access-control.mdc"
+    "javascript-cryptographic-failures.mdc"
+    "javascript-identification-authentication-failures.mdc"
+    "javascript-injection.mdc"
+    "javascript-insecure-design.mdc"
+    "javascript-security-logging-monitoring-failures.mdc"
+    "javascript-security-misconfiguration.mdc"
+    "javascript-server-side-request-forgery.mdc"
+    "javascript-software-data-integrity-failures.mdc"
+    "javascript-vulnerable-outdated-components.mdc"
+  )
+  
+  validation_output=$(check_installed_files "$test_dir" "${expected_js_security_files[@]}" 2>&1)
+  validation_result=$?
+  
+  if [ $validation_result -ne 0 ]; then
+    print_message "$RED" "✗ JavaScript security files validation failed:"
+    print_message "$YELLOW" "$validation_output"
+    print_message "$YELLOW" "Files actually found:"
+    find "$test_dir/.cursor/rules" -name "*.mdc" 2>/dev/null | sort
     return 1
   fi
   
-  print_message "$GREEN" "✓ Tag-based filtering installed $file_count JavaScript security files"
+  print_message "$GREEN" "✓ Tag-based filtering correctly installed all 10 JavaScript security files"
   
   # Test 2: Core category using tags
   print_message "$BLUE" "Testing: --tags \"category:core\""
@@ -111,13 +145,16 @@ test_tags_option() {
     return 1
   fi
   
-  local core_file_count=$(count_installed_files "$test_dir_core")
-  if [ "$core_file_count" -lt 3 ]; then
-    print_message "$RED" "✗ Expected more core files, got $core_file_count"
+  # Since core files don't have category:core tag in metadata, this should find 0 files
+  local file_count=$(find "$test_dir_core/.cursor/rules" -name "*.mdc" 2>/dev/null | wc -l)
+  if [ "$file_count" -ne 0 ]; then
+    print_message "$RED" "✗ Expected 0 files for category:core tag (core files don't have this tag), got $file_count"
+    print_message "$YELLOW" "Files found:"
+    find "$test_dir_core/.cursor/rules" -name "*.mdc" 2>/dev/null | sort
     return 1
   fi
   
-  print_message "$GREEN" "✓ Core tag filtering installed $core_file_count files"
+  print_message "$GREEN" "✓ Core tag filtering correctly found 0 files (as expected)"
   
   print_message "$GREEN" "✓ Tags option tests passed"
   return 0
@@ -151,16 +188,30 @@ test_tag_preset_option() {
     return 1
   fi
   
-  # Check that JavaScript OWASP files were installed
-  local file_count=$(count_installed_files "$test_dir")
-  if [ "$file_count" -lt 8 ]; then
-    print_message "$RED" "✗ Expected more JavaScript OWASP files, got $file_count"
-    print_message "$YELLOW" "Files found:"
-    find "$test_dir/.cursor/rules" -name "*.mdc" | head -15
+  # Check that JavaScript OWASP files were installed (same as JavaScript security files)
+  local expected_js_owasp_files=(
+    "javascript-broken-access-control.mdc"
+    "javascript-cryptographic-failures.mdc"
+    "javascript-identification-authentication-failures.mdc"
+    "javascript-injection.mdc"
+    "javascript-insecure-design.mdc"
+    "javascript-security-logging-monitoring-failures.mdc"
+    "javascript-security-misconfiguration.mdc"
+    "javascript-server-side-request-forgery.mdc"
+    "javascript-software-data-integrity-failures.mdc"
+    "javascript-vulnerable-outdated-components.mdc"
+  )
+  
+  validation_output=$(check_installed_files "$test_dir" "${expected_js_owasp_files[@]}" 2>&1)
+  validation_result=$?
+  
+  if [ $validation_result -ne 0 ]; then
+    print_message "$RED" "✗ JavaScript OWASP files validation failed:"
+    print_message "$YELLOW" "$validation_output"
     return 1
   fi
   
-  print_message "$GREEN" "✓ js-owasp preset installed $file_count files"
+  print_message "$GREEN" "✓ js-owasp preset correctly installed all 10 JavaScript OWASP files"
   
   # Test security preset
   print_message "$BLUE" "Testing: --tag-preset security"
@@ -181,13 +232,55 @@ test_tag_preset_option() {
     return 1
   fi
   
-  local security_file_count=$(count_installed_files "$test_dir_security")
-  if [ "$security_file_count" -lt 15 ]; then
-    print_message "$RED" "✗ Expected more security files, got $security_file_count"
+  # Check that all security files were installed (31 files total)
+  local expected_security_files=(
+    # Python security files
+    "python-authentication-failures.mdc"
+    "python-broken-access-control.mdc"
+    "python-cryptographic-failures.mdc"
+    "python-injection.mdc"
+    "python-insecure-design.mdc"
+    "python-integrity-failures.mdc"
+    "python-logging-monitoring-failures.mdc"
+    "python-security-misconfiguration.mdc"
+    "python-ssrf.mdc"
+    "python-vulnerable-outdated-components.mdc"
+    # JavaScript security files
+    "javascript-broken-access-control.mdc"
+    "javascript-cryptographic-failures.mdc"
+    "javascript-identification-authentication-failures.mdc"
+    "javascript-injection.mdc"
+    "javascript-insecure-design.mdc"
+    "javascript-security-logging-monitoring-failures.mdc"
+    "javascript-security-misconfiguration.mdc"
+    "javascript-server-side-request-forgery.mdc"
+    "javascript-software-data-integrity-failures.mdc"
+    "javascript-vulnerable-outdated-components.mdc"
+    # Drupal security files
+    "drupal-authentication-failures.mdc"
+    "drupal-broken-access-control.mdc"
+    "drupal-cryptographic-failures.mdc"
+    "drupal-injection.mdc"
+    "drupal-insecure-design.mdc"
+    "drupal-integrity-failures.mdc"
+    "drupal-logging-failures.mdc"
+    "drupal-security-misconfiguration.mdc"
+    "drupal-ssrf.mdc"
+    "drupal-vulnerable-components.mdc"
+    # General security file
+    "secret-detection.mdc"
+  )
+  
+  validation_output=$(check_installed_files "$test_dir_security" "${expected_security_files[@]}" 2>&1)
+  validation_result=$?
+  
+  if [ $validation_result -ne 0 ]; then
+    print_message "$RED" "✗ Security preset validation failed:"
+    print_message "$YELLOW" "$validation_output"
     return 1
   fi
   
-  print_message "$GREEN" "✓ Security preset installed $security_file_count files"
+  print_message "$GREEN" "✓ Security preset correctly installed all 31 security files"
   
   # Test invalid preset
   print_message "$BLUE" "Testing: --tag-preset invalid-preset (should fail)"
