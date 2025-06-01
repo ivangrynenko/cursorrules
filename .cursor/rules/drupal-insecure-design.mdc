@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Detect and prevent insecure design patterns in Drupal as defined in OWASP Top 10:2021-A04
+globs: *.php, *.install, *.module, *.inc, *.theme, *.yml, *.info
 alwaysApply: false
 ---
 # Drupal Insecure Design Security Standards (OWASP A04:2021)

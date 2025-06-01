@@ -133,14 +133,29 @@ run_test "All Rules Installation" "php install.php --all --yes" "validate_all"
 # Test 4: Core Rules Installation
 run_test "Core Rules Installation" "php install.php --core --yes" "validate_core"
 
-# Test 5: Help Information
+# Test 5: JavaScript OWASP Installation
+run_test "JavaScript OWASP Installation" "php install.php --javascript --yes" "validate_javascript"
+
+# Test 6: Tag Filtering - JavaScript Security
+run_test "Tag Filtering - JavaScript Security" "php install.php --tags 'language:javascript category:security' --yes" "validate_javascript"
+
+# Test 7: Tag Preset - JavaScript OWASP
+run_test "Tag Preset - JavaScript OWASP" "php install.php --tag-preset js-owasp --yes" "validate_javascript"
+
+# Test 8: Help Information
 run_test "Help Information" "php install.php --help" "" 0
 
-# Test 6: Web Stack with Short Option
+# Test 9: Web Stack with Short Option
 run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_stack"
 
-# Test 7: Python with Short Option
+# Test 10: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
+
+# Test 8: JavaScript Installation
+run_test "JavaScript Installation" "php install.php --javascript --yes" "validate_javascript"
+
+# Test 9: JavaScript with Short Option
+run_test "JavaScript with Short Option" "php install.php -j -y" "validate_javascript"
 
 # Run the error handling tests
 print_message "$BLUE" "Running error handling tests..."
@@ -166,6 +181,33 @@ TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 print_message "$BLUE" "Running missing file detection test..."
 ./test-missing-files.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running JavaScript option test..."
+./test-javascript-option.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running tags option test..."
+./test-tags-option.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running ignore files option test..."
+./test-ignore-files-option.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
