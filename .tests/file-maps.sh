@@ -59,6 +59,20 @@ PYTHON_FILES=(
   "security-practices.mdc"
 )
 
+# JavaScript rules
+JAVASCRIPT_FILES=(
+  "javascript-broken-access-control.mdc"
+  "javascript-cryptographic-failures.mdc"
+  "javascript-injection.mdc"
+  "javascript-insecure-design.mdc"
+  "javascript-security-misconfiguration.mdc"
+  "javascript-vulnerable-outdated-components.mdc"
+  "javascript-identification-authentication-failures.mdc"
+  "javascript-software-data-integrity-failures.mdc"
+  "javascript-security-logging-monitoring-failures.mdc"
+  "javascript-server-side-request-forgery.mdc"
+)
+
 # Function to validate files
 validate_files() {
   local test_dir=$1
@@ -93,7 +107,7 @@ validate_files() {
 # Function to validate web stack installation
 validate_web_stack() {
   local test_dir=$1
-  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}")
+  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${JAVASCRIPT_FILES[@]}")
   validate_files "$test_dir" "${all_files[@]}"
 }
 
@@ -104,10 +118,17 @@ validate_python() {
   validate_files "$test_dir" "${all_files[@]}"
 }
 
+# Function to validate JavaScript installation
+validate_javascript() {
+  local test_dir=$1
+  local all_files=("${CORE_FILES[@]}" "${JAVASCRIPT_FILES[@]}")
+  validate_files "$test_dir" "${all_files[@]}"
+}
+
 # Function to validate all rules installation
 validate_all() {
   local test_dir=$1
-  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${PYTHON_FILES[@]}")
+  local all_files=("${CORE_FILES[@]}" "${WEB_FILES[@]}" "${DRUPAL_FILES[@]}" "${PYTHON_FILES[@]}" "${JAVASCRIPT_FILES[@]}")
   validate_files "$test_dir" "${all_files[@]}"
 }
 
