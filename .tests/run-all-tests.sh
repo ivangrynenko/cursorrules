@@ -142,6 +142,12 @@ run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_sta
 # Test 7: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
 
+# Test 8: JavaScript Installation
+run_test "JavaScript Installation" "php install.php --javascript --yes" "validate_javascript"
+
+# Test 9: JavaScript with Short Option
+run_test "JavaScript with Short Option" "php install.php -j -y" "validate_javascript"
+
 # Run the error handling tests
 print_message "$BLUE" "Running error handling tests..."
 
@@ -166,6 +172,25 @@ TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
 print_message "$BLUE" "Running missing file detection test..."
 ./test-missing-files.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+# Run the new functionality tests
+print_message "$BLUE" "Running tag filtering tests..."
+./test-tag-filtering.sh
+if [ $? -eq 0 ]; then
+  TESTS_PASSED=$((TESTS_PASSED + 1))
+else
+  TESTS_FAILED=$((TESTS_FAILED + 1))
+fi
+TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+print_message "$BLUE" "Running ignore files tests..."
+./test-ignore-files.sh
 if [ $? -eq 0 ]; then
   TESTS_PASSED=$((TESTS_PASSED + 1))
 else
