@@ -30,8 +30,8 @@ actions:
 
       ### 1. Request Format
       **Always explicitly request raw markdown output in a code block** using one of these exact phrases:
-      - "Return markdown code as code"
-      - "Return as markdown"
+      - "Return markdown as code"
+      - "Return as code inside markdown as code (one block)"
       - "Provide the markdown in a code block"
       - "Return the content as a markdown code block, not as formatted text"
       - "Generate the PR changelist in a markdown code block"
