@@ -48,7 +48,6 @@ use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Drupal\FieldTrait as DrupalFieldTrait;
-use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
 use DrevOps\BehatSteps\Drupal\MetatagTrait;
@@ -78,7 +77,6 @@ class FeatureContext extends DrupalContext {
     use BlockTrait;
     use ContentTrait;
     use EmailTrait;
-    use FileTrait;
     use MediaTrait;
     use TaxonomyTrait;
     use UserTrait;
@@ -94,24 +92,24 @@ Before creating ANY custom step, verify that drevops/behat-steps doesn't already
 ### Common Mistakes to Avoid:
 
 1. **Creating custom user login steps**
-   - ❌ Don't create: `@Given I log in as an administrator`
-   - ✅ Use UserTrait: `@Given I am logged in as a user with the "administrator" role`
+   - ❌ Don't create: `Given I log in as an administrator`
+   - ✅ Use UserTrait: `Given I am logged in as a user with the "administrator" role`
 
 2. **Creating custom content creation steps**
-   - ❌ Don't create: `@Given I create an article titled :title`
-   - ✅ Use ContentTrait: `@Given "article" content:` with a table
+   - ❌ Don't create: `Given I create an article titled :title`
+   - ✅ Use ContentTrait: `Given "article" content:` with a table
 
 3. **Creating custom field interaction steps**
-   - ❌ Don't create: `@When I fill in the body field with :text`
-   - ✅ Use FieldTrait: `@When I fill in "Body" with :text`
+   - ❌ Don't create: `When I fill in the body field with :text`
+   - ✅ Use FieldTrait: `When I fill in "Body" with :text`
 
 4. **Creating custom email verification steps**
-   - ❌ Don't create: `@Then I should receive an email`
-   - ✅ Use EmailTrait: `@Then an email is sent to :address`
+   - ❌ Don't create: `Then I should receive an email`
+   - ✅ Use EmailTrait: `Then an email is sent to :address`
 
 5. **Creating custom element interaction steps**
-   - ❌ Don't create: `@When I click the submit button`
-   - ✅ Use ElementTrait: `@When I click on the element ".submit-button"`
+   - ❌ Don't create: `When I click the submit button`
+   - ✅ Use ElementTrait: `When I click on the element ".submit-button"`
 
 ## ✅ When to Create Custom Steps
 
@@ -167,7 +165,6 @@ The following is the complete reference from [drevops/behat-steps STEPS.md](http
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
 | [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
-| [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
 | [Drupal\MetatagTrait](#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
@@ -594,30 +591,20 @@ Scenario: Test email notifications
 
 ---
 
-## Drupal\FileTrait
-
-[Source](vendor/drevops/behat-steps/src/Drupal/FileTrait.php)
-
->  Manage Drupal file entities with upload and storage operations.
->  - Create managed and unmanaged files with specific URIs and content.
->  - Verify file existence, content, and proper storage locations.
->  - Set up file system directories and clean up created files.
->
->  Skip processing with tags: `@behat-steps-skip:fileBeforeScenario` or
->  `@behat-steps-skip:fileAfterScenario`
+Use `MediaTrait` from drevops/behat-steps and built-in Drupal steps for file entities:
 
 ### Available steps:
 
 | Step | Description |
 | --- | --- |
-| `@Given the following managed files:` | Create managed files with properties provided in the table |
-| `@Given the following managed files do not exist:` | Delete managed files defined by provided properties/fields |
-| `@Given the unmanaged file at the URI :uri exists` | Create an unmanaged file |
-| `@Given the unmanaged file at the URI :uri exists with :content` | Create an unmanaged file with specified content |
-| `@Then an unmanaged file at the URI :uri should exist` | Assert that an unmanaged file with specified URI exists |
-| `@Then an unmanaged file at the URI :uri should not exist` | Assert that an unmanaged file with specified URI does not exist |
-| `@Then an unmanaged file at the URI :uri should contain :content` | Assert that an unmanaged file exists and has specified content |
-| `@Then an unmanaged file at the URI :uri should not contain :content` | Assert that an unmanaged file exists and does not have specified content |
+| `@Given the following managed files:` | Create managed files with properties provided in the table (from DrupalContext) |
+| `@Given the following managed files do not exist:` | Delete managed files defined by provided properties/fields (from DrupalContext) |
+| `@Given the unmanaged file at the URI :uri exists` | Create an unmanaged file (from DrupalContext) |
+| `@Given the unmanaged file at the URI :uri exists with :content` | Create an unmanaged file with specified content (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should exist` | Assert that an unmanaged file with specified URI exists (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should not exist` | Assert that an unmanaged file with specified URI does not exist (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should contain :content` | Assert that an unmanaged file exists and has specified content (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should not contain :content` | Assert that an unmanaged file exists and does not have specified content (from DrupalContext) |
 
 ---
 
