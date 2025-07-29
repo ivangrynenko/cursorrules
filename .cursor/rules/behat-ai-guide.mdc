@@ -48,6 +48,7 @@ use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Drupal\EckTrait;
 use DrevOps\BehatSteps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Drupal\FieldTrait as DrupalFieldTrait;
+use DrevOps\BehatSteps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Drupal\MenuTrait;
 use DrevOps\BehatSteps\Drupal\MetatagTrait;
@@ -77,6 +78,7 @@ class FeatureContext extends DrupalContext {
     use BlockTrait;
     use ContentTrait;
     use EmailTrait;
+    use FileTrait;
     use MediaTrait;
     use TaxonomyTrait;
     use UserTrait;
@@ -591,7 +593,16 @@ Scenario: Test email notifications
 
 ---
 
-Use `MediaTrait` from drevops/behat-steps and built-in Drupal steps for file entities:
+## Drupal\FileTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/FileTrait.php)
+
+> Manage Drupal file entities and operations.
+> - Handle file uploads, downloads, and management operations.
+> - Work with managed and unmanaged files in Drupal.
+> - Automatically clean up created file entities after scenario completion.
+
+Use `FileTrait` and `MediaTrait` from drevops/behat-steps along with built-in Drupal steps for file entities:
 
 ### Available steps:
 
