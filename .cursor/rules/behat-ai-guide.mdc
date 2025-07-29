@@ -1,0 +1,344 @@
+---
+description: This rule provides comprehensive guidance for AI assistants writing Behat tests for Drupal projects using the drevops/behat-steps package. It emphasizes reusing existing traits and steps rather than creating custom implementations.
+globs: *.feature,FeatureContext.php,*Context.php,behat.yml
+alwaysApply: true
+---
+
+# AI Behat Test Writing Guide for Drupal Projects
+
+## 🎯 Primary Directive
+
+**ALWAYS prioritize using drevops/behat-steps traits and step definitions over writing custom steps.** The drevops/behat-steps package provides comprehensive test coverage for most Drupal testing scenarios.
+
+## 📦 Essential Resources
+
+Before writing ANY Behat test:
+1. Check available steps in the `behat-steps.mdc` file
+2. Review trait documentation at [drevops/behat-steps](https://github.com/drevops/behat-steps)
+3. Only create custom steps when absolutely necessary (functionality not covered by existing traits)
+
+## 🔧 Setting Up FeatureContext
+
+When creating or modifying FeatureContext.php, include the necessary traits from drevops/behat-steps:
+
+```php
+<?php
+
+namespace DrupalProject\Tests\Behat;
+
+use Drupal\DrupalExtension\Context\DrupalContext;
+use DrevOps\BehatSteps\DateTrait;
+use DrevOps\BehatSteps\ElementTrait;
+use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\FileDownloadTrait;
+use DrevOps\BehatSteps\LinkTrait;
+use DrevOps\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\WaitTrait;
+// Drupal-specific traits
+use DrevOps\BehatSteps\ContentTrait;
+use DrevOps\BehatSteps\EmailTrait;
+use DrevOps\BehatSteps\MediaTrait;
+use DrevOps\BehatSteps\TaxonomyTrait;
+use DrevOps\BehatSteps\UserTrait;
+
+class FeatureContext extends DrupalContext {
+    // Generic traits - use these for general web testing
+    use DateTrait;
+    use ElementTrait;
+    use FieldTrait;
+    use FileDownloadTrait;
+    use LinkTrait;
+    use PathTrait;
+    use ResponseTrait;
+    use WaitTrait;
+    
+    // Drupal-specific traits - use these for Drupal-specific functionality
+    use ContentTrait;
+    use EmailTrait;
+    use MediaTrait;
+    use TaxonomyTrait;
+    use UserTrait;
+    
+    // Only add custom methods when drevops/behat-steps doesn't provide the functionality
+}
+```
+
+## 📋 Common Testing Scenarios and Trait Usage
+
+### 1. User Authentication and Roles
+Use `UserTrait` from drevops/behat-steps:
+
+```gherkin
+# Creating users with roles
+Given users:
+  | name       | mail                | pass     | roles                    |
+  | admin_user | admin@example.com   | password | administrator            |
+  | editor     | editor@example.com  | password | content_editor           |
+
+# Login as created user
+Given I am logged in as "admin_user"
+
+# Check user roles
+Then the user "editor" should have the role "content_editor" assigned
+Then the user "editor" should not have the role "administrator" assigned
+
+# Check user status
+Then the user "editor" should not be blocked
+```
+
+### 2. Content Management
+Use `ContentTrait` from drevops/behat-steps:
+
+```gherkin
+# Create content
+Given "article" content:
+  | title           | status | body                    |
+  | Test Article 1  | 1      | This is the first body  |
+  | Test Article 2  | 0      | This is the second body |
+
+# Navigate to content
+When I visit the "article" content page with the title "Test Article 1"
+When I edit the "article" content with the title "Test Article 1"
+
+# Remove content
+Given the following "article" content does not exist:
+  | title          |
+  | Test Article 1 |
+```
+
+### 3. Form Interactions
+Use `FieldTrait` from drevops/behat-steps:
+
+```gherkin
+# Fill in fields
+When I fill in "Title" with "My New Article"
+When I fill in the WYSIWYG field "Body" with "<p>Rich text content</p>"
+
+# Check field existence and state
+Then the field "Title" should exist
+Then the field "Published" should be "enabled"
+
+# Select options
+When I select "Published" from "Status"
+Then the option "Published" should be selected within the select element "edit-status"
+```
+
+### 4. Email Testing
+Use `EmailTrait` from drevops/behat-steps:
+
+```gherkin
+# IMPORTANT: Always use @email tag for email testing scenarios
+@api @email
+Scenario: Test email notifications
+  Given I am logged in as a user with the "administrator" role
+  When I perform an action that triggers email
+  Then an email is sent to "user@example.com"
+  Then an email "subject" contains:
+    """
+    Welcome to our site
+    """
+  Then an email "body" contains:
+    """
+    Thank you for registering
+    """
+```
+
+### 5. Media and File Management
+Use `MediaTrait` and `FileTrait` from drevops/behat-steps:
+
+```gherkin
+# Create media entities
+Given "image" media:
+  | name         | field_media_image |
+  | Test Image   | test.jpg          |
+
+# Create file entities
+Given the following managed files:
+  | path         | uri                   | status |
+  | document.pdf | public://document.pdf | 1      |
+
+# Navigate to media
+When I edit the media "image" with the name "Test Image"
+```
+
+### 6. Taxonomy
+Use `TaxonomyTrait` from drevops/behat-steps:
+
+```gherkin
+# Create vocabulary and terms
+Given "tags" terms:
+  | name       |
+  | Technology |
+  | Science    |
+
+# Navigate to terms
+When I visit the "tags" vocabulary "Technology" term page
+When I edit the "tags" vocabulary "Technology" term page
+
+# Assert term existence
+Then the taxonomy term "Technology" from the vocabulary "tags" should exist
+```
+
+### 7. Block Management
+Use `BlockTrait` from drevops/behat-steps:
+
+```gherkin
+# Create and configure blocks
+Given the instance of "System branding block" block exists with the following configuration:
+  | label         | Site Branding |
+  | label_display | 0             |
+  | region        | header        |
+  | status        | 1             |
+
+# Assert block visibility
+Then I should see the block "Site Branding" in the "header" region
+```
+
+### 8. Element Interactions
+Use `ElementTrait` from drevops/behat-steps:
+
+```gherkin
+# Click elements by CSS selector
+When I click on the element ".button-primary"
+
+# Check element visibility
+Then the element ".alert-success" should be displayed
+Then the element ".error-message" should not be displayed
+
+# Scroll to elements
+When I scroll to the element "#footer"
+```
+
+### 9. Link Management
+Use `LinkTrait` from drevops/behat-steps:
+
+```gherkin
+# Click links by title
+When I click on the link with the title "Return to homepage"
+
+# Assert link existence
+Then the link "About Us" with the href "/about-us" should exist
+Then the link with the title "Privacy Policy" should exist
+```
+
+### 10. Waiting and AJAX
+Use `WaitTrait` from drevops/behat-steps:
+
+```gherkin
+# Wait for specific time
+When I wait for 2 seconds
+
+# Wait for AJAX to complete
+When I wait for 5 seconds for AJAX to finish
+```
+
+## 🚫 When NOT to Create Custom Steps
+
+Before creating ANY custom step, verify that drevops/behat-steps doesn't already provide it:
+
+### Common Mistakes to Avoid:
+
+1. **Creating custom user login steps**
+   - ❌ Don't create: `@Given I log in as an administrator`
+   - ✅ Use: `@Given I am logged in as a user with the "administrator" role`
+
+2. **Creating custom content creation steps**
+   - ❌ Don't create: `@Given I create an article titled :title`
+   - ✅ Use: `@Given "article" content:` with a table
+
+3. **Creating custom field interaction steps**
+   - ❌ Don't create: `@When I fill in the body field with :text`
+   - ✅ Use: `@When I fill in "Body" with :text`
+
+4. **Creating custom email verification steps**
+   - ❌ Don't create: `@Then I should receive an email`
+   - ✅ Use: `@Then an email is sent to :address`
+
+## ✅ When to Create Custom Steps
+
+Only create custom steps when:
+
+1. **Business-specific logic** that wouldn't be reusable across projects
+2. **Complex multi-step operations** that are repeated frequently in your tests
+3. **Integration with third-party services** not covered by drevops/behat-steps
+4. **Custom Drupal modules** with unique functionality
+
+Example of a valid custom step:
+
+```php
+/**
+ * @When I process the payment gateway response for order :order_id
+ */
+public function iProcessPaymentGatewayResponse($order_id) {
+    // Custom implementation for your specific payment gateway
+}
+```
+
+## 📝 Best Practices
+
+### 1. Trait Organization
+```php
+class FeatureContext extends DrupalContext {
+    // Group traits by category
+    
+    // Generic web testing traits
+    use ElementTrait;
+    use FieldTrait;
+    use LinkTrait;
+    
+    // Drupal-specific traits
+    use ContentTrait;
+    use UserTrait;
+    use TaxonomyTrait;
+    
+    // Custom methods (only when necessary)
+}
+```
+
+### 2. Tag Usage for Special Features
+```gherkin
+# Enable email testing
+@email
+Scenario: Test email functionality
+
+# Enable JavaScript testing
+@javascript
+Scenario: Test AJAX functionality
+
+# Skip certain trait behaviors
+@behat-steps-skip:emailBeforeScenario
+Scenario: Test without email initialization
+```
+
+### 3. Error Handling
+When tests fail, check:
+1. Is the correct trait included in FeatureContext?
+2. Are you using the exact step definition from drevops/behat-steps?
+3. Do you have the required tags (@api, @email, @javascript)?
+4. Is the selector or field name correct?
+
+### 4. Performance Optimization
+- Use traits selectively - only include what you need
+- Avoid creating wrapper steps around existing drevops/behat-steps
+- Use batch operations where available (e.g., creating multiple users at once)
+
+## 🔍 Quick Reference Checklist
+
+Before writing any Behat test:
+
+- [ ] Check if drevops/behat-steps provides the needed functionality
+- [ ] Include only necessary traits in FeatureContext
+- [ ] Use proper tags (@api, @email, @javascript) as required
+- [ ] Follow exact step syntax from drevops/behat-steps
+- [ ] Only create custom steps for truly unique functionality
+- [ ] Test that existing steps work before creating alternatives
+- [ ] Document any custom steps thoroughly
+
+## 📚 Additional Resources
+
+- [DrevOps Behat Steps Documentation](https://github.com/drevops/behat-steps)
+- [Behat Steps Reference](behat-steps.mdc)
+- [Drupal Extension for Behat](https://www.drupal.org/project/drupalextension)
+
+Remember: **The drevops/behat-steps package is battle-tested and covers most Drupal testing scenarios. Always use it instead of reinventing the wheel!**
