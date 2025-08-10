@@ -180,6 +180,7 @@ function install_cursor_rules(array $options = []): bool {
     'vortex-scaffold-standards.mdc',
     'vue-best-practices.mdc',
     'behat-steps.mdc',
+    'behat-ai-guide.mdc',
   ];
 
   $python_rules = [
