@@ -279,6 +279,7 @@ Each rule is written in `.mdc` format and structured to enforce best practices i
 | [`tests-documentation-maintenance.mdc`](.cursor/rules/tests-documentation-maintenance.mdc) | Require tests for new functionality and enforce documentation updates |
 | [`third-party-integration.mdc`](.cursor/rules/third-party-integration.mdc) | Standards for integrating external services |
 | [`behat-steps.mdc`](.cursor/rules/behat-steps.mdc) | Documentation for available Behat testing steps in Drupal projects |
+| [`behat-ai-guide.mdc`](.cursor/rules/behat-ai-guide.mdc) | AI assistant guide for writing Behat tests using drevops/behat-steps package |
 
 ### Python Rules
 | File Name | Purpose |

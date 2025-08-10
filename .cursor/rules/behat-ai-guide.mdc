@@ -1,0 +1,882 @@
+---
+description: This rule provides comprehensive guidance for AI assistants writing Behat tests for Drupal projects using the drevops/behat-steps package. It emphasizes reusing existing traits and steps rather than creating custom implementations. Contains the full STEPS.md reference embedded for easy access.
+globs: *.feature,FeatureContext.php,*Context.php,behat.yml
+alwaysApply: true
+---
+
+# AI Behat Test Writing Guide for Drupal Projects
+
+## 🎯 Primary Directive
+
+**ALWAYS prioritize using drevops/behat-steps traits and step definitions over writing custom steps.** The drevops/behat-steps package provides comprehensive test coverage for most Drupal testing scenarios.
+
+## 📦 Essential Resources
+
+Before writing ANY Behat test:
+1. Check available steps in the [drevops/behat-steps STEPS.md](https://github.com/drevops/behat-steps/blob/main/STEPS.md) file or refer to the embedded reference below
+2. Review trait source code in `vendor/drevops/behat-steps/src/` directory
+3. Only create custom steps when absolutely necessary (functionality not covered by existing traits)
+
+## 🔧 Setting Up FeatureContext
+
+When creating or modifying FeatureContext.php, include the necessary traits from drevops/behat-steps. The traits are located in `vendor/drevops/behat-steps/src/`:
+
+```php
+<?php
+
+namespace DrupalProject\Tests\Behat;
+
+use Drupal\DrupalExtension\Context\DrupalContext;
+// Generic traits from vendor/drevops/behat-steps/src/
+use DrevOps\BehatSteps\CookieTrait;
+use DrevOps\BehatSteps\DateTrait;
+use DrevOps\BehatSteps\ElementTrait;
+use DrevOps\BehatSteps\FieldTrait;
+use DrevOps\BehatSteps\FileDownloadTrait;
+use DrevOps\BehatSteps\KeyboardTrait;
+use DrevOps\BehatSteps\LinkTrait;
+use DrevOps\BehatSteps\PathTrait;
+use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\WaitTrait;
+
+// Drupal-specific traits from vendor/drevops/behat-steps/src/Drupal/
+use DrevOps\BehatSteps\Drupal\BigPipeTrait;
+use DrevOps\BehatSteps\Drupal\BlockTrait;
+use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
+use DrevOps\BehatSteps\Drupal\ContentTrait;
+use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
+use DrevOps\BehatSteps\Drupal\EckTrait;
+use DrevOps\BehatSteps\Drupal\EmailTrait;
+use DrevOps\BehatSteps\Drupal\FieldTrait as DrupalFieldTrait;
+use DrevOps\BehatSteps\Drupal\FileTrait;
+use DrevOps\BehatSteps\Drupal\MediaTrait;
+use DrevOps\BehatSteps\Drupal\MenuTrait;
+use DrevOps\BehatSteps\Drupal\MetatagTrait;
+use DrevOps\BehatSteps\Drupal\OverrideTrait;
+use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
+use DrevOps\BehatSteps\Drupal\SearchApiTrait;
+use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
+use DrevOps\BehatSteps\Drupal\TestmodeTrait;
+use DrevOps\BehatSteps\Drupal\UserTrait;
+use DrevOps\BehatSteps\Drupal\WatchdogTrait;
+
+class FeatureContext extends DrupalContext {
+    // Include only the traits you need for your tests
+    // Generic traits
+    use CookieTrait;
+    use DateTrait;
+    use ElementTrait;
+    use FieldTrait;
+    use FileDownloadTrait;
+    use KeyboardTrait;
+    use LinkTrait;
+    use PathTrait;
+    use ResponseTrait;
+    use WaitTrait;
+    
+    // Drupal-specific traits
+    use BlockTrait;
+    use ContentTrait;
+    use EmailTrait;
+    use FileTrait;
+    use MediaTrait;
+    use TaxonomyTrait;
+    use UserTrait;
+    
+    // Only add custom methods when drevops/behat-steps doesn't provide the functionality
+}
+```
+
+## 🚫 When NOT to Create Custom Steps
+
+Before creating ANY custom step, verify that drevops/behat-steps doesn't already provide it. Check the full reference below.
+
+### Common Mistakes to Avoid:
+
+1. **Creating custom user login steps**
+   - ❌ Don't create: `Given I log in as an administrator`
+   - ✅ Use UserTrait: `Given I am logged in as a user with the "administrator" role`
+
+2. **Creating custom content creation steps**
+   - ❌ Don't create: `Given I create an article titled :title`
+   - ✅ Use ContentTrait: `Given "article" content:` with a table
+
+3. **Creating custom field interaction steps**
+   - ❌ Don't create: `When I fill in the body field with :text`
+   - ✅ Use FieldTrait: `When I fill in "Body" with :text`
+
+4. **Creating custom email verification steps**
+   - ❌ Don't create: `Then I should receive an email`
+   - ✅ Use EmailTrait: `Then an email is sent to :address`
+
+5. **Creating custom element interaction steps**
+   - ❌ Don't create: `When I click the submit button`
+   - ✅ Use ElementTrait: `When I click on the element ".submit-button"`
+
+## ✅ When to Create Custom Steps
+
+Only create custom steps when:
+
+1. **Business-specific logic** that wouldn't be reusable across projects
+2. **Complex multi-step operations** that are repeated frequently in your tests
+3. **Integration with third-party services** not covered by drevops/behat-steps
+4. **Custom Drupal modules** with unique functionality
+
+Example of a valid custom step:
+
+```php
+/**
+ * @When I process the payment gateway response for order :order_id
+ */
+public function iProcessPaymentGatewayResponse($order_id) {
+    // Custom implementation for your specific payment gateway
+}
+```
+
+---
+
+# Complete DrevOps Behat Steps Reference
+
+The following is the complete reference from [drevops/behat-steps STEPS.md](https://github.com/drevops/behat-steps/blob/main/STEPS.md):
+
+## Available steps
+
+### Index of Generic steps
+
+| Class | Description |
+| --- | --- |
+| [CookieTrait](#cookietrait) | Verify and inspect browser cookies. |
+| [DateTrait](#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [ElementTrait](#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FieldTrait](#fieldtrait) | Manipulate form fields and verify widget functionality. |
+| [FileDownloadTrait](#filedownloadtrait) | Test file download functionality with content verification. |
+| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
+| [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
+| [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
+
+### Index of Drupal steps
+
+| Class | Description |
+| --- | --- |
+| [Drupal\BigPipeTrait](#drupalbigpipetrait) | Bypass Drupal BigPipe when rendering pages. |
+| [Drupal\BlockTrait](#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | Manage Drupal content blocks. |
+| [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
+| [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
+| [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MetatagTrait](#drupalmetatagtrait) | Assert `<meta>` tags in page markup. |
+| [Drupal\OverrideTrait](#drupaloverridetrait) | Override Drupal Extension behaviors. |
+| [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
+| [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
+| [Drupal\UserTrait](#drupalusertrait) | Manage Drupal users with role and permission assignments. |
+| [Drupal\WatchdogTrait](#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+
+---
+
+## CookieTrait
+
+[Source](vendor/drevops/behat-steps/src/CookieTrait.php)
+
+>  Verify and inspect browser cookies.
+>  - Assert cookie existence and values with exact or partial matching.
+>  - Support both WebDriver and BrowserKit drivers for test compatibility.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Then a cookie with the name :name should exist` | Assert that a cookie exists |
+| `@Then a cookie with the name :name and the value :value should exist` | Assert that a cookie exists with a specific value |
+| `@Then a cookie with the name :name and a value containing :partial_value should exist` | Assert that a cookie exists with a value containing a partial value |
+| `@Then a cookie with a name containing :partial_name should exist` | Assert that a cookie with a partial name exists |
+| `@Then a cookie with a name containing :partial_name and the value :value should exist` | Assert that a cookie with a partial name and value exists |
+| `@Then a cookie with a name containing :partial_name and a value containing :partial_value should exist` | Assert that a cookie with a partial name and partial value exists |
+| `@Then a cookie with the name :name should not exist` | Assert that a cookie does not exist |
+| `@Then a cookie with the name :name and the value :value should not exist` | Assert that a cookie with a specific value does not exist |
+| `@Then a cookie with the name :name and a value containing :partial_value should not exist` | Assert that a cookie with a value containing a partial value does not exist |
+| `@Then a cookie with a name containing :partial_name should not exist` | Assert that a cookie with a partial name does not exist |
+| `@Then a cookie with a name containing :partial_name and the value :value should not exist` | Assert that a cookie with a partial name and value does not exist |
+| `@Then a cookie with a name containing :partial_name and a value containing :partial_value should not exist` | Assert that a cookie with a partial name and partial value does not exist |
+
+---
+
+## DateTrait
+
+[Source](vendor/drevops/behat-steps/src/DateTrait.php)
+
+>  Convert relative date expressions into timestamps or formatted dates.
+>  
+>  Supports values and tables.
+>  
+>  Possible formats:
+>  - `[relative:OFFSET]`
+>  - `[relative:OFFSET#FORMAT]`
+>
+>  with:
+>  - `OFFSET`: any format that can be parsed by `strtotime()`.
+>  - `FORMAT`: `date()` format for additional processing.
+>
+>  Examples:
+>  - `[relative:-1 day]` converted to `1893456000`
+>  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+
+---
+
+## ElementTrait
+
+[Source](vendor/drevops/behat-steps/src/ElementTrait.php)
+
+>  Interact with HTML elements using CSS selectors and DOM attributes.
+>  - Assert element visibility, attribute values, and viewport positioning.
+>  - Execute JavaScript-based interactions with element state verification.
+>  - Handle confirmation dialogs and scrolling operations.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given I accept all confirmation dialogs` | Accept confirmation dialogs appearing on the page |
+| `@Given I do not accept any confirmation dialogs` | Do not accept confirmation dialogs appearing on the page |
+| `@When I click on the element :selector` | Click on the element defined by the selector |
+| `@When I trigger the JS event :event on the element :selector` | Trigger a JavaScript event on an element |
+| `@When I scroll to the element :selector` | Scroll to an element with ID |
+| `@Then the element :selector with the attribute :attribute and the value :value should exist` | Assert an element with selector and attribute with a value exists |
+| `@Then the element :selector with the attribute :attribute and the value containing :value should exist` | Assert an element with selector and attribute containing a value exists |
+| `@Then the element :selector with the attribute :attribute and the value :value should not exist` | Assert an element with selector and attribute with a value does not exist |
+| `@Then the element :selector with the attribute :attribute and the value containing :value should not exist` | Assert an element with selector and attribute containing a value does not exist |
+| `@Then the element :selector should be at the top of the viewport` | Assert the element should be at the top of the viewport |
+| `@Then the element :selector should be displayed` | Assert that element with specified CSS is visible on page |
+| `@Then the element :selector should not be displayed` | Assert that element with specified CSS is not visible on page |
+| `@Then the element :selector should be displayed within a viewport` | Assert that element with specified CSS is displayed within a viewport |
+| `@Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | Assert that element with specified CSS is displayed within a viewport with a top offset |
+| `@Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | Assert that element with specified CSS is not displayed within a viewport with a top offset |
+| `@Then the element :selector should not be displayed within a viewport` | Assert that element with specified CSS is visually hidden on page |
+
+---
+
+## FieldTrait
+
+[Source](vendor/drevops/behat-steps/src/FieldTrait.php)
+
+>  Manipulate form fields and verify widget functionality.
+>  - Set field values for various input types including selects and WYSIWYG.
+>  - Assert field existence, state, and selected options.
+>  - Support for specialized widgets like color pickers and rich text editors.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I fill in the color field :field with the value :value` | Fill value for color field |
+| `@When I fill in the WYSIWYG field :field with the :value` | Set value for WYSIWYG field |
+| `@Then the field :name should exist` | Assert that field exists on the page using id, name, label or value |
+| `@Then the field :name should not exist` | Assert that field does not exist on the page using id, name, label or value |
+| `@Then the field :name should be :enabled_or_disabled` | Assert whether the field has a state |
+| `@Then the color field :field should have the value :value` | Assert that a color field has a value |
+| `@Then the option :option should exist within the select element :selector` | Assert that a select has an option |
+| `@Then the option :option should not exist within the select element :selector` | Assert that a select does not have an option |
+| `@Then the option :option should be selected within the select element :selector` | Assert that a select option is selected |
+| `@Then the option :option should not be selected within the select element :selector` | Assert that a select option is not selected |
+
+---
+
+## FileDownloadTrait
+
+[Source](vendor/drevops/behat-steps/src/FileDownloadTrait.php)
+
+>  Test file download functionality with content verification.
+>  - Download files through links and URLs with session cookie handling.
+>  - Verify file names, content, and extracted archives.
+>  - Set up download directories and handle file cleanup.
+>
+>  Skip processing with tags: `@behat-steps-skip:fileDownloadBeforeScenario` or
+>  `@behat-steps-skip:fileDownloadAfterScenario`
+>  
+>  Special tags:
+>  - `@download` - enable download handling
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I download the file from the URL :url` | Download a file from the specified URL |
+| `@When I download the file from the link :link` | Download the file from the specified HTML link |
+| `@Then the downloaded file should contain:` | Assert the contents of the download file |
+| `@Then the downloaded file name should be :name` | Assert the file name of the downloaded file |
+| `@Then the downloaded file name should contain :name` | Assert the downloaded file name contains a specific string |
+| `@Then the downloaded file should be a zip archive containing the files named:` | Assert the downloaded file should be a zip archive containing specific files |
+| `@Then the downloaded file should be a zip archive containing the files partially named:` | Assert the downloaded file should be a zip archive containing files with partial names |
+| `@Then the downloaded file should be a zip archive not containing the files partially named:` | Assert the downloaded file is a zip archive not containing files with partial names |
+
+---
+
+## KeyboardTrait
+
+[Source](vendor/drevops/behat-steps/src/KeyboardTrait.php)
+
+>  Simulate keyboard interactions in Drupal browser testing.
+>  - Trigger key press events including special keys and key combinations.
+>  - Assert keyboard navigation and shortcut functionality.
+>  - Support for targeted key presses on specific page elements.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I press the key :key` | Press a single keyboard key |
+| `@When I press the key :key on the element :selector` | Press a single keyboard key on the element |
+| `@When I press the keys :keys` | Press multiple keyboard keys |
+| `@When I press the keys :keys on the element :selector` | Press multiple keyboard keys on the element |
+
+---
+
+## LinkTrait
+
+[Source](vendor/drevops/behat-steps/src/LinkTrait.php)
+
+>  Verify link elements with attribute and content assertions.
+>  - Find links by title, URL, text content, and class attributes.
+>  - Test link existence, visibility, and destination accuracy.
+>  - Assert absolute and relative link paths.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I click on the link with the title :title` | Click on the link with a title |
+| `@Then the link :link with the href :href should exist` | Assert a link with a href exists |
+| `@Then the link :link with the href :href within the element :selector should exist` | Assert link with a href exists within an element |
+| `@Then the link :link with the href :href should not exist` | Assert link with a href does not exist |
+| `@Then the link :link with the href :href within the element :selector should not exist` | Assert link with a href does not exist within an element |
+| `@Then the link with the title :title should exist` | Assert that a link with a title exists |
+| `@Then the link with the title :title should not exist` | Assert that a link with a title does not exist |
+| `@Then the link :link should be an absolute link` | Assert that the link with a text is absolute |
+| `@Then the link :link should not be an absolute link` | Assert that the link is not an absolute |
+
+---
+
+## PathTrait
+
+[Source](vendor/drevops/behat-steps/src/PathTrait.php)
+
+>  Navigate and verify paths with URL validation.
+>  - Assert current page location with front page special handling.
+>  - Configure basic authentication for protected path access.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the basic authentication with the username :username and the password :password` | Set basic authentication for the current session |
+| `@Then the path should be :path` | Assert that the current page is a specified path |
+| `@Then the path should not be :path` | Assert that the current page is not a specified path |
+
+---
+
+## ResponseTrait
+
+[Source](vendor/drevops/behat-steps/src/ResponseTrait.php)
+
+>  Verify HTTP responses with status code and header checks.
+>  - Assert HTTP header presence and values.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Then the response should contain the header :header_name` | Assert that a response contains a header with specified name |
+| `@Then the response should not contain the header :header_name` | Assert that a response does not contain a header with a specified name |
+| `@Then the response header :header_name should contain the value :header_value` | Assert that a response contains a header with a specified name and value |
+| `@Then the response header :header_name should not contain the value :header_value` | Assert a response does not contain a header with a specified name and value |
+
+---
+
+## WaitTrait
+
+[Source](vendor/drevops/behat-steps/src/WaitTrait.php)
+
+>  Wait for a period of time or for AJAX to finish.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I wait for :seconds second(s)` | Wait for a specified number of seconds |
+| `@When I wait for :seconds second(s) for AJAX to finish` | Wait for the AJAX calls to finish |
+
+---
+
+## Drupal\BigPipeTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/BigPipeTrait.php)
+
+>  Bypass Drupal BigPipe when rendering pages.
+>  
+>  Activated by adding `@big_pipe` tag to the scenario.
+>  
+>  Skip processing with tags: `@behat-steps-skip:bigPipeBeforeScenario` or
+>  `@behat-steps-skip:bigPipeBeforeStep`.
+
+---
+
+## Drupal\BlockTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/BlockTrait.php)
+
+>  Manage Drupal blocks.
+>  - Create and configure blocks with custom visibility conditions.
+>  - Place blocks in regions and verify their rendering in the page.
+>  - Automatically clean up created blocks after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:blockAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the instance of :admin_label block exists with the following configuration:` | Create a block instance |
+| `@Given the block :label has the following configuration:` | Configure an existing block identified by label |
+| `@Given the block :label does not exist` | Remove a block specified by label |
+| `@Given the block :label is enabled` | Enable a block specified by label |
+| `@Given the block :label is disabled` | Disable a block specified by label |
+| `@Given the block :label has the following :condition condition configuration:` | Set a visibility condition for a block |
+| `@Given the block :label has the :condition condition removed` | Remove a visibility condition from the specified block |
+| `@Then the block :label should exist` | Assert that a block with the specified label exists |
+| `@Then the block :label should not exist` | Assert that a block with the specified label does not exist |
+| `@Then the block :label should exist in the :region region` | Assert that a block with the specified label exists in a region |
+| `@Then the block :label should not exist in the :region region` | Assert that a block with the specified label does not exist in a region |
+
+---
+
+## Drupal\ContentBlockTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/ContentBlockTrait.php)
+
+>  Manage Drupal content blocks.
+>  - Define reusable custom block content with structured field data.
+>  - Create, edit, and verify block_content entities by type and description.
+>  - Automatically clean up created entities after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:contentBlockAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following :type content blocks do not exist:` | Remove content blocks of a specified type with the given descriptions |
+| `@Given the following :type content blocks exist:` | Create content blocks of the specified type with the given field values |
+| `@When I edit the :type content block with the description :description` | Navigate to the edit page for a specified content block |
+| `@Then the content block type :type should exist` | Assert that a content block type exists |
+
+---
+
+## Drupal\ContentTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/ContentTrait.php)
+
+>  Manage Drupal content with workflow and moderation support.
+>  - Create, find, and manipulate nodes with structured field data.
+>  - Navigate to node pages by title and manage editorial workflows.
+>  - Support content moderation transitions and scheduled publishing.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the content type :content_type does not exist` | Delete content type |
+| `@Given the following :content_type content does not exist:` | Remove content defined by provided properties |
+| `@When I visit the :content_type content page with the title :title` | Visit a page of a type with a specified title |
+| `@When I visit the :content_type content edit page with the title :title` | Visit an edit page of a type with a specified title |
+| `@When I visit the :content_type content delete page with the title :title` | Visit a delete page of a type with a specified title |
+| `@When I visit the :content_type content scheduled transitions page with the title :title` | Visit a scheduled transitions page of a type with a specified title |
+| `@When I change the moderation state of the :content_type content with the title :title to the :new_state state` | Change moderation state of a content with the specified title |
+
+---
+
+## Drupal\DraggableviewsTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/DraggableviewsTrait.php)
+
+>  Order items in the Drupal Draggable Views.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I save the draggable views items of the view :view_id and the display :views_display_id for the :bundle content in the following order:` | Save order of the Draggable Order items |
+
+---
+
+## Drupal\EckTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/EckTrait.php)
+
+>  Manage Drupal ECK entities with custom type and bundle creation.
+>  - Create structured ECK entities with defined field values.
+>  - Assert entity type registration and visit entity pages.
+>  - Automatically clean up created entities after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:eckAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following eck :bundle :entity_type entities exist:` | Create eck entities |
+| `@Given the following eck :bundle :entity_type entities do not exist:` | Remove custom entities by field |
+| `@When I visit eck :bundle :entity_type entity with the title :title` | Navigate to view entity page with specified type and title |
+| `@When I edit eck :bundle :entity_type entity with the title :title` | Navigate to edit eck entity page with specified type and title |
+
+---
+
+## Drupal\EmailTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/EmailTrait.php)
+
+>  Test Drupal email functionality with content verification.
+>  - Capture and examine outgoing emails with header and body validation.
+>  - Follow links and test attachments within email content.
+>  - Configure mail handler systems for proper test isolation.
+>
+>  Skip processing with tags: `@behat-steps-skip:emailBeforeScenario` or
+>  `@behat-steps-skip:emailAfterScenario`
+>  
+>  Special tags:
+>  - `@email` - enable email tracking using a default handler
+>  - `@email:{type}` - enable email tracking using a `{type}` handler
+>  - `@debug` (enable detailed logs)
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I clear the test email system queue` | Clear test email system queue |
+| `@When I follow link number :link_number in the email with the subject :subject` | Follow a specific link number in an email with the given subject |
+| `@When I follow link number :link_number in the email with the subject containing :subject` | Follow a specific link number in an email whose subject contains the given substring |
+| `@When I enable the test email system` | Enable the test email system |
+| `@When I disable the test email system` | Disable test email system |
+| `@Then an email is sent to :address` | Assert that an email should be sent to an address |
+| `@Then no emails were sent` | Assert that no email messages should be sent |
+| `@Then no emails were sent to :address` | Assert that no email messages should be sent to a specified address |
+| `@Then an email :field contains:` | Assert that the email message field should contain specified content |
+| `@Then an email :field is:` | Assert that the email message field should exactly match specified content |
+| `@Then an email :field does not contain:` | Assert that the email message field should not contain specified content |
+| `@Then an email to :address is sent` | Assert that an email is sent to a specific address |
+| `@Then an email to :address is sent with the subject :subject` | Assert that an email with subject is sent to a specific address |
+| `@Then an email to :address is sent with the subject containing :subject` | Assert that an email with subject containing text is sent to a specific address |
+| `@Then an email to :address is not sent` | Assert that an email is not sent to a specific address |
+| `@Then the file :file is attached to the email with the subject :subject` | Assert that a file is attached to an email message with specified subject |
+| `@Then the file :file is attached to the email with the subject containing :subject` | Assert that a file is attached to an email message with a subject containing the specified substring |
+
+### IMPORTANT Email Testing Notes:
+
+**Always use @email tag for email testing scenarios** - the `@email` tag is required for each scenario that tests email functionality, not just at the feature level. Without this tag, email-related steps will fail with "email testing system is not activated" errors.
+
+```gherkin
+@api @email
+Scenario: Test email notifications
+  Given I am logged in as a user with the "administrator" role
+  When I perform an action that triggers email
+  Then an email is sent to "user@example.com"
+  Then an email "subject" contains:
+    """
+    Welcome to our site
+    """
+```
+
+---
+
+## Drupal\FileTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/FileTrait.php)
+
+> Manage Drupal file entities and operations.
+> - Handle file uploads, downloads, and management operations.
+> - Work with managed and unmanaged files in Drupal.
+> - Automatically clean up created file entities after scenario completion.
+
+Use `FileTrait` and `MediaTrait` from drevops/behat-steps along with built-in Drupal steps for file entities:
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following managed files:` | Create managed files with properties provided in the table (from DrupalContext) |
+| `@Given the following managed files do not exist:` | Delete managed files defined by provided properties/fields (from DrupalContext) |
+| `@Given the unmanaged file at the URI :uri exists` | Create an unmanaged file (from DrupalContext) |
+| `@Given the unmanaged file at the URI :uri exists with :content` | Create an unmanaged file with specified content (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should exist` | Assert that an unmanaged file with specified URI exists (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should not exist` | Assert that an unmanaged file with specified URI does not exist (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should contain :content` | Assert that an unmanaged file exists and has specified content (from DrupalContext) |
+| `@Then an unmanaged file at the URI :uri should not contain :content` | Assert that an unmanaged file exists and does not have specified content (from DrupalContext) |
+
+---
+
+## Drupal\MediaTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/MediaTrait.php)
+
+>  Manage Drupal media entities with type-specific field handling.
+>  - Create structured media items with proper file reference handling.
+>  - Assert media browser functionality and edit media entity fields.
+>  - Support for multiple media types with field value expansion handling.
+>  - Automatically clean up created entities after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:mediaAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given :media_type media type does not exist` | Remove media type |
+| `@Given the following media :media_type exist:` | Create media of a given type |
+| `@Given the following media :media_type do not exist:` | Remove media defined by provided properties |
+| `@When I edit the media :media_type with the name :name` | Navigate to edit media with specified type and name |
+
+---
+
+## Drupal\MenuTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/MenuTrait.php)
+
+>  Manage Drupal menu systems and menu link rendering.
+>  - Assert menu items by label, path, and containment hierarchy.
+>  - Assert menu link visibility and active states in different regions.
+>  - Create and manage menu hierarchies with parent-child relationships.
+>  - Automatically clean up created menu links after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:menuAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the menu :menu_name does not exist` | Remove a single menu by its label if it exists |
+| `@Given the following menus:` | Create a menu if one does not exist |
+| `@Given the following menu links do not exist in the menu :menu_name:` | Remove menu links by title |
+| `@Given the following menu links exist in the menu :menu_name:` | Create menu links |
+
+---
+
+## Drupal\MetatagTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/MetatagTrait.php)
+
+>  Assert `<meta>` tags in page markup.
+>  - Assert presence and content of meta tags with proper attribute handling.
+
+---
+
+## Drupal\OverrideTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/OverrideTrait.php)
+
+>  Override Drupal Extension behaviors.
+>  - Automated entity deletion before creation to avoid duplicates.
+>  - Improved user authentication handling for anonymous users.
+>
+>  Use with caution: depending on your version of Drupal Extension, PHP and
+>  Composer, the step definition string (/^Given etc.../) may need to be defined
+>  for these overrides. If you encounter errors about missing or duplicated
+>  step definitions, do not include this trait and rather copy the contents of
+>  this file into your feature context file and copy the step definition strings
+>  from the Drupal Extension.
+
+---
+
+## Drupal\ParagraphsTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/ParagraphsTrait.php)
+
+>  Manage Drupal paragraphs entities with structured field data.
+>  - Create paragraph items with type-specific field values.
+>  - Test nested paragraph structures and reference field handling.
+>  - Attach paragraphs to various entity types with parent-child relationships.
+>  - Automatically clean up created paragraph items after scenario completion.
+>
+>  Skip processing with tag: `@behat-steps-skip:paragraphsAfterScenario`
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:` | Create a paragraph of the given type with fields within an existing entity |
+
+---
+
+## Drupal\SearchApiTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/SearchApiTrait.php)
+
+>  Assert Drupal Search API with index and query operations.
+>  - Add content to an index
+>  - Run indexing for a specific number of items.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@When I add the :content_type content with the title :title to the search index` | Index a node of a specific content type with a specific title |
+| `@When I run search indexing for :count item(s)` | Run indexing for a specific number of items |
+
+---
+
+## Drupal\TaxonomyTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/TaxonomyTrait.php)
+
+>  Manage Drupal taxonomy terms with vocabulary organization.
+>  - Create term vocabulary structures using field values.
+>  - Navigate to term pages
+>  - Verify vocabulary configurations.
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following :vocabulary_machine_name vocabulary terms do not exist:` | Remove terms from a specified vocabulary |
+| `@When I visit the :vocabulary_machine_name vocabulary :term_name term page` | Visit specified vocabulary term page |
+| `@When I edit the :vocabulary_machine_name vocabulary :term_name term page` | Edit specified vocabulary term page |
+| `@Then the vocabulary :machine_name with the name :name should exist` | Assert that a vocabulary with a specific name exists |
+| `@Then the vocabulary :machine_name should not exist` | Assert that a vocabulary with a specific name does not exist |
+| `@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | Assert that a taxonomy term exist by name |
+| `@Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | Assert that a taxonomy term does not exist by name |
+
+---
+
+## Drupal\TestmodeTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/TestmodeTrait.php)
+
+>  Configure Drupal Testmode module for controlled testing scenarios.
+>  
+>  Skip processing with tags: `@behat-steps-skip:testmodeBeforeScenario` and
+>  `@behat-steps-skip:testmodeAfterScenario`.
+>  
+>  Special tags:
+>  - `@testmode` - enable for scenario
+
+---
+
+## Drupal\UserTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/UserTrait.php)
+
+>  Manage Drupal users with role and permission assignments.
+>  - Create user accounts
+>  - Create user roles
+>  - Visit user profile pages for editing and deletion.
+>  - Assert user roles and permissions.
+>  - Assert user account status (active/inactive).
+
+### Available steps:
+
+| Step | Description |
+| --- | --- |
+| `@Given the following users do not exist:` | Remove users specified in a table |
+| `@Given the password for the user :name is :password` | Set a password for a user |
+| `@Given the last access time for the user :name is :datetime` | Set last access time for a user |
+| `@Given the last login time for the user :name is :datetime` | Set last login time for a user |
+| `@Given the role :role_name with the permissions :permissions` | Create a single role with specified permissions |
+| `@Given the following roles:` | Create multiple roles from the specified table |
+| `@When I visit :name user profile page` | Visit the profile page of the specified user |
+| `@When I visit my own user profile page` | Visit the profile page of the current user |
+| `@When I visit :name user profile edit page` | Visit the profile edit page of the specified user |
+| `@When I visit my own user profile edit page` | Visit the profile edit page of the current user |
+| `@When I visit :name user profile delete page` | Visit the profile delete page of the specified user |
+| `@When I visit my own user profile delete page` | Visit the profile delete page of the current user |
+| `@Then the user :name should have the role(s) :roles assigned` | Assert that a user has roles assigned |
+| `@Then the user :name should not have the role(s) :roles assigned` | Assert that a user does not have roles assigned |
+| `@Then the user :name should be blocked` | Assert that a user is blocked |
+| `@Then the user :name should not be blocked` | Assert that a user is not blocked |
+
+---
+
+## Drupal\WatchdogTrait
+
+[Source](vendor/drevops/behat-steps/src/Drupal/WatchdogTrait.php)
+
+>  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
+>  - Check for Watchdog messages after scenario completion.
+>  - Optionally check only for specific message types.
+>  - Optionally skip error checking for specific scenarios.
+>
+>  Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
+>  `@behat-steps-skip:watchdogAfterScenario`
+>  
+>  Special tags:
+>  - `@watchdog:{type}` - limit watchdog messages to specific types.
+>  - `@error` - add to scenarios that are expected to trigger an error.
+
+---
+
+## 📝 Best Practices
+
+### 1. Trait Organization
+Always check what traits are available in `vendor/drevops/behat-steps/src/` before creating custom steps:
+
+```php
+class FeatureContext extends DrupalContext {
+    // Only include the traits you actually use
+    use ContentTrait;  // For content management
+    use UserTrait;     // For user operations
+    use EmailTrait;    // For email testing
+    
+    // Custom methods only when absolutely necessary
+}
+```
+
+### 2. Tag Usage for Special Features
+```gherkin
+# Enable email testing - REQUIRED for email steps
+@email
+Scenario: Test email functionality
+
+# Enable JavaScript testing
+@javascript
+Scenario: Test AJAX functionality
+
+# Skip certain trait behaviors
+@behat-steps-skip:emailBeforeScenario
+Scenario: Test without email initialization
+```
+
+### 3. Error Handling
+When tests fail, check:
+1. Is the correct trait included in FeatureContext?
+2. Are you using the exact step definition from drevops/behat-steps?
+3. Do you have the required tags (@api, @email, @javascript)?
+4. Is the selector or field name correct?
+
+### 4. Performance Optimization
+- Use traits selectively - only include what you need
+- Avoid creating wrapper steps around existing drevops/behat-steps
+- Use batch operations where available (e.g., creating multiple users at once)
+
+## 🔍 Quick Reference Checklist
+
+Before writing any Behat test:
+
+- [ ] Check the embedded reference above or [STEPS.md](https://github.com/drevops/behat-steps/blob/main/STEPS.md) for available steps
+- [ ] Review trait source code in `vendor/drevops/behat-steps/src/`
+- [ ] Include only necessary traits in FeatureContext
+- [ ] Use proper tags (@api, @email, @javascript) as required
+- [ ] Follow exact step syntax from drevops/behat-steps
+- [ ] Only create custom steps for truly unique functionality
+- [ ] Test that existing steps work before creating alternatives
+- [ ] Document any custom steps thoroughly
+
+## 📚 Additional Resources
+
+- [DrevOps Behat Steps Documentation](https://github.com/drevops/behat-steps)
+- [DrevOps Behat Steps STEPS.md](https://github.com/drevops/behat-steps/blob/main/STEPS.md)
+- [Drupal Extension for Behat](https://www.drupal.org/project/drupalextension)
+
+Remember: **The drevops/behat-steps package is battle-tested and covers most Drupal testing scenarios. Always use it instead of reinventing the wheel!**
