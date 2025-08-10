@@ -1,9 +1,9 @@
-# Cursor AI Project Rules for Web Development
+# Cursor AI Project Rules for Modern Development
 
 [![Cursor Rules Tests](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml/badge.svg)](https://github.com/ivangrynenko/cursor-rules/actions/workflows/test.yml)
 
 ## 📌 About This Repository
-This repository contains a **set of Cursor AI rules** specifically designed to **enhance efficiency, enforce coding standards, and automate best practices** for **web developers**, particularly those working with **PHP, Drupal, JavaScript, and frontend frameworks**.
+This repository contains a **comprehensive set of Cursor AI rules** designed to **enhance efficiency, enforce coding standards, and automate best practices** across **multiple programming languages and frameworks**, including **PHP/Drupal, JavaScript/React/Vue, Python, and DevOps technologies**, with a **strong focus on security** following **OWASP Top 10** guidelines.
 
 These rules help **Cursor AI** assist developers by:
 - Enforcing coding standards and best practices
@@ -15,10 +15,13 @@ These rules help **Cursor AI** assist developers by:
 
 ## 🚀 Who Is This For?
 This repository is ideal for:
-- **PHP & Drupal developers** following Drupal coding standards
-- **Web developers** working with JavaScript, React, Vue, Tailwind, and other frontend technologies
-- **Software teams** looking for a structured, automated workflow with Cursor AI
-- **Open-source contributors** who want a standardized set of development rules
+- **PHP & Drupal developers** following Drupal coding standards and security best practices
+- **Frontend developers** working with JavaScript, React, Vue, Tailwind, and other modern frameworks
+- **Python developers** building secure applications following OWASP guidelines
+- **DevOps engineers** working with Docker, CI/CD, and deployment workflows
+- **Security-conscious developers** implementing OWASP Top 10 protections
+- **Software teams** looking for a structured, automated workflow with comprehensive rule sets
+- **Open-source contributors** who want standardized development and security practices
 
 ---
 
