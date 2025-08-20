@@ -20,7 +20,7 @@
 declare(strict_types=1);
 
 // Define constants.
-define('CURSOR_RULES_VERSION', '1.0.5');
+define('CURSOR_RULES_VERSION', '1.0.6');
 define('CURSOR_RULES_DIR', '.cursor/rules');
 define('CURSOR_DIR', '.cursor');
 
