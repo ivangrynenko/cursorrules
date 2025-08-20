@@ -3,6 +3,7 @@
 **Version:** 1.0.5
 **Installation Date:** 2025-08-20 09:12:08 UTC
 **Rules Installed:** 7 files
+**AGENTS.md Created:** 2025-08-20
 
 ## Installation Type
 - Core rules (default)
