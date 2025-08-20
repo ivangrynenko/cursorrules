@@ -38,6 +38,10 @@ php install.php --debug --core
 
 # Test installation to custom directory
 php install.php --all --destination=my/custom/path
+
+# Test installation via curl (non-interactive)
+curl -s https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/install.php | php -- --ws
+cat install.php | php -- --core   # Test piped input locally
 ```
 
 ### Linting and Code Quality
@@ -47,10 +51,12 @@ php install.php --all --destination=my/custom/path
 ## Architecture and Code Structure
 
 ### Project Organization
-- **install.php**: Main installer script (v1.0.4) - Uses builder and strategy patterns for rule set installation
+- **install.php**: Main installer script (current version defined by CURSOR_RULES_VERSION constant)
 - **.cursor/rules/**: Contains 56 MDC rule files organized by category
+- **.cursor/UPDATE.md**: Version history file tracking all releases and changes (created by installer)
 - **.tests/**: Bash test scripts for installer validation
 - **.github/workflows/**: CI/CD pipeline using GitHub Actions for PHP 8.3
+- **AGENTS.md**: Comprehensive guide for using Cursor Rules (created by installer)
 
 ### Rule Categories
 1. **Core Rules** (7 files): Git standards, testing guidelines, README maintenance
@@ -73,7 +79,69 @@ php install.php --all --destination=my/custom/path
 2. Script detects if running interactively or with parameters
 3. Creates .cursor/rules directory structure
 4. Downloads and installs selected rule files from GitHub
-5. Creates UPDATE.md file to track version
+5. Creates/updates .cursor/UPDATE.md file to track version history
+6. Creates/updates AGENTS.md documentation (unless --yes flag overwrites)
+
+## Versioning System
+
+### Version Management
+- **Version Constant**: Defined in install.php as `CURSOR_RULES_VERSION`
+- **Version History**: Tracked in .cursor/UPDATE.md file
+- **Release Process**:
+  1. Update CURSOR_RULES_VERSION constant in install.php
+  2. Add version entry to .cursor/UPDATE.md with date and changes
+  3. Create GitHub release matching the version number
+  4. Tag the release in git
+
+### .cursor/UPDATE.md File Purpose
+The UPDATE.md file serves as a version history log that:
+- Tracks all changes made in each version
+- Documents new features, bug fixes, and improvements
+- Records the date of each release
+- Lists affected files and their impact
+- Notes any breaking changes
+- Gets created/updated automatically by the installer in user projects
+- Helps users understand what changed between versions
+
+## Known Issues and Solutions
+
+### Curl Piping Issues (Fixed in v1.0.6)
+When piping the installer through curl, several PHP-specific behaviors can cause problems:
+
+**Problem**: Script hangs when using `curl ... | php` commands
+**Root Causes**:
+1. `$_SERVER['PHP_SELF']` becomes "Standard input code" instead of script name when piped
+2. PHP continues waiting for STDIN input even after script completion
+3. Arguments may not parse correctly when using `--` separator with piped input
+
+**Solutions Implemented**:
+1. **Entry Point Detection**: Check for both normal execution and "Standard input code"
+   ```php
+   if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') || 
+       ($_SERVER['PHP_SELF'] ?? '') === 'Standard input code')
+   ```
+
+2. **STDIN Cleanup**: Always close STDIN before exit to prevent hanging
+   ```php
+   if (defined('STDIN') && is_resource(STDIN)) {
+       fclose(STDIN);
+   }
+   ```
+
+3. **Argument Parsing**: Handle both with and without `--` separator
+   ```php
+   if (!stream_isatty(STDIN) && $_SERVER['PHP_SELF'] === 'Standard input code') {
+       // Parse arguments from argv when piped
+   }
+   ```
+
+### Testing Coverage Gaps
+**Issue**: Test suite only covered direct PHP execution, not curl piping scenarios
+**Recommendation**: Add tests for:
+- `curl ... | php` execution paths
+- `cat install.php | php` scenarios
+- Argument parsing with and without `--` separator
+- STDIN handling in different contexts
 
 ## Important Considerations
 
