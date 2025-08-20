@@ -987,7 +987,9 @@ function show_help(): void {
 }
 
 // If this script is being run directly, execute the installation.
-if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
+// Also handle execution when piped through curl (PHP_SELF becomes "Standard input code")
+if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') || 
+    ($_SERVER['PHP_SELF'] ?? '') === 'Standard input code') {
   // Default options
   $options = [
     'debug' => false,
