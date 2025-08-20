@@ -1132,6 +1132,17 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
 
   echo "\nInstallation " . ($success ? "completed successfully!" : "failed.") . "\n";
   echo "Cursor AI will now use these rules when working with your codebase.\n";
+  
+  // Ensure all output is flushed before exit
+  if (ob_get_level() > 0) {
+    ob_flush();
+  }
+  flush();
+  
+  // Close stdin if it's open to prevent hanging
+  if (defined('STDIN') && is_resource(STDIN)) {
+    fclose(STDIN);
+  }
 
   exit($success ? 0 : 1);
 }
