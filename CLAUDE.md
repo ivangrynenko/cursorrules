@@ -53,7 +53,7 @@ cat install.php | php -- --core   # Test piped input locally
 ### Project Organization
 - **install.php**: Main installer script (current version defined by CURSOR_RULES_VERSION constant)
 - **.cursor/rules/**: Contains 56 MDC rule files organized by category
-- **.cursor/UPDATE.md**: Version history file tracking all releases and changes (created by installer)
+- **.cursor/UPDATE.md**: Installation receipt file tracking installed version and configuration (created by installer)
 - **.tests/**: Bash test scripts for installer validation
 - **.github/workflows/**: CI/CD pipeline using GitHub Actions for PHP 8.3
 - **AGENTS.md**: Comprehensive guide for using Cursor Rules (created by installer)
@@ -79,29 +79,29 @@ cat install.php | php -- --core   # Test piped input locally
 2. Script detects if running interactively or with parameters
 3. Creates .cursor/rules directory structure
 4. Downloads and installs selected rule files from GitHub
-5. Creates/updates .cursor/UPDATE.md file to track version history
+5. Creates/overwrites .cursor/UPDATE.md file as an installation receipt
 6. Creates/updates AGENTS.md documentation (unless --yes flag overwrites)
 
 ## Versioning System
 
 ### Version Management
 - **Version Constant**: Defined in install.php as `CURSOR_RULES_VERSION`
-- **Version History**: Tracked in .cursor/UPDATE.md file
+- **Version History**: Tracked in GitHub releases and repository documentation
 - **Release Process**:
   1. Update CURSOR_RULES_VERSION constant in install.php
-  2. Add version entry to .cursor/UPDATE.md with date and changes
+  2. Update version history in repository documentation
   3. Create GitHub release matching the version number
   4. Tag the release in git
 
 ### .cursor/UPDATE.md File Purpose
-The UPDATE.md file serves as a version history log that:
-- Tracks all changes made in each version
-- Documents new features, bug fixes, and improvements
-- Records the date of each release
-- Lists affected files and their impact
-- Notes any breaking changes
-- Gets created/updated automatically by the installer in user projects
-- Helps users understand what changed between versions
+The UPDATE.md file serves as an installation receipt that:
+- Records the version of cursor-rules that was installed
+- Documents the installation date and time
+- Lists the number of rule files installed
+- Shows the installation type (core, web-stack, Python, etc.)
+- Records any tag filters that were applied
+- Gets created/overwritten by the installer on each run
+- Helps users identify which version and configuration they have installed
 
 ## Known Issues and Solutions
 
