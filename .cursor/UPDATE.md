@@ -9,11 +9,3 @@
 
 ## Source
 Rules downloaded from: https://github.com/ivangrynenko/cursor-rules
-
-## AGENTS.md Documentation
-**Version:** 1.0.6
-**Created:** 2025-08-20
-- Comprehensive guide for using Cursor Rules with Cursor AI
-- Links to all rule bundles (Core, Web Stack, Python, JavaScript Security)
-- Tag-based selection documentation
-- Installation options reference
