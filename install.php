@@ -1111,7 +1111,9 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '')) {
     // No arguments provided, check if we should parse from STDIN (for curl | php usage)
     if (!stream_isatty(STDIN)) {
       // We're being piped to, look for arguments after the separator
-      list($options, $option_count) = parseArguments();
+      list($parsed_options, $option_count) = parseArguments();
+      // Merge the parsed options with the defaults
+      $options = array_merge($options, $parsed_options);
     }
   }
 
@@ -1161,12 +1163,20 @@ function parseArguments() {
   $option_count = 0;
   
   // Look for -- separator in argv to handle piped arguments
+  // When piped through curl, argv[0] is "Standard input code" and arguments start at argv[1]
   $start_index = 1;
+  $found_separator = false;
   for ($i = 1; $i < $argc; $i++) {
     if ($argv[$i] === '--') {
       $start_index = $i + 1;
+      $found_separator = true;
       break;
     }
+  }
+  
+  // If no separator found and we're being piped, assume all args after argv[0] are ours
+  if (!$found_separator && $argc > 1 && $argv[0] === 'Standard input code') {
+    $start_index = 1;
   }
   
   // Process arguments after the separator
