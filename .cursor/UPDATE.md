@@ -1,5 +1,32 @@
 # Cursor Rules Updates
 
+## Version 1.0.6 - 2025-08-20
+
+### AGENTS.md Documentation Added
+
+**New Documentation:**
+- Added comprehensive AGENTS.md guide for using Cursor Rules with Cursor AI
+- Links to all rule bundles (Core, Web Stack, Python, JavaScript Security)
+- Tag-based selection documentation and examples
+- Installation options reference guide
+
+**Installer Improvements:**
+- Fixed hanging issue when piping installer through curl
+- Added proper STDIN handling for piped execution
+- Improved argument parsing for curl-based installation
+- Added fclose(STDIN) to prevent PHP from waiting for input after completion
+
+**Bug Fixes:**
+- Resolved script hanging when using `curl ... | php` commands
+- Fixed argument parsing when using `--` separator with piped input
+- Corrected PHP_SELF detection for piped execution
+
+**File:** `install.php`, `AGENTS.md`
+**Impact:** Major improvement to installation experience and documentation
+**Breaking Changes:** None - backward compatible
+
+---
+
 ## Version 1.0.5 - 2025-01-03
 
 ### Major Updates to Pull Request Review Instructions
