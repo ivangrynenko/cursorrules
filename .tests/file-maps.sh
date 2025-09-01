@@ -25,7 +25,6 @@ WEB_FILES=(
   "docker-compose-standards.mdc"
   "drupal-file-permissions.mdc"
   "generic_bash_style.mdc"
-  "govcms-saas-project-documentation-creation.mdc"
   "javascript-performance.mdc"
   "javascript-standards.mdc"
   "lagoon-docker-compose-standards.mdc"
@@ -57,7 +56,6 @@ DRUPAL_FILES=(
   "drupal-security-misconfiguration.mdc"
   "drupal-ssrf.mdc"
   "drupal-vulnerable-components.mdc"
-  "govcms-saas.mdc"
   "php-drupal-best-practices.mdc"
   "security-practices.mdc"
 )

@@ -54,8 +54,6 @@ Below are the rule bundles and their rule files. Each item links directly to the
 - [.cursor/rules/drupal-ssrf.mdc](.cursor/rules/drupal-ssrf.mdc)
 - [.cursor/rules/drupal-vulnerable-components.mdc](.cursor/rules/drupal-vulnerable-components.mdc)
 - [.cursor/rules/generic_bash_style.mdc](.cursor/rules/generic_bash_style.mdc)
-- [.cursor/rules/govcms-saas-project-documentation-creation.mdc](.cursor/rules/govcms-saas-project-documentation-creation.mdc)
-- [.cursor/rules/govcms-saas.mdc](.cursor/rules/govcms-saas.mdc)
 - [.cursor/rules/javascript-performance.mdc](.cursor/rules/javascript-performance.mdc)
 - [.cursor/rules/javascript-standards.mdc](.cursor/rules/javascript-standards.mdc)
 - [.cursor/rules/lagoon-docker-compose-standards.mdc](.cursor/rules/lagoon-docker-compose-standards.mdc)

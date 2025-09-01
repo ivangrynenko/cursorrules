@@ -62,7 +62,7 @@ cat install.php | php -- --core   # Test piped input locally
 1. **Core Rules** (7 files): Git standards, testing guidelines, README maintenance
 2. **Web Development Rules**:
    - Frontend: JavaScript, React, Vue, Tailwind, accessibility
-   - Backend: PHP/Drupal standards, database, GovCMS
+   - Backend: PHP/Drupal standards, database
    - Security: OWASP Top 10 implementations for Drupal
    - DevOps: Docker, Lagoon, Vortex configurations
 3. **Python Rules** (10 files): Security-focused rules following OWASP standards

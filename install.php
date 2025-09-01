@@ -159,8 +159,6 @@ function install_cursor_rules(array $options = []): bool {
     'drupal-ssrf.mdc',
     'drupal-vulnerable-components.mdc',
     'generic_bash_style.mdc',
-    'govcms-saas-project-documentation-creation.mdc',
-    'govcms-saas.mdc',
     'javascript-performance.mdc',
     'javascript-standards.mdc',
     'lagoon-docker-compose-standards.mdc',
