@@ -32,6 +32,7 @@ Below are the rule bundles and their rule files. Each item links directly to the
 - [.cursor/rules/pull-request-changelist-instructions.mdc](.cursor/rules/pull-request-changelist-instructions.mdc)
 - [.cursor/rules/readme-maintenance-standards.mdc](.cursor/rules/readme-maintenance-standards.mdc)
 - [.cursor/rules/testing-guidelines.mdc](.cursor/rules/testing-guidelines.mdc)
+ - [.cursor/rules/confluence-editing-standards.mdc](.cursor/rules/confluence-editing-standards.mdc)
 
 ### Web Stack
 - [.cursor/rules/accessibility-standards.mdc](.cursor/rules/accessibility-standards.mdc)
@@ -63,6 +64,7 @@ Below are the rule bundles and their rule files. Each item links directly to the
 - [.cursor/rules/node-dependencies.mdc](.cursor/rules/node-dependencies.mdc)
 - [.cursor/rules/php-drupal-best-practices.mdc](.cursor/rules/php-drupal-best-practices.mdc)
 - [.cursor/rules/php-drupal-development-standards.mdc](.cursor/rules/php-drupal-development-standards.mdc)
+- [.cursor/rules/php-memory-optimisation.mdc](.cursor/rules/php-memory-optimisation.mdc)
 - [.cursor/rules/project-definition-template.mdc](.cursor/rules/project-definition-template.mdc)
 - [.cursor/rules/react-patterns.mdc](.cursor/rules/react-patterns.mdc)
 - [.cursor/rules/security-practices.mdc](.cursor/rules/security-practices.mdc)

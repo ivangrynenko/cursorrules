@@ -1,0 +1,45 @@
+# Confluence Editing Standards (Markdown Authoring)
+
+Purpose: Ensure Markdown renders cleanly in Confluence by applying spacing, nesting, and code formatting rules during page creation/updates.
+
+## Lists & Spacing
+- Always insert a blank line between list items.
+
+- Use nested sub-bullets for subpoints; never concatenate multiple points on a single line.
+
+- For ordered lists, keep each step single-purpose; add an empty line between steps when a step has sub-bullets.
+
+## Inline vs Code Blocks
+- Prefer inline code for short, single-line commands or file paths (e.g., `composer install`).
+
+- Use fenced code blocks only when necessary (multi-line commands, config snippets). Verify Confluence renders the block without collapsing; otherwise, convert to inline steps.
+
+- Do not mix bullets and code blocks without a blank line before and after the block.
+
+## Headings & Anchors
+- Keep headings concise; avoid trailing punctuation.
+
+- When using Markdown format, avoid enabling heading anchors if they introduce ID artifacts in rendered output.
+
+## Tables
+- Keep tables simple (5–7 columns max). Prefer bullets when content wraps heavily.
+
+- Add a brief sentence above a large table explaining what it captures.
+
+## Nested Structure
+- Depth guidance: limit nesting to two levels (bullet → sub-bullet). If content requires more depth, split into a new subsection.
+
+## Check Before Publish (Quicklist)
+- Bullets have blank lines between items.
+
+- Sub-bullets are properly indented and grouped.
+
+- Commands are inline where possible; multi-line blocks tested for rendering.
+
+- No anchor artifacts in headings.
+
+- Tables are readable; consider bullets if wide.
+
+## Optional Page Label Cue
+When editing an existing Confluence page, if the page has label `format-spaced-lists`, apply these spacing rules strictly even if the original content is inconsistent.
+
