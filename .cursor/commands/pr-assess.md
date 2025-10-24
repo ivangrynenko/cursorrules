@@ -471,7 +471,7 @@ When reviewing, ensure you check:
 
 ## CRITICAL: Self-Improvement Protocol
 
-**MANDATORY**: After EVERY code review session, you MUST update this command file (`/Users/ivan/.claude/commands/pr.md`) with:
+**MANDATORY**: After EVERY code review session, you MUST update this command file (`pr-assess.md`) with:
 
 1. **New Technology Stacks Encountered**:
    - Add specific review criteria for any new frameworks/languages
