@@ -28,8 +28,8 @@ Before executing the remediation steps, wrap your analysis in <project_analysis>
 Before proceeding, make sure the PHP runtime has access to the same project files as the CLI container. The PHP image in this stack does not mount the module code by default, so you must manually sync the files before attempting any audits or Drupal commands:
 
 **Mandatory Container Sync (must be performed manually by the assistant)**
-- Identify the running PHP pod/container for the target environment. For Lagoon-based stacks use `kubectl get pods -l lagoon.sh/project=the project name,lagoon.sh/service=php` (or the equivalent `kubectl get pod` command provided by the platform). For local Docker Compose environments use `docker compose ps php` to confirm the container name.
-- Determine the CLI container name (typically `the project name` locally or the Lagoon CLI pod). This container has the authoritative Drupal codebase.
+- Identify the running PHP pod/container for the target environment. For Lagoon-based stacks use `kubectl get pods -l lagoon.sh/project=<project-name>,lagoon.sh/service=php` (or the equivalent `kubectl get pod` command provided by the platform). For local Docker Compose environments use `docker compose ps php` to confirm the container name.
+- Determine the CLI container name (typically `<project-name>` locally or the Lagoon CLI pod). This container has the authoritative Drupal codebase.
 - Copy the missing module directories from the CLI container to the PHP container so PHP can load them. Example (Docker): `docker cp $(docker compose ps -q cli):/app/web/modules/. $(docker compose ps -q php):/app/web/modules/` and repeat for any other required paths (e.g. `/app/vendor`, `/app/web/profiles`). Example (Lagoon/Kubernetes): `kubectl cp <cli-pod>:/app/web/modules <php-pod>:/app/web/modules -c php`.
 - Verify inside the PHP container that the expected module (e.g. `upgrade_status`) now exists under `/app/web/modules/contrib`. Do not restart or recreate containers; only manual copying is permitted.
 
