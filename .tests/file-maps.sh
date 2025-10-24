@@ -3,6 +3,17 @@
 # File maps for Cursor Rules installer tests
 # This file defines the expected files for each installation option
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMAND_SOURCE_DIR="$SCRIPT_DIR/../.cursor/commands"
+
+COMMAND_FILES=()
+if [ -d "$COMMAND_SOURCE_DIR" ]; then
+  while IFS= read -r -d '' file; do
+    rel_path="${file#./}"
+    COMMAND_FILES+=("$rel_path")
+  done < <(cd "$COMMAND_SOURCE_DIR" && find . -type f -print0)
+fi
+
 # Core rules
 CORE_FILES=(
   "cursor-rules.mdc"
@@ -88,10 +99,11 @@ JAVASCRIPT_FILES=(
   "javascript-server-side-request-forgery.mdc"
 )
 
-# Function to validate files
-validate_files() {
+# Function to validate rule files without checking commands
+validate_rules_only() {
   local test_dir=$1
-  local files=("${@:2}")
+  shift
+  local files=("$@")
   local missing_files=0
   local missing_file_list=()
   
@@ -107,7 +119,7 @@ validate_files() {
     missing_files=$((missing_files + 1))
     missing_file_list+=("UPDATE.md (in .cursor directory)")
   fi
-  
+
   if [ $missing_files -gt 0 ]; then
     echo "Missing files: $missing_files"
     for file in "${missing_file_list[@]}"; do
@@ -116,6 +128,116 @@ validate_files() {
     return 1
   fi
   
+  return 0
+}
+
+# Function to validate files including commands
+validate_files() {
+  local test_dir=$1
+  shift
+  local files=("$@")
+
+  if ! validate_rules_only "$test_dir" "${files[@]}"; then
+    return 1
+  fi
+
+  if ! validate_commands_dir "$test_dir/.cursor/commands"; then
+    return 1
+  fi
+
+  return 0
+}
+
+validate_commands_dir() {
+  local commands_dir=$1
+  local missing=0
+  local missing_list=()
+
+  if [ ${#COMMAND_FILES[@]} -eq 0 ]; then
+    echo "Warning: COMMAND_FILES list is empty; skipping command validation"
+    return 0
+  fi
+
+  if [ ! -d "$commands_dir" ]; then
+    echo "Commands directory not found: $commands_dir"
+    return 1
+  fi
+
+  for command_file in "${COMMAND_FILES[@]}"; do
+    if [ ! -f "$commands_dir/$command_file" ]; then
+      missing=$((missing + 1))
+      missing_list+=("$command_file")
+    fi
+  done
+
+  if [ $missing -gt 0 ]; then
+    echo "Missing command files: $missing"
+    for file in "${missing_list[@]}"; do
+      echo "  - $file"
+    done
+    return 1
+  fi
+
+  return 0
+}
+
+validate_home_commands_dir() {
+  local home_dir=$1
+  validate_commands_dir "$home_dir/.cursor/commands"
+}
+
+validate_no_project_commands() {
+  local test_dir=$1
+  if [ -d "$test_dir/.cursor/commands" ]; then
+    echo "Commands directory should not have been created"
+    return 1
+  fi
+  return 0
+}
+
+validate_core_without_commands() {
+  local test_dir=$1
+  if ! validate_rules_only "$test_dir" "${CORE_FILES[@]}"; then
+    return 1
+  fi
+  if ! validate_no_project_commands "$test_dir"; then
+    return 1
+  fi
+  return 0
+}
+
+validate_core_home_commands() {
+  local test_dir=$1
+  local home_dir=${COMMANDS_HOME_DIR:-"$test_dir/home"}
+  if ! validate_rules_only "$test_dir" "${CORE_FILES[@]}"; then
+    return 1
+  fi
+  if [ -z "$home_dir" ]; then
+    echo "Home directory for commands not provided"
+    return 1
+  fi
+  if ! validate_home_commands_dir "$home_dir"; then
+    return 1
+  fi
+  if [ -d "$test_dir/.cursor/commands" ]; then
+    echo "Project commands should not be installed when targeting home"
+    return 1
+  fi
+  return 0
+}
+
+validate_core_both_commands() {
+  local test_dir=$1
+  local home_dir=${COMMANDS_HOME_DIR:-"$test_dir/home"}
+  if ! validate_rules_only "$test_dir" "${CORE_FILES[@]}"; then
+    return 1
+  fi
+  if ! validate_commands_dir "$test_dir/.cursor/commands"; then
+    return 1
+  fi
+  if ! validate_home_commands_dir "$home_dir"; then
+    return 1
+  fi
   return 0
 }
 

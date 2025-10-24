@@ -110,6 +110,12 @@ The installer supports tag expressions and presets. Examples:
 
 See `TAG_STANDARDS.md` for the complete tag taxonomy and guidance.
 
+## Maintainer Checklist
+- Before opening a pull request, prepend a new entry to `CHANGELOG.md` describing your changes (latest release first) and never delete prior history.
+- Ensure the summary in `CHANGELOG.md` matches the work being done and that `CURSOR_RULES_VERSION` reflects the next release number.
+- Record key implementation notes in this `AGENTS.md` only when they affect installer behaviour or rule coverage so the instructions stay current.
+- Regenerate project-local `AGENTS.md` files with `--yes` when you need to refresh them after significant rule or command updates.
+
 ## Updating Or Removing
 - To update, re-run the installer with your preferred options (it will copy over updated rules). See `README.md`.
 - To remove rules, delete files from `.cursor/rules` and remove any generated `.cursorignore` files if not needed.

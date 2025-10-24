@@ -13,6 +13,7 @@ NC='\033[0m' # No Color
 BASE_DIR=$(pwd)
 TEMP_DIR="$BASE_DIR/temp"
 INSTALLER_PATH="$BASE_DIR/../install.php"
+COMMAND_SOURCE_DIR="$BASE_DIR/../.cursor/commands"
 
 # Import file maps
 source "$BASE_DIR/file-maps.sh"
@@ -65,7 +66,12 @@ test_javascript_option() {
   # Test --javascript option
   print_message "$BLUE" "Testing: php install.php --javascript --yes"
   cd "$test_dir"
-  php install.php --javascript --yes > output.log 2>&1
+  if [ -d "$COMMAND_SOURCE_DIR" ]; then
+    CURSOR_COMMAND_SOURCE="$COMMAND_SOURCE_DIR" CURSOR_COMMANDS_SOURCE="$COMMAND_SOURCE_DIR" \
+      php install.php --javascript --yes > output.log 2>&1
+  else
+    php install.php --javascript --yes > output.log 2>&1
+  fi
   local exit_code=$?
   cd "$BASE_DIR"
   
@@ -105,7 +111,12 @@ test_javascript_option() {
   fi
   
   cd "$test_dir_short"
-  php install.php -j -y > output.log 2>&1
+  if [ -d "$COMMAND_SOURCE_DIR" ]; then
+    CURSOR_COMMAND_SOURCE="$COMMAND_SOURCE_DIR" CURSOR_COMMANDS_SOURCE="$COMMAND_SOURCE_DIR" \
+      php install.php -j -y > output.log 2>&1
+  else
+    php install.php -j -y > output.log 2>&1
+  fi
   local exit_code_short=$?
   cd "$BASE_DIR"
   

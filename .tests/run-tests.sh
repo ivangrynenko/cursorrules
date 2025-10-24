@@ -85,7 +85,12 @@ run_test() {
   
   # Run the command
   cd "$test_dir"
-  bash -c "$command" > output.log 2>&1
+  local command_source="$BASE_DIR/../.cursor/commands"
+  if [ -d "$command_source" ]; then
+    env CURSOR_COMMAND_SOURCE="$command_source" CURSOR_COMMANDS_SOURCE="$command_source" bash -c "$command" > output.log 2>&1
+  else
+    bash -c "$command" > output.log 2>&1
+  fi
   local exit_code=$?
   cd "$BASE_DIR"
   
@@ -136,16 +141,28 @@ run_test "All Rules Installation" "php install.php --all --yes" "validate_all"
 # Test 4: Core Rules Installation
 run_test "Core Rules Installation" "php install.php --core --yes" "validate_core"
 
-# Test 5: Help Information
+# Test 5: Skip Commands Option
+run_test "Skip Commands Option" "php install.php --core --yes --commands=skip" "validate_core_without_commands"
+
+# Test 6: Commands Home Option
+run_test "Commands Home Option" 'HOME="$(pwd)/home" php install.php --core --yes --commands=home' "validate_core_home_commands"
+
+# Test 7: Commands Both Option
+run_test "Commands Both Option" 'HOME="$(pwd)/home" php install.php --core --yes --commands=both' "validate_core_both_commands"
+
+# Test 8: Interactive Skip Commands
+run_test "Interactive Skip Commands" 'CURSOR_INSTALLER_INPUT="1,n" php install.php' "validate_core_without_commands"
+
+# Test 9: Help Information
 run_test "Help Information" "php install.php --help" "" 0
 
-# Test 6: Web Stack with Short Option
+# Test 10: Web Stack with Short Option
 run_test "Web Stack with Short Option" "php install.php -w -y" "validate_web_stack"
 
-# Test 7: Python with Short Option
+# Test 11: Python with Short Option
 run_test "Python with Short Option" "php install.php -p -y" "validate_python"
 
-# Test 8: Invalid Option
+# Test 12: Invalid Option
 print_message "$BLUE" "\n=== Running Test: Invalid Option ==="
 echo "Command: php install.php --invalid-option"
 
@@ -162,8 +179,10 @@ if [ $? -ne 0 ]; then
 else
   # Run the command
   cd "$TEST_DIR"
+  set +e
   php install.php --invalid-option > output.log 2>&1
   EXIT_CODE=$?
+  set -e
   cd "$BASE_DIR"
 
   # Display output
@@ -182,7 +201,7 @@ else
   TESTS_TOTAL=$((TESTS_TOTAL + 1))
 fi
 
-# Test 9: Conflicting Options
+# Test 13: Conflicting Options
 print_message "$BLUE" "\n=== Running Test: Conflicting Options ==="
 echo "Command: php install.php --web-stack --python"
 
@@ -199,8 +218,10 @@ if [ $? -ne 0 ]; then
 else
   # Run the command
   cd "$TEST_DIR"
+  set +e
   php install.php --web-stack --python > output.log 2>&1
   EXIT_CODE=$?
+  set -e
   cd "$BASE_DIR"
 
   # Display output
