@@ -34,7 +34,7 @@ Follow these steps:
 - When coding FrontEnd, use Playwright MCP to validate your work.
 - Document your changes in project documentation (README.md and /docs/ folder)
 - Update CHANGELOG.md file with listing the changes you're making, keep this file up to date and always validate to remove information that does not apply any longer.
-- Check for the linting tools available in the project's CLAUDE.md file.
+- Check for the linting tools available in the project's AGENTS.md file.
 - Use either playwright via MCP, or Unit, or behat to test the changes if you have made changes to the UI. If you are in a Drupal project, login via playwright browser, first execute `ahoy login` command and grab the one-time login URL as Drupal user #1. Then visit that URL to instantly login.
 - Run the full test suite to ensure you haven't broken anything
 - If the tests are failing, fix them, or the functionality.
