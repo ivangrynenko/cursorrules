@@ -20,9 +20,10 @@
 declare(strict_types=1);
 
 // Define constants.
-define('CURSOR_RULES_VERSION', '1.0.6');
+define('CURSOR_RULES_VERSION', '1.0.8');
 define('CURSOR_RULES_DIR', '.cursor/rules');
 define('CURSOR_DIR', '.cursor');
+define('CURSOR_COMMANDS_DIR', '.cursor/commands');
 
 const COLORS = [
     'red' => "\033[0;31m",
@@ -57,6 +58,29 @@ const TAG_PRESETS = [
     'drupal-owasp' => 'framework:drupal standard:owasp-top10',
 ];
 
+// Command files bundled with the installer.
+const COMMAND_FILES = [
+    'behat-drevops.md',
+    'drupal-lint.md',
+    'gh-issue-create.md',
+    'gh-issue-resolve.md',
+    'npm-audit-fix.md',
+    'pr-assess.md',
+    'pr-draft.md',
+    'pr-resolve.md',
+    'security-scan.md',
+    'security-verify.md',
+    'session-summary.md',
+    'speckit.analyze.md',
+    'speckit.checklist.md',
+    'speckit.clarify.md',
+    'speckit.constitution.md',
+    'speckit.implement.md',
+    'speckit.plan.md',
+    'speckit.specify.md',
+    'speckit.tasks.md',
+];
+
 // Main function to install cursor rules.
 function install_cursor_rules(array $options = []): bool {
   // Default options.
@@ -74,10 +98,21 @@ function install_cursor_rules(array $options = []): bool {
     'core' => false,
     'yes' => false,
     'help' => false,
+    'commands' => 'auto',
   ];
 
   // Merge options.
   $options = array_merge($default_options, $options);
+
+  // Determine if STDIN is available for interactive prompts.
+  $stdin_available = false;
+  if (function_exists('stream_isatty') && defined('STDIN')) {
+    $stdin_available = @stream_isatty(STDIN);
+  }
+  $scripted_input = getenv('CURSOR_INSTALLER_INPUT');
+  if (!$stdin_available && $scripted_input !== false && $scripted_input !== '') {
+    $stdin_available = true;
+  }
 
   // Show help if requested.
   if ($options['help']) {
@@ -230,9 +265,6 @@ function install_cursor_rules(array $options = []): bool {
       echo "Will filter " . count($rules_to_install) . " rules based on tags\n";
     }
   } else {
-    // Check if STDIN is available for interactive input
-    $stdin_available = function_exists('stream_isatty') ? stream_isatty(STDIN) : false;
-
     // Interactive mode if no specific option is selected and not in auto-yes mode and STDIN is available
     if ($option_count === 0 && !$options['yes'] && $stdin_available) {
       echo "Welcome to Cursor Rules Installer v" . CURSOR_RULES_VERSION . "\n\n";
@@ -249,7 +281,7 @@ function install_cursor_rules(array $options = []): bool {
       $valid_choice = false;
       while (!$valid_choice) {
         echo "\nEnter your choice (1-8): ";
-        $choice = trim(fgets(STDIN));
+        $choice = read_stdin_line();
 
         switch ($choice) {
           case '1':
@@ -296,7 +328,7 @@ function install_cursor_rules(array $options = []): bool {
               echo "  - $preset: $expression\n";
             }
             echo "\nEnter tag preset name or custom tag expression: ";
-            $tag_input = trim(fgets(STDIN));
+            $tag_input = read_stdin_line();
             
             if (array_key_exists($tag_input, TAG_PRESETS)) {
               $tag_expression = TAG_PRESETS[$tag_input];
@@ -348,6 +380,78 @@ function install_cursor_rules(array $options = []): bool {
       $rules_to_install = $core_rules;
     }
   }
+
+  // Determine command installation targets.
+  $commands_option = strtolower((string)($options['commands'] ?? 'auto'));
+  $command_targets = [];
+
+  switch ($commands_option) {
+    case 'skip':
+    case 'none':
+    case 'no':
+      $command_targets = [];
+      $commands_option = 'skip';
+      break;
+    case 'home':
+      $command_targets = ['home'];
+      break;
+    case 'project':
+      $command_targets = ['project'];
+      break;
+    case 'both':
+    case 'all':
+      $command_targets = ['home', 'project'];
+      $commands_option = 'both';
+      break;
+    default:
+      // Interactive prompt when auto and we can ask the user.
+      if ($options['yes'] || !$stdin_available) {
+        $command_targets = ['project'];
+        $commands_option = 'project';
+      } else {
+        echo "\nCursor slash commands provide ready-to-use prompts for the Cursor agent.\n";
+        echo "Install slash commands as part of this setup? (Y/n): ";
+        $response = strtolower(read_stdin_line());
+        if ($response === 'n' || $response === 'no') {
+          $command_targets = [];
+          $commands_option = 'skip';
+        } else {
+          echo "\nWhere should the commands be installed?\n";
+          echo "  1) User home directory (~/.cursor/commands)\n";
+          echo "  2) Project directory (" . CURSOR_COMMANDS_DIR . ")\n";
+          echo "  3) Both locations\n";
+          echo "Enter choice (1-3) [default: 2]: ";
+          $location_choice = read_stdin_line();
+          if ($location_choice === '') {
+            $location_choice = '2';
+          }
+          switch ($location_choice) {
+            case '1':
+              $command_targets = ['home'];
+              $commands_option = 'home';
+              break;
+            case '3':
+              $command_targets = ['home', 'project'];
+              $commands_option = 'both';
+              break;
+            case '2':
+            default:
+              $command_targets = ['project'];
+              $commands_option = 'project';
+              break;
+          }
+        }
+      }
+  }
+
+  $command_targets = array_values(array_unique($command_targets));
+  $should_install_commands = count($command_targets) > 0;
+
+  // Persist the normalized command option for later use.
+  $options['commands'] = $commands_option;
+  $commands_temp_dir = null;
+  $command_install_summary = [];
+
 
   // Define possible source directories.
   $possible_source_dirs = [
@@ -634,6 +738,165 @@ function install_cursor_rules(array $options = []): bool {
     // Remove the directory
     @rmdir($temp_dir);
   }
+
+  // Install slash commands if requested.
+  $commands_source_dir = null;
+  if ($should_install_commands) {
+    if ($options['debug']) {
+      echo "Preparing to install slash commands...\n";
+    }
+
+    $commands_source_candidates = [];
+    if (!empty($source_dir)) {
+      $commands_source_candidates[] = dirname($source_dir) . '/commands';
+    }
+    $env_commands_source = getenv('CURSOR_COMMAND_SOURCE') ?: getenv('CURSOR_COMMANDS_SOURCE');
+    if (!empty($env_commands_source)) {
+      $commands_source_candidates[] = rtrim($env_commands_source, DIRECTORY_SEPARATOR);
+    }
+    $commands_source_candidates[] = __DIR__ . '/.cursor/commands';
+    $commands_source_candidates[] = realpath(__DIR__ . '/../.cursor/commands');
+    $commands_source_candidates[] = getcwd() . '/.cursor/commands';
+    $commands_source_candidates = array_values(array_filter(array_unique($commands_source_candidates)));
+
+    foreach ($commands_source_candidates as $candidate) {
+      if ($candidate && is_valid_commands_source_dir($candidate)) {
+        $commands_source_dir = $candidate;
+        if ($options['debug']) {
+          echo "Using commands source: $candidate\n";
+        }
+        break;
+      }
+    }
+
+    if ($commands_source_dir === null) {
+      $commands_temp_dir = sys_get_temp_dir() . '/cursor-commands-' . uniqid();
+      if (!mkdir($commands_temp_dir, 0755, true)) {
+        echo "Warning: Failed to create temporary directory for commands. Skipping command installation.\n";
+        $command_install_summary[] = [
+          'target' => 'all',
+          'status' => 'failed',
+          'details' => 'temporary directory creation failed',
+        ];
+      } else {
+        $commands_github_source = 'https://raw.githubusercontent.com/ivangrynenko/cursor-rules/main/.cursor/commands/';
+        $downloaded_commands = 0;
+        foreach (COMMAND_FILES as $command_file) {
+          $url = $commands_github_source . $command_file;
+          $content = @file_get_contents($url);
+          if ($content === false) {
+            if ($options['debug']) {
+              echo "Failed to download command file: $command_file\n";
+            }
+            continue;
+          }
+
+          $dest_path = $commands_temp_dir . '/' . $command_file;
+          $dest_dir = dirname($dest_path);
+          if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
+            if ($options['debug']) {
+              echo "Failed to create directory for $dest_path\n";
+            }
+            continue;
+          }
+
+          if (file_put_contents($dest_path, $content) !== false) {
+            $downloaded_commands++;
+          }
+        }
+
+        if ($downloaded_commands > 0) {
+          $commands_source_dir = $commands_temp_dir;
+          if ($options['debug']) {
+            echo "Downloaded $downloaded_commands command file(s) to $commands_temp_dir\n";
+          }
+        } else {
+          echo "Warning: Could not download command files from GitHub. Skipping command installation.\n";
+          $command_install_summary[] = [
+            'target' => 'all',
+            'status' => 'failed',
+            'details' => 'download failed',
+          ];
+        }
+      }
+    }
+
+    if ($commands_source_dir !== null) {
+      foreach ($command_targets as $target) {
+        if ($target === 'home') {
+          $home_dir = get_user_home_directory();
+          if ($home_dir === null) {
+            echo "Warning: Could not determine the user home directory. Skipping home command installation.\n";
+            $command_install_summary[] = [
+              'target' => 'home',
+              'status' => 'skipped',
+              'details' => 'home directory unavailable',
+            ];
+            continue;
+          }
+          $destination_commands_dir = rtrim($home_dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.cursor/commands';
+        } else {
+          $destination_commands_dir = dirname($options['destination']) . '/commands';
+        }
+
+        $source_real = realpath($commands_source_dir);
+        $dest_real = realpath($destination_commands_dir);
+
+        if ($dest_real !== false && $source_real !== false && $dest_real === $source_real) {
+          if ($options['debug']) {
+            echo "Commands already present at {$destination_commands_dir}; skipping copy.\n";
+          }
+          $command_install_summary[] = [
+            'target' => $target,
+            'status' => 'existing',
+            'details' => 'source and destination are identical',
+          ];
+          continue;
+        }
+
+        if (!is_dir($destination_commands_dir) && !mkdir($destination_commands_dir, 0755, true)) {
+          echo "Warning: Failed to create command directory at {$destination_commands_dir}.\n";
+          $command_install_summary[] = [
+            'target' => $target,
+            'status' => 'failed',
+            'details' => 'destination directory creation failed',
+          ];
+          continue;
+        }
+
+        $copied_commands = copy_directory_recursive($commands_source_dir, $destination_commands_dir);
+        if ($copied_commands >= 0) {
+          if ($options['debug']) {
+            echo "Installed {$copied_commands} command file(s) to {$destination_commands_dir}\n";
+          }
+          $command_install_summary[] = [
+            'target' => $target,
+            'status' => 'installed',
+            'details' => $destination_commands_dir,
+            'count' => $copied_commands,
+          ];
+        } else {
+          echo "Warning: Failed to copy command files to {$destination_commands_dir}.\n";
+          $command_install_summary[] = [
+            'target' => $target,
+            'status' => 'failed',
+            'details' => 'copy operation failed',
+          ];
+        }
+      }
+    }
+  } else {
+    if ($options['debug']) {
+      echo "Skipping slash command installation per user selection.\n";
+    }
+    $command_install_summary[] = [
+      'target' => 'all',
+      'status' => 'skipped',
+      'details' => 'user opted out',
+    ];
+  }
+
+  $command_summary_lines = summarise_command_installation($command_install_summary);
   
   // Handle .cursorignore files installation
   $ignore_files_option = $options['ignore-files'];
@@ -644,7 +907,7 @@ function install_cursor_rules(array $options = []): bool {
   } else if ($ignore_files_option === 'ask' || $ignore_files_option === 'a') {
     if (function_exists('stream_isatty') && stream_isatty(STDIN)) {
       echo "\nWould you like to install recommended .cursorignore files? (Y/n): ";
-      $response = strtolower(trim(fgets(STDIN)));
+      $response = strtolower(read_stdin_line());
       $should_install_ignore_files = ($response === '' || $response === 'y' || $response === 'yes');
     } else {
       // Default to yes if we can't ask interactively
@@ -773,6 +1036,14 @@ function install_cursor_rules(array $options = []): bool {
       $lines[] = 'For installation methods and options, see `README.md`. For tag taxonomy, see `TAG_STANDARDS.md`.';
       $lines[] = '';
 
+      if (!empty($command_summary_lines)) {
+        $lines[] = '## Slash Commands';
+        foreach ($command_summary_lines as $cmd_line) {
+          $lines[] = "- {$cmd_line}";
+        }
+        $lines[] = '';
+      }
+
       // Bundles present
       $lines[] = '## Installed Bundles';
       $any_bundle_listed = false;
@@ -838,7 +1109,11 @@ function install_cursor_rules(array $options = []): bool {
   $update_content = "# Cursor Rules Installation\n\n";
   $update_content .= "**Version:** " . CURSOR_RULES_VERSION . "\n";
   $update_content .= "**Installation Date:** " . date('Y-m-d H:i:s T') . "\n";
-  $update_content .= "**Rules Installed:** " . $copied_count . " files\n\n";
+  $update_content .= "**Rules Installed:** " . $copied_count . " files\n";
+  if (!empty($command_summary_lines)) {
+    $update_content .= "**Commands:** " . implode(' | ', $command_summary_lines) . "\n";
+  }
+  $update_content .= "\n";
   
   if (($options['tags'] || $options['tag-preset']) && $filtered_count > 0) {
     $tag_expression = $options['tags'] ?: (TAG_PRESETS[$options['tag-preset']] ?? '');
@@ -872,6 +1147,10 @@ function install_cursor_rules(array $options = []): bool {
     }
   } else {
     echo "Warning: Failed to create UPDATE.md file\n";
+  }
+
+  if ($commands_temp_dir !== null && is_dir($commands_temp_dir)) {
+    delete_directory_recursive($commands_temp_dir);
   }
   
   return true;
@@ -956,6 +1235,241 @@ function evaluate_tag_expression($expression, $tags) {
 }
 
 /**
+ * Determine if the provided directory contains command files.
+ *
+ * @param string $dir
+ * @return bool
+ */
+function is_valid_commands_source_dir($dir) {
+  if ($dir === false || !is_dir($dir)) {
+    return false;
+  }
+
+  $found = 0;
+  foreach (COMMAND_FILES as $command_file) {
+    if (file_exists(rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $command_file)) {
+      $found++;
+      if ($found >= 3) {
+        return true;
+      }
+    }
+  }
+
+  return $found > 0;
+}
+
+/**
+ * Recursively copy a directory.
+ *
+ * @param string $source
+ * @param string $destination
+ * @return int Number of files copied, or -1 on failure.
+ */
+function copy_directory_recursive($source, $destination) {
+  if (!is_dir($source)) {
+    return -1;
+  }
+
+  $iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($source, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+  );
+
+  $copied = 0;
+
+  foreach ($iterator as $item) {
+    $target_path = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+
+    if ($item->isDir()) {
+      if (!is_dir($target_path) && !mkdir($target_path, 0755, true)) {
+        return -1;
+      }
+    } else {
+      $target_dir = dirname($target_path);
+      if (!is_dir($target_dir) && !mkdir($target_dir, 0755, true)) {
+        return -1;
+      }
+      if (!copy($item->getPathname(), $target_path)) {
+        return -1;
+      }
+      $copied++;
+    }
+  }
+
+  return $copied;
+}
+
+/**
+ * Recursively delete a directory.
+ *
+ * @param string $directory
+ * @return void
+ */
+function delete_directory_recursive($directory) {
+  if (!is_dir($directory)) {
+    return;
+  }
+
+  $iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::CHILD_FIRST
+  );
+
+  foreach ($iterator as $fileinfo) {
+    if ($fileinfo->isDir()) {
+      @rmdir($fileinfo->getPathname());
+    } else {
+      @unlink($fileinfo->getPathname());
+    }
+  }
+
+  @rmdir($directory);
+}
+
+/**
+ * Determine the home directory of the current user.
+ *
+ * @return string|null
+ */
+function get_user_home_directory() {
+  $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? null);
+
+  if (!$home && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    $home = getenv('USERPROFILE');
+    if (!$home) {
+      $drive = getenv('HOMEDRIVE');
+      $path = getenv('HOMEPATH');
+      if ($drive && $path) {
+        $home = $drive . $path;
+      }
+    }
+  }
+
+  return $home ?: null;
+}
+
+/**
+ * Convert command installation targets to human-readable labels.
+ *
+ * @param string $target
+ * @return string
+ */
+function command_target_label($target) {
+  switch ($target) {
+    case 'home':
+      return 'home (~/.cursor/commands)';
+    case 'project':
+      return 'project (.cursor/commands)';
+    default:
+      return $target;
+  }
+}
+
+/**
+ * Summarise command installation results into human-readable lines.
+ *
+ * @param array $summary
+ * @return array
+ */
+function summarise_command_installation(array $summary) {
+  $groups = [
+    'installed' => [],
+    'existing' => [],
+    'skipped' => [],
+    'failed' => [],
+  ];
+
+  $notes = [];
+
+  foreach ($summary as $entry) {
+    $status = $entry['status'] ?? '';
+    $target = $entry['target'] ?? '';
+    $details = $entry['details'] ?? '';
+
+    if ($target === 'all') {
+      $notes[] = ucfirst($status) . ($details ? " ({$details})" : '');
+      continue;
+    }
+
+    if (isset($groups[$status])) {
+      $groups[$status][] = command_target_label($target);
+    } else {
+      $notes[] = ucfirst($status) . ' (' . command_target_label($target) . ')';
+    }
+
+    if (in_array($status, ['failed', 'skipped'], true) && $details) {
+      $notes[] = ucfirst($status) . ' ' . command_target_label($target) . ': ' . $details;
+    }
+  }
+
+  $lines = [];
+
+  if (!empty($groups['installed'])) {
+    $lines[] = 'Installed: ' . implode(', ', array_unique($groups['installed']));
+  }
+
+  if (!empty($groups['existing'])) {
+    $lines[] = 'Already present: ' . implode(', ', array_unique($groups['existing']));
+  }
+
+  if (!empty($groups['skipped'])) {
+    $lines[] = 'Skipped: ' . implode(', ', array_unique($groups['skipped']));
+  }
+
+  if (!empty($groups['failed'])) {
+    $lines[] = 'Failed: ' . implode(', ', array_unique($groups['failed']));
+  }
+
+  foreach (array_unique($notes) as $note) {
+    if ($note !== '') {
+      $lines[] = $note;
+    }
+  }
+
+  if (empty($lines)) {
+    $lines[] = 'No commands were installed.';
+  }
+
+  return $lines;
+}
+
+/**
+ * Safely read a trimmed line from STDIN.
+ *
+ * @return string
+ */
+function read_stdin_line() {
+  static $scripted_inputs = null;
+
+  if ($scripted_inputs === null) {
+    $env = getenv('CURSOR_INSTALLER_INPUT');
+    if ($env !== false && $env !== '') {
+      $normalized = str_replace(["\r\n", "\r"], "\n", $env);
+      $normalized = str_replace([',', ';', '|'], "\n", $normalized);
+      $scripted_inputs = explode("\n", $normalized);
+    } else {
+      $scripted_inputs = [];
+    }
+  }
+
+  if (!empty($scripted_inputs)) {
+    $value = array_shift($scripted_inputs);
+    return trim((string) $value);
+  }
+
+  if (!defined('STDIN') || !is_resource(STDIN)) {
+    return '';
+  }
+
+  $line = @fgets(STDIN);
+  if ($line === false) {
+    return '';
+  }
+
+  return trim($line);
+}
+
+/**
  * Display help information.
  */
 function show_help(): void {
@@ -974,6 +1488,8 @@ function show_help(): void {
   echo "  --tags=EXPR          Install rules matching tag expression (e.g., \"language:php category:security\")\n";
   echo "  --tag-preset=NAME    Use a predefined tag preset\n";
   echo "  --ignore-files=OPT   Control .cursorignore file installation (yes/no/ask, default: yes)\n";
+  echo "  --commands=OPT       Control slash command installation (project|home|both|skip; default installs to project)\n";
+  echo "  --skip-commands      Skip installing slash commands (alias for --commands=skip)\n";
   echo "\nTag Presets:\n";
   foreach (TAG_PRESETS as $name => $expression) {
     echo "  $name: $expression\n";
@@ -1003,6 +1519,7 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') ||
     'tags' => false,
     'tag-preset' => false,
     'ignore-files' => 'yes',
+    'commands' => 'auto',
   ];
 
   // Check for command line arguments
@@ -1085,6 +1602,19 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') ||
             exit(1);
           }
           break;
+        case '--commands':
+          if ($i + 1 < count($_SERVER['argv'])) {
+            $options['commands'] = strtolower($_SERVER['argv'][$i + 1]);
+            $i++;
+          } else {
+            echo "Error: --commands requires a value (project|home|both|skip)\n";
+            exit(1);
+          }
+          break;
+        case '--skip-commands':
+        case '--no-commands':
+          $options['commands'] = 'skip';
+          break;
         default:
           // Check for --destination=DIR format
           if (str_starts_with($arg, '--destination=')) {
@@ -1101,6 +1631,8 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') ||
               echo "Warning: Invalid value for --ignore-files. Use yes, no, or ask.\n";
               exit(1);
             }
+          } else if (str_starts_with($arg, '--commands=')) {
+            $options['commands'] = strtolower(substr($arg, 11));
           } else {
             echo "Warning: Unknown option '$arg'\n";
             exit(1);
@@ -1123,7 +1655,7 @@ if (basename(__FILE__) === basename($_SERVER['PHP_SELF'] ?? '') ||
   // Ask about cleanup if not in auto-yes mode and the file still exists
   if ($success && file_exists(__FILE__) && !$options['yes'] && function_exists('stream_isatty') && stream_isatty(STDIN)) {
     echo "\nWould you like to remove the installer file? (Y/n): ";
-    $response = strtolower(trim(fgets(STDIN)));
+    $response = strtolower(read_stdin_line());
     if ($response === '' || $response === 'y' || $response === 'yes') {
       unlink(__FILE__);
       echo "Installer file removed.\n";
@@ -1169,6 +1701,7 @@ function parseArguments() {
     'tags' => false,
     'tag-preset' => false,
     'ignore-files' => 'yes',
+    'commands' => 'auto',
   ];
   
   $option_count = 0;
@@ -1215,6 +1748,8 @@ function parseArguments() {
         echo "  --tags=EXPR         Install rules matching tag expression\n";
         echo "  --tag-preset=NAME   Use a predefined tag preset\n";
         echo "  --ignore-files=OPT  Control .cursorignore file installation (yes/no/ask)\n";
+        echo "  --commands=OPT      Control slash command installation (project|home|both|skip)\n";
+        echo "  --skip-commands     Skip installing slash commands\n";
         exit(0);
 
       case '--yes':
@@ -1247,6 +1782,18 @@ function parseArguments() {
         $options['debug'] = true;
         break;
 
+      case '--commands':
+        if ($i + 1 < $argc) {
+          $options['commands'] = strtolower($argv[$i + 1]);
+          $i++;
+        }
+        break;
+
+      case '--skip-commands':
+      case '--no-commands':
+        $options['commands'] = 'skip';
+        break;
+
       default:
         // Check for parameter=value format
         if (strpos($arg, '=') !== false) {
@@ -1267,6 +1814,9 @@ function parseArguments() {
               if (in_array($value, ['yes', 'no', 'ask', 'y', 'n', 'a'])) {
                 $options['ignore-files'] = $value;
               }
+              break;
+            case '--commands':
+              $options['commands'] = strtolower($value);
               break;
           }
         }
