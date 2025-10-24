@@ -4,48 +4,33 @@ globs: *.js
 ---
 # JavaScript Development Standards
 
-<rule>
-name: javascript_standards
-description: Enforce JavaScript development standards for Drupal
+> Priority: high · Version: 1.0
 
-actions:
-  - type: enforce
-    conditions:
-      - pattern: "\\(function\\s*\\(\\$\\)\\s*\\{[^}]*\\}\\)\\s*\\(jQuery\\)"
-        message: "Use Drupal behaviors instead of IIFE"
+## Applies To
+- `*.js`
 
-      - pattern: "\\$\\('[^']*'\\)"
-        message: "Cache jQuery selectors for better performance"
+## Required Checks
 
-      - pattern: "\\.ajax\\(\\{[^}]*success:"
-        message: "Implement proper error handling for AJAX calls"
+- Use Drupal behaviors instead of IIFE
+- Cache jQuery selectors for better performance
+- Implement proper error handling for AJAX calls
+- Use const or let instead of var (ES6+)
 
-      - pattern: "var\\s+"
-        message: "Use const or let instead of var (ES6+)"
+## Recommendations
 
-  - type: suggest
-    message: |
-      JavaScript Best Practices:
-      - Use Drupal behaviors for all JavaScript
-      - Implement proper error handling for AJAX
-      - Cache jQuery selectors
-      - Use ES6+ features
-      - Add proper documentation
-      - Follow Drupal JavaScript coding standards
-      - Use proper event delegation
-      - Implement proper error handling
-      - Use async/await for asynchronous operations
-      - Follow proper module pattern
+JavaScript Best Practices:
+- Use Drupal behaviors for all JavaScript
+- Implement proper error handling for AJAX
+- Cache jQuery selectors
+- Use ES6+ features
+- Add proper documentation
+- Follow Drupal JavaScript coding standards
+- Use proper event delegation
+- Implement proper error handling
+- Use async/await for asynchronous operations
+- Follow proper module pattern
 
-  - type: validate
-    conditions:
-      - pattern: "Drupal\\.behaviors\\.\\w+"
-        message: "Implement JavaScript functionality using Drupal behaviors"
+## Validation
 
-      - pattern: "/\\*\\*[^*]*\\*/"
-        message: "Add JSDoc documentation for JavaScript functions"
-
-metadata:
-  priority: high
-  version: 1.0
-</rule>
+- Implement JavaScript functionality using Drupal behaviors
+- Add JSDoc documentation for JavaScript functions

@@ -3,249 +3,170 @@ description: Detect and prevent vulnerabilities related to outdated dependencies
 globs: *.py, *.txt, *.ini, *.cfg, *.yml, *.yaml, *.json, *.toml
 alwaysApply: false
 ---
- # Python Vulnerable and Outdated Components Standards (OWASP A06:2021)
+# Python Vulnerable and Outdated Components Standards (OWASP A06:2021)
 
 This rule enforces security best practices to prevent vulnerabilities related to outdated dependencies and components in Python applications, as defined in OWASP Top 10:2021-A06.
 
-<rule>
-name: python_vulnerable_outdated_components
-description: Detect and prevent vulnerabilities related to outdated dependencies and components in Python applications as defined in OWASP Top 10:2021-A06
-filters:
-  - type: file_extension
-    pattern: "\\.(py|txt|ini|cfg|yml|yaml|json|toml)$"
-  - type: file_path
-    pattern: ".*"
+> Priority: high · Version: 1.0
 
-actions:
-  - type: enforce
-    conditions:
-      # Pattern 1: Unpinned dependencies in requirements files
-      - pattern: "^(django|flask|fastapi|requests|cryptography|pyyaml|sqlalchemy|celery|numpy|pandas|pillow|tensorflow|torch|boto3|psycopg2)\\s*$"
-        file_pattern: "requirements.*\\.txt$|setup\\.py$|pyproject\\.toml$"
-        message: "Unpinned dependency detected. Always pin dependencies to specific versions to prevent automatic updates to potentially vulnerable versions."
-        
-      # Pattern 2: Outdated/vulnerable Django versions
-      - pattern: "django([<>=]=|~=|==)\\s*[\"']?(1\\.|2\\.[0-2]\\.|3\\.[0-2]\\.|4\\.0\\.)[0-9]+[\"']?"
-        message: "Potentially outdated Django version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 3: Outdated/vulnerable Flask versions
-      - pattern: "flask([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.[0-3]\\.|2\\.0\\.[0-3])[0-9]*[\"']?"
-        message: "Potentially outdated Flask version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 4: Outdated/vulnerable Requests versions
-      - pattern: "requests([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.|2\\.[0-2][0-5]\\.[0-9]+)[\"']?"
-        message: "Potentially outdated Requests version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 5: Outdated/vulnerable Cryptography versions
-      - pattern: "cryptography([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.|2\\.|3\\.[0-3]\\.|3\\.4\\.[0-7])[0-9]*[\"']?"
-        message: "Potentially outdated Cryptography version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 6: Outdated/vulnerable PyYAML versions
-      - pattern: "pyyaml([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.|2\\.|3\\.|4\\.|5\\.[0-5]\\.[0-9]+)[\"']?"
-        message: "Potentially outdated PyYAML version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 7: Outdated/vulnerable Pillow versions
-      - pattern: "pillow([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.|2\\.|3\\.|4\\.|5\\.|6\\.|7\\.|8\\.[0-3]\\.[0-9]+)[\"']?"
-        message: "Potentially outdated Pillow version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 8: Direct imports of deprecated modules
-      - pattern: "from\\s+xml\\.etree\\.ElementTree\\s+import\\s+.*parse|from\\s+urllib2\\s+import|from\\s+urllib\\s+import\\s+urlopen|import\\s+cgi|import\\s+imp"
-        message: "Use of deprecated or insecure module detected. Consider using more secure alternatives."
-        
-      # Pattern 9: Use of deprecated functions
-      - pattern: "\\.set_password\\([^)]*\\)|hashlib\\.md5\\(|hashlib\\.sha1\\(|random\\.random\\(|random\\.randrange\\(|random\\.randint\\("
-        message: "Use of deprecated or insecure function detected. Consider using more secure alternatives."
-        
-      # Pattern 10: Insecure dependency loading
-      - pattern: "__import__\\(|importlib\\.import_module\\(|exec\\(|eval\\("
-        message: "Dynamic code execution or module loading detected. This can lead to code injection if user input is involved."
-        
-      # Pattern 11: Outdated TLS/SSL versions
-      - pattern: "ssl\\.PROTOCOL_TLSv1|ssl\\.PROTOCOL_TLSv1_1|ssl\\.PROTOCOL_SSLv2|ssl\\.PROTOCOL_SSLv3|ssl\\.PROTOCOL_TLSv1_2"
-        message: "Outdated TLS/SSL protocol version detected. Use ssl.PROTOCOL_TLS_CLIENT or ssl.PROTOCOL_TLS_SERVER instead."
-        
-      # Pattern 12: Insecure deserialization libraries
-      - pattern: "import\\s+pickle|import\\s+marshal|import\\s+shelve"
-        message: "Use of potentially insecure deserialization library detected. Ensure these are not used with untrusted data."
-        
-      # Pattern 13: Outdated/vulnerable SQLAlchemy versions
-      - pattern: "sqlalchemy([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.[0-3]\\.[0-9]+)[\"']?"
-        message: "Potentially outdated SQLAlchemy version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 14: Outdated/vulnerable Celery versions
-      - pattern: "celery([<>=]=|~=|==)\\s*[\"']?(0\\.|1\\.|2\\.|3\\.|4\\.[0-4]\\.[0-9]+)[\"']?"
-        message: "Potentially outdated Celery version detected. Consider upgrading to the latest stable version with security updates."
-        
-      # Pattern 15: Insecure package installation
-      - pattern: "pip\\s+install\\s+.*--no-deps|pip\\s+install\\s+.*--user|pip\\s+install\\s+.*--pre|pip\\s+install\\s+.*--index-url\\s+http://"
-        message: "Insecure pip installation options detected. Avoid using --no-deps, ensure HTTPS for index URLs, and be cautious with --pre and --user flags."
+## Applies To
+- `*.py`
+- `*.txt`
+- `*.ini`
+- `*.cfg`
+- `*.yml`
+- `*.yaml`
+- `*.json`
+- `*.toml`
 
-  - type: suggest
-    message: |
-      **Python Dependency and Component Security Best Practices:**
-      
-      1. **Dependency Management:**
-         - Always pin dependencies to specific versions
-         - Use a lockfile (requirements.txt, Pipfile.lock, poetry.lock)
-         - Example requirements.txt:
-           ```
-           Django==4.2.7
-           requests==2.31.0
-           cryptography==41.0.5
-           ```
-      
-      2. **Vulnerability Scanning:**
-         - Regularly scan dependencies for vulnerabilities
-         - Use tools like safety, pip-audit, or dependabot
-         - Example safety check:
-           ```bash
-           pip install safety
-           safety check -r requirements.txt
-           ```
-      
-      3. **Dependency Updates:**
-         - Establish a regular update schedule
-         - Automate updates with tools like Renovate or Dependabot
-         - Test thoroughly after updates
-         - Example GitHub workflow:
-           ```yaml
-           name: Dependency Update
-           on:
-             schedule:
-               - cron: '0 0 * * 1'  # Weekly on Monday
-           jobs:
-             update-deps:
-               runs-on: ubuntu-latest
-               steps:
-                 - uses: actions/checkout@v3
-                 - name: Update dependencies
-                   run: |
-                     pip install pip-upgrader
-                     pip-upgrader -p requirements.txt
-           ```
-      
-      4. **Secure Package Installation:**
-         - Use trusted package sources
-         - Verify package integrity with hashes
-         - Example with pip and hashes:
-           ```
-           # requirements.txt
-           Django==4.2.7 --hash=sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaa2c03b76293b8
-           ```
-      
-      5. **Minimal Dependencies:**
-         - Limit the number of dependencies
-         - Regularly audit and remove unused dependencies
-         - Consider security history when selecting packages
-         - Example dependency audit:
-           ```bash
-           pip install pipdeptree
-           pipdeptree --warn silence | grep -v "^\s"
-           ```
-      
-      6. **Virtual Environments:**
-         - Use isolated environments for each project
-         - Document environment setup
-         - Example:
-           ```bash
-           python -m venv venv
-           source venv/bin/activate  # On Windows: venv\Scripts\activate
-           pip install -r requirements.txt
-           ```
-      
-      7. **Container Security:**
-         - Use official base images
-         - Pin image versions
-         - Scan container images
-         - Example Dockerfile:
-           ```dockerfile
-           FROM python:3.11-slim@sha256:1234567890abcdef
-           
-           WORKDIR /app
-           COPY requirements.txt .
-           RUN pip install --no-cache-dir -r requirements.txt
-           
-           COPY . .
-           RUN pip install --no-cache-dir -e .
-           
-           USER nobody
-           CMD ["gunicorn", "myapp.wsgi:application"]
-           ```
-      
-      8. **Compile-time Dependencies:**
-         - Separate runtime and development dependencies
-         - Example with pip-tools:
-           ```
-           # requirements.in
-           Django>=4.2,<5.0
-           requests>=2.31.0
-           
-           # dev-requirements.in
-           -r requirements.in
-           pytest>=7.0.0
-           black>=23.0.0
-           ```
-      
-      9. **Deprecated API Usage:**
-         - Stay informed about deprecation notices
-         - Plan migrations away from deprecated APIs
-         - Example Django deprecation check:
-           ```bash
-           python manage.py check --deploy
-           ```
-      
-      10. **Supply Chain Security:**
-          - Use tools like pip-audit to check for supply chain attacks
-          - Consider using a private PyPI mirror
-          - Example:
-            ```bash
-            pip install pip-audit
-            pip-audit
-            ```
+## Trigger Conditions
+- Files matching pattern `\.(py|txt|ini|cfg|yml|yaml|json|toml)$`
+- Paths matching `.*`
 
-  - type: validate
-    conditions:
-      # Check 1: Pinned dependencies
-      - pattern: "^[a-zA-Z0-9_-]+==\\d+\\.\\d+\\.\\d+"
-        file_pattern: "requirements.*\\.txt$"
-        message: "Dependencies are properly pinned to specific versions."
-      
-      # Check 2: Use of dependency scanning tools
-      - pattern: "safety|pip-audit|pyup|dependabot|renovate"
-        file_pattern: "\\.github/workflows/.*\\.ya?ml$|\\.gitlab-ci\\.ya?ml$|tox\\.ini$|setup\\.py$|pyproject\\.toml$"
-        message: "Dependency scanning tools are being used."
-      
-      # Check 3: Modern TLS usage
-      - pattern: "ssl\\.PROTOCOL_TLS_CLIENT|ssl\\.PROTOCOL_TLS_SERVER|ssl\\.create_default_context\\(\\)"
-        message: "Using secure TLS protocol versions."
-      
-      # Check 4: Secure random generation
-      - pattern: "secrets\\.token_|secrets\\.choice|cryptography\\.hazmat"
-        message: "Using secure random generation methods."
+## Required Checks
 
-metadata:
-  priority: high
-  version: 1.0
-  tags:
-    - security
-    - python
-    - dependencies
-    - supply-chain
-    - owasp
-    - language:python
-    - framework:django
-    - framework:flask
-    - framework:fastapi
-    - category:security
-    - subcategory:dependencies
-    - standard:owasp-top10
-    - risk:a06-vulnerable-outdated-components
-  references:
-    - "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/"
-    - "https://cheatsheetseries.owasp.org/cheatsheets/Vulnerable_Dependency_Management_Cheat_Sheet.html"
-    - "https://pypi.org/project/safety/"
-    - "https://pypi.org/project/pip-audit/"
-    - "https://github.com/pyupio/safety-db"
-    - "https://github.com/pypa/advisory-database"
-    - "https://python-security.readthedocs.io/packages.html"
-</rule>
+- Unpinned dependency detected. Always pin dependencies to specific versions to prevent automatic updates to potentially vulnerable versions.
+- Potentially outdated Django version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated Flask version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated Requests version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated Cryptography version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated PyYAML version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated Pillow version detected. Consider upgrading to the latest stable version with security updates.
+- Use of deprecated or insecure module detected. Consider using more secure alternatives.
+- Use of deprecated or insecure function detected. Consider using more secure alternatives.
+- Dynamic code execution or module loading detected. This can lead to code injection if user input is involved.
+- Outdated TLS/SSL protocol version detected. Use ssl.PROTOCOL_TLS_CLIENT or ssl.PROTOCOL_TLS_SERVER instead.
+- Use of potentially insecure deserialization library detected. Ensure these are not used with untrusted data.
+- Potentially outdated SQLAlchemy version detected. Consider upgrading to the latest stable version with security updates.
+- Potentially outdated Celery version detected. Consider upgrading to the latest stable version with security updates.
+- Insecure pip installation options detected. Avoid using --no-deps, ensure HTTPS for index URLs, and be cautious with --pre and --user flags.
+
+## Recommendations
+
+**Python Dependency and Component Security Best Practices:**
+
+1. **Dependency Management:**
+   - Always pin dependencies to specific versions
+   - Use a lockfile (requirements.txt, Pipfile.lock, poetry.lock)
+   - Example requirements.txt:
+     ```
+     Django==4.2.7
+     requests==2.31.0
+     cryptography==41.0.5
+     ```
+
+2. **Vulnerability Scanning:**
+   - Regularly scan dependencies for vulnerabilities
+   - Use tools like safety, pip-audit, or dependabot
+   - Example safety check:
+     ```bash
+     pip install safety
+     safety check -r requirements.txt
+     ```
+
+3. **Dependency Updates:**
+   - Establish a regular update schedule
+   - Automate updates with tools like Renovate or Dependabot
+   - Test thoroughly after updates
+   - Example GitHub workflow:
+     ```yaml
+     name: Dependency Update
+     on:
+       schedule:
+         - cron: '0 0 * * 1'  # Weekly on Monday
+     jobs:
+       update-deps:
+         runs-on: ubuntu-latest
+         steps:
+           - uses: actions/checkout@v3
+           - name: Update dependencies
+             run: |
+               pip install pip-upgrader
+               pip-upgrader -p requirements.txt
+     ```
+
+4. **Secure Package Installation:**
+   - Use trusted package sources
+   - Verify package integrity with hashes
+   - Example with pip and hashes:
+     ```
+     # requirements.txt
+     Django==4.2.7 --hash=sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaa2c03b76293b8
+     ```
+
+5. **Minimal Dependencies:**
+   - Limit the number of dependencies
+   - Regularly audit and remove unused dependencies
+   - Consider security history when selecting packages
+   - Example dependency audit:
+     ```bash
+     pip install pipdeptree
+     pipdeptree --warn silence | grep -v "^\s"
+     ```
+
+6. **Virtual Environments:**
+   - Use isolated environments for each project
+   - Document environment setup
+   - Example:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate  # On Windows: venv\Scripts\activate
+     pip install -r requirements.txt
+     ```
+
+7. **Container Security:**
+   - Use official base images
+   - Pin image versions
+   - Scan container images
+   - Example Dockerfile:
+     ```dockerfile
+     FROM python:3.11-slim@sha256:1234567890abcdef
+     
+     WORKDIR /app
+     COPY requirements.txt .
+     RUN pip install --no-cache-dir -r requirements.txt
+     
+     COPY . .
+     RUN pip install --no-cache-dir -e .
+     
+     USER nobody
+     CMD ["gunicorn", "myapp.wsgi:application"]
+     ```
+
+8. **Compile-time Dependencies:**
+   - Separate runtime and development dependencies
+   - Example with pip-tools:
+     ```
+     # requirements.in
+     Django>=4.2,<5.0
+     requests>=2.31.0
+     
+     # dev-requirements.in
+     -r requirements.in
+     pytest>=7.0.0
+     black>=23.0.0
+     ```
+
+9. **Deprecated API Usage:**
+   - Stay informed about deprecation notices
+   - Plan migrations away from deprecated APIs
+   - Example Django deprecation check:
+     ```bash
+     python manage.py check --deploy
+     ```
+
+10. **Supply Chain Security:**
+    - Use tools like pip-audit to check for supply chain attacks
+    - Consider using a private PyPI mirror
+    - Example:
+      ```bash
+      pip install pip-audit
+      pip-audit
+      ```
+
+## Validation
+
+- Dependencies are properly pinned to specific versions.
+- Dependency scanning tools are being used.
+- Using secure TLS protocol versions.
+- Using secure random generation methods.

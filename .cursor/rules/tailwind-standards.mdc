@@ -6,32 +6,27 @@ globs: *.vue, *.jsx, *.tsx, *.html
 
 Ensures consistent and optimized usage of Tailwind CSS classes.
 
-<rule>
-name: tailwind_standards
-description: Enforce Tailwind CSS best practices and organization
-filters:
-  - type: file_extension
-    pattern: "\\.(vue|jsx|tsx|html)$"
+> Priority: medium · Version: 1.0
 
-actions:
-  - type: enforce
-    conditions:
-      - pattern: "class=\"[^\"]*\\s{2,}"
-        message: "Remove multiple spaces between Tailwind classes"
+## Applies To
+- `*.vue`
+- `*.jsx`
+- `*.tsx`
+- `*.html`
 
-      - pattern: "class=\"[^\"]*(?:text-\\w+\\s+text-\\w+|bg-\\w+\\s+bg-\\w+)"
-        message: "Avoid conflicting utility classes"
+## Trigger Conditions
+- Files matching pattern `\.(vue|jsx|tsx|html)$`
 
-  - type: suggest
-    message: |
-      Tailwind Best Practices:
-      - Group related utilities together
-      - Use @apply for commonly repeated patterns
-      - Follow responsive design patterns
-      - Implement proper dark mode support
-      - Consider extracting components for repeated patterns
+## Required Checks
 
-metadata:
-  priority: medium
-  version: 1.0
-</rule> 
+- Remove multiple spaces between Tailwind classes
+- Avoid conflicting utility classes
+
+## Recommendations
+
+Tailwind Best Practices:
+- Group related utilities together
+- Use @apply for commonly repeated patterns
+- Follow responsive design patterns
+- Implement proper dark mode support
+- Consider extracting components for repeated patterns

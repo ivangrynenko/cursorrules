@@ -6,35 +6,27 @@ globs: *.vue, *.js, *.ts
 
 Ensures Vue 3 and NuxtJS code follows recommended patterns and optimizations.
 
-<rule>
-name: vue_nuxt_best_practices
-description: Enforce Vue 3 and NuxtJS coding standards and optimizations
-filters:
-  - type: file_extension
-    pattern: "\\.(vue|js|ts)$"
+> Priority: high · Version: 1.0
 
-actions:
-  - type: enforce
-    conditions:
-      - pattern: "(?<!defineProps|interface|type)\\{\\s*[a-zA-Z]+\\s*:\\s*[a-zA-Z]+\\s*\\}"
-        message: "Use TypeScript interfaces for prop definitions"
+## Applies To
+- `*.vue`
+- `*.js`
+- `*.ts`
 
-      - pattern: "watch\\(.*,.*\\{\\s*immediate:\\s*true\\s*\\}"
-        message: "Consider using computed property instead of immediate watch"
+## Trigger Conditions
+- Files matching pattern `\.(vue|js|ts)$`
 
-      - pattern: "v-if.*v-for"
-        message: "Avoid using v-if with v-for on the same element"
+## Required Checks
 
-  - type: suggest
-    message: |
-      Vue 3 Best Practices:
-      - Use Composition API for complex components
-      - Implement proper prop validation
-      - Use TypeScript for better type safety
-      - Leverage Vue 3's reactivity system effectively
-      - Consider using <script setup> syntax
+- Use TypeScript interfaces for prop definitions
+- Consider using computed property instead of immediate watch
+- Avoid using v-if with v-for on the same element
 
-metadata:
-  priority: high
-  version: 1.0
-</rule> 
+## Recommendations
+
+Vue 3 Best Practices:
+- Use Composition API for complex components
+- Implement proper prop validation
+- Use TypeScript for better type safety
+- Leverage Vue 3's reactivity system effectively
+- Consider using <script setup> syntax

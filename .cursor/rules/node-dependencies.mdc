@@ -6,30 +6,23 @@ globs: package.json, .nvmrc
 
 Ensures correct Node.js versions and package management.
 
-<rule>
-name: node_dependency_management
-description: Enforce Node.js versioning and package management best practices.
-filters:
-  - type: file_extension
-    pattern: "package.json|\\.nvmrc"
+> Priority: medium · Version: 1.0
 
-actions:
-  - type: enforce
-    conditions:
-      - pattern: '"engines":\\s*{[^}]*}'
-        message: "Ensure package.json specifies required Node.js version."
+## Applies To
+- `package.json`
+- `.nvmrc`
 
-      - pattern: "(?<!\\.)nvmrc"
-        message: "Ensure an .nvmrc file exists in the root directory."
+## Trigger Conditions
+- Files matching pattern `package.json|\.nvmrc`
 
-  - type: suggest
-    message: |
-      Best practices:
-      - Include an .nvmrc file specifying Node.js version.
-      - Use latest stable Node.js version for Drupal projects.
-      - Use Composer for dependency management.
+## Required Checks
 
-metadata:
-  priority: medium
-  version: 1.0
-</rule>
+- Ensure package.json specifies required Node.js version.
+- Ensure an .nvmrc file exists in the root directory.
+
+## Recommendations
+
+Best practices:
+- Include an .nvmrc file specifying Node.js version.
+- Use latest stable Node.js version for Drupal projects.
+- Use Composer for dependency management.
