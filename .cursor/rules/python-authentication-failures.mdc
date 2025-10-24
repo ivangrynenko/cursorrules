@@ -3,259 +3,337 @@ description: Detect and prevent identification and authentication failures in Py
 globs: *.py, *.ini, *.cfg, *.yml, *.yaml, *.json, *.toml
 alwaysApply: false
 ---
-# Python Identification and Authentication Failures Standards (OWASP A07:2021)
+ # Python Identification and Authentication Failures Standards (OWASP A07:2021)
 
 This rule enforces security best practices to prevent identification and authentication failures in Python applications, as defined in OWASP Top 10:2021-A07.
 
-> Priority: high · Version: 1.0
+```yaml
+name: python_authentication_failures
+description: Detect and prevent identification and authentication failures in Python applications as defined in OWASP Top 10:2021-A07
+filters:
+  - type: file_extension
+    pattern: "\\.(py|ini|cfg|yml|yaml|json|toml)$"
+  - type: file_path
+    pattern: ".*"
 
-## Applies To
-- `*.py`
-- `*.ini`
-- `*.cfg`
-- `*.yml`
-- `*.yaml`
-- `*.json`
-- `*.toml`
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Weak password validation
+      - pattern: "password\\s*=\\s*['\"][^'\"]{1,7}['\"]|min_length\\s*=\\s*[1-7]"
+        message: "Weak password policy detected. Passwords should be at least 8 characters long and include complexity requirements."
 
-## Trigger Conditions
-- Files matching pattern `\.(py|ini|cfg|yml|yaml|json|toml)$`
-- Paths matching `.*`
+      # Pattern 2: Hardcoded credentials
+      - pattern: "(username|user|login|password|passwd|pwd|secret|api_key|apikey|token)\\s*=\\s*['\"][^'\"]+['\"]"
+        message: "Hardcoded credentials detected. Store sensitive credentials in environment variables or a secure vault."
 
-## Required Checks
+      # Pattern 3: Missing password hashing
+      - pattern: "password\\s*=\\s*request\\.form\\[\\'password\\'\\]|password\\s*=\\s*request\\.POST\\.get\\(\\'password\\'\\)"
+        message: "Storing or comparing plain text passwords detected. Always hash passwords before storage or comparison."
 
-- Weak password policy detected. Passwords should be at least 8 characters long and include complexity requirements.
-- Hardcoded credentials detected. Store sensitive credentials in environment variables or a secure vault.
-- Storing or comparing plain text passwords detected. Always hash passwords before storage or comparison.
-- Insecure hashing algorithm detected. Use strong hashing algorithms like bcrypt, Argon2, or PBKDF2.
-- Authentication endpoint detected without rate limiting or brute force protection. Implement account lockout or rate limiting.
-- Session management detected. Ensure proper session security with secure cookies, proper expiration, and rotation.
-- Form handling detected. Ensure CSRF protection is enabled for all authentication forms.
-- Remember me functionality detected. Ensure secure implementation with proper expiration and refresh mechanisms.
-- Password reset functionality detected. Ensure secure implementation with time-limited tokens and proper user verification.
-- Authentication function detected. Consider implementing multi-factor authentication for sensitive operations.
-- Direct user lookup detected. Ensure proper authorization checks before accessing user data.
-- JWT usage detected. Ensure proper signing, validation, expiration, and refresh mechanisms for JWTs.
-- Cookie setting without secure flag detected. Set secure=True for all authentication cookies.
-- Cookie setting without httponly flag detected. Set httponly=True for all authentication cookies.
-- Default credential configuration detected. Remove default credentials from production code.
+      # Pattern 4: Insecure password hashing
+      - pattern: "hashlib\\.md5\\(|hashlib\\.sha1\\(|hashlib\\.sha224\\("
+        message: "Insecure hashing algorithm detected. Use strong hashing algorithms like bcrypt, Argon2, or PBKDF2."
 
-## Recommendations
+      # Pattern 5: Missing brute force protection
+      - pattern: "@app\\.route\\(['\"]\\/(login|signin|authenticate)['\"]"
+        message: "Authentication endpoint detected without rate limiting or brute force protection. Implement account lockout or rate limiting."
 
-**Python Authentication Security Best Practices:**
+      # Pattern 6: Insecure session management
+      - pattern: "session\\[\\'user_id\\'\\]\\s*=|session\\[\\'authenticated\\'\\]\\s*=\\s*True"
+        message: "Session management detected. Ensure proper session security with secure cookies, proper expiration, and rotation."
 
-1. **Password Storage:**
-   - Use strong hashing algorithms with salting
-   - Implement proper work factors
-   - Example with passlib:
-     ```python
-     from passlib.hash import argon2
-     
-     # Hash a password
-     hashed_password = argon2.hash("user_password")
-     
-     # Verify a password
-     is_valid = argon2.verify("user_password", hashed_password)
-     ```
-   - Example with Django:
-     ```python
-     from django.contrib.auth.hashers import make_password, check_password
-     
-     # Hash a password
-     hashed_password = make_password("user_password")
-     
-     # Verify a password
-     is_valid = check_password("user_password", hashed_password)
-     ```
+      # Pattern 7: Missing CSRF protection in authentication
+      - pattern: "form\\s*=\\s*FlaskForm|class\\s+\\w+Form\\(\\s*FlaskForm\\s*\\)|class\\s+\\w+Form\\(\\s*Form\\s*\\)"
+        message: "Form handling detected. Ensure CSRF protection is enabled for all authentication forms."
 
-2. **Password Policies:**
-   - Enforce minimum length (at least 8 characters)
-   - Require complexity (uppercase, lowercase, numbers, special characters)
-   - Check against common passwords
-   - Example with Django:
-     ```python
-     # settings.py
-     AUTH_PASSWORD_VALIDATORS = [
-         {
-             'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-             'OPTIONS': {'min_length': 12}
-         },
-         {
-             'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-         },
-         {
-             'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-         },
-         {
-             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-         },
-     ]
-     ```
+      # Pattern 8: Insecure remember me functionality
+      - pattern: "remember_me|remember_token|stay_logged_in"
+        message: "Remember me functionality detected. Ensure secure implementation with proper expiration and refresh mechanisms."
 
-3. **Brute Force Protection:**
-   - Implement account lockout after failed attempts
-   - Use rate limiting for authentication endpoints
-   - Example with Flask and Flask-Limiter:
-     ```python
-     from flask import Flask
-     from flask_limiter import Limiter
-     from flask_limiter.util import get_remote_address
-     
-     app = Flask(__name__)
-     limiter = Limiter(
-         app,
-         key_func=get_remote_address,
-         default_limits=["200 per day", "50 per hour"]
-     )
-     
-     @app.route("/login", methods=["POST"])
-     @limiter.limit("5 per minute")
-     def login():
-         # Login logic here
-         pass
-     ```
+      # Pattern 9: Insecure password reset
+      - pattern: "@app\\.route\\(['\"]\\/(reset-password|forgot-password|recover)['\"]"
+        message: "Password reset functionality detected. Ensure secure implementation with time-limited tokens and proper user verification."
 
-4. **Multi-Factor Authentication:**
-   - Implement MFA for sensitive operations
-   - Use time-based one-time passwords (TOTP)
-   - Example with pyotp:
-     ```python
-     import pyotp
-     
-     # Generate a secret key for the user
-     secret = pyotp.random_base32()
-     
-     # Create a TOTP object
-     totp = pyotp.TOTP(secret)
-     
-     # Verify a token
-     is_valid = totp.verify(user_provided_token)
-     ```
+      # Pattern 10: Missing multi-factor authentication
+      - pattern: "def\\s+login|def\\s+authenticate|def\\s+signin"
+        message: "Authentication function detected. Consider implementing multi-factor authentication for sensitive operations."
 
-5. **Secure Session Management:**
-   - Use secure, HTTP-only cookies
-   - Implement proper session expiration
-   - Rotate session IDs after login
-   - Example with Flask:
-     ```python
-     from flask import Flask, session
-     
-     app = Flask(__name__)
-     app.config.update(
-         SECRET_KEY='your-secret-key',
-         SESSION_COOKIE_SECURE=True,
-         SESSION_COOKIE_HTTPONLY=True,
-         SESSION_COOKIE_SAMESITE='Lax',
-         PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
-     )
-     ```
+      # Pattern 11: Insecure direct object reference in user management
+      - pattern: "User\\.objects\\.get\\(id=|User\\.query\\.get\\(|get_user_by_id\\("
+        message: "Direct user lookup detected. Ensure proper authorization checks before accessing user data."
 
-6. **CSRF Protection:**
-   - Implement CSRF tokens for all forms
-   - Validate tokens on form submission
-   - Example with Flask-WTF:
-     ```python
-     from flask_wtf import FlaskForm, CSRFProtect
-     from wtforms import StringField, PasswordField, SubmitField
-     
-     csrf = CSRFProtect(app)
-     
-     class LoginForm(FlaskForm):
-         username = StringField('Username')
-         password = PasswordField('Password')
-         submit = SubmitField('Login')
-     ```
+      # Pattern 12: Insecure JWT implementation
+      - pattern: "jwt\\.encode\\(|jwt\\.decode\\("
+        message: "JWT usage detected. Ensure proper signing, validation, expiration, and refresh mechanisms for JWTs."
 
-7. **Secure Password Reset:**
-   - Use time-limited, single-use tokens
-   - Send reset links to verified email addresses
-   - Example implementation:
-     ```python
-     import secrets
-     from datetime import datetime, timedelta
-     
-     def generate_reset_token(user_id):
-         token = secrets.token_urlsafe(32)
-         expiry = datetime.utcnow() + timedelta(hours=1)
-         # Store token and expiry in database with user_id
-         return token
-     
-     def verify_reset_token(token):
-         # Retrieve token from database
-         # Check if token exists and is not expired
-         # If valid, return user_id
-         pass
-     ```
+      # Pattern 13: Missing secure flag in cookies
+      - pattern: "set_cookie\\([^,]+,[^,]+,[^,]*secure=False|set_cookie\\([^,]+,[^,]+(?!,\\s*secure=True)"
+        message: "Cookie setting without secure flag detected. Set secure=True for all authentication cookies."
 
-8. **Secure JWT Implementation:**
-   - Use strong signing keys
-   - Include expiration claims
-   - Validate all claims
-   - Example with PyJWT:
-     ```python
-     import jwt
-     from datetime import datetime, timedelta
-     
-     # Create a JWT
-     payload = {
-         'user_id': user.id,
-         'exp': datetime.utcnow() + timedelta(hours=1),
-         'iat': datetime.utcnow()
-     }
-     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-     
-     # Verify a JWT
-     try:
-         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-         user_id = payload['user_id']
-     except jwt.ExpiredSignatureError:
-         # Token has expired
-         pass
-     except jwt.InvalidTokenError:
-         # Invalid token
-         pass
-     ```
+      # Pattern 14: Missing HTTP-only flag in cookies
+      - pattern: "set_cookie\\([^,]+,[^,]+,[^,]*httponly=False|set_cookie\\([^,]+,[^,]+(?!,\\s*httponly=True)"
+        message: "Cookie setting without httponly flag detected. Set httponly=True for all authentication cookies."
 
-9. **Secure Cookie Configuration:**
-   - Set secure, HTTP-only, and SameSite flags
-   - Example with Flask:
-     ```python
-     from flask import Flask, make_response
-     
-     app = Flask(__name__)
-     
-     @app.route('/set_cookie')
-     def set_cookie():
-         resp = make_response('Cookie set')
-         resp.set_cookie(
-             'session_id', 
-             'value', 
-             secure=True, 
-             httponly=True, 
-             samesite='Lax',
-             max_age=3600
-         )
-         return resp
-     ```
+      # Pattern 15: Insecure default credentials
+      - pattern: "DEFAULT_USERNAME|DEFAULT_PASSWORD|ADMIN_USERNAME|ADMIN_PASSWORD"
+        message: "Default credential configuration detected. Remove default credentials from production code."
 
-10. **Credential Storage:**
-    - Use environment variables or secure vaults
-    - Never hardcode credentials
-    - Example with python-dotenv:
-      ```python
-      import os
-      from dotenv import load_dotenv
-      
-      load_dotenv()
-      
-      # Access credentials from environment variables
-      db_user = os.environ.get('DB_USER')
-      db_password = os.environ.get('DB_PASSWORD')
-      ```
+  - type: suggest
+    message: |
+      **Python Authentication Security Best Practices:**
 
-## Validation
+      1. **Password Storage:**
+         - Use strong hashing algorithms with salting
+         - Implement proper work factors
+         - Example with passlib:
+           ```python
+           from passlib.hash import argon2
 
-- Using secure password hashing algorithms.
-- CSRF protection is implemented.
-- Secure cookie settings are configured.
-- Rate limiting is implemented for authentication endpoints.
+           # Hash a password
+           hashed_password = argon2.hash("user_password")
+
+           # Verify a password
+           is_valid = argon2.verify("user_password", hashed_password)
+           ```
+         - Example with Django:
+           ```python
+           from django.contrib.auth.hashers import make_password, check_password
+
+           # Hash a password
+           hashed_password = make_password("user_password")
+
+           # Verify a password
+           is_valid = check_password("user_password", hashed_password)
+           ```
+
+      2. **Password Policies:**
+         - Enforce minimum length (at least 8 characters)
+         - Require complexity (uppercase, lowercase, numbers, special characters)
+         - Check against common passwords
+         - Example with Django:
+           ```python
+           # settings.py
+           AUTH_PASSWORD_VALIDATORS = [
+               {
+                   'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+                   'OPTIONS': {'min_length': 12}
+               },
+               {
+                   'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+               },
+               {
+                   'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+               },
+               {
+                   'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+               },
+           ]
+           ```
+
+      3. **Brute Force Protection:**
+         - Implement account lockout after failed attempts
+         - Use rate limiting for authentication endpoints
+         - Example with Flask and Flask-Limiter:
+           ```python
+           from flask import Flask
+           from flask_limiter import Limiter
+           from flask_limiter.util import get_remote_address
+
+           app = Flask(__name__)
+           limiter = Limiter(
+               app,
+               key_func=get_remote_address,
+               default_limits=["200 per day", "50 per hour"]
+           )
+
+           @app.route("/login", methods=["POST"])
+           @limiter.limit("5 per minute")
+           def login():
+               # Login logic here
+               pass
+           ```
+
+      4. **Multi-Factor Authentication:**
+         - Implement MFA for sensitive operations
+         - Use time-based one-time passwords (TOTP)
+         - Example with pyotp:
+           ```python
+           import pyotp
+
+           # Generate a secret key for the user
+           secret = pyotp.random_base32()
+
+           # Create a TOTP object
+           totp = pyotp.TOTP(secret)
+
+           # Verify a token
+           is_valid = totp.verify(user_provided_token)
+           ```
+
+      5. **Secure Session Management:**
+         - Use secure, HTTP-only cookies
+         - Implement proper session expiration
+         - Rotate session IDs after login
+         - Example with Flask:
+           ```python
+           from flask import Flask, session
+
+           app = Flask(__name__)
+           app.config.update(
+               SECRET_KEY='your-secret-key',
+               SESSION_COOKIE_SECURE=True,
+               SESSION_COOKIE_HTTPONLY=True,
+               SESSION_COOKIE_SAMESITE='Lax',
+               PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
+           )
+           ```
+
+      6. **CSRF Protection:**
+         - Implement CSRF tokens for all forms
+         - Validate tokens on form submission
+         - Example with Flask-WTF:
+           ```python
+           from flask_wtf import FlaskForm, CSRFProtect
+           from wtforms import StringField, PasswordField, SubmitField
+
+           csrf = CSRFProtect(app)
+
+           class LoginForm(FlaskForm):
+               username = StringField('Username')
+               password = PasswordField('Password')
+               submit = SubmitField('Login')
+           ```
+
+      7. **Secure Password Reset:**
+         - Use time-limited, single-use tokens
+         - Send reset links to verified email addresses
+         - Example implementation:
+           ```python
+           import secrets
+           from datetime import datetime, timedelta
+
+           def generate_reset_token(user_id):
+               token = secrets.token_urlsafe(32)
+               expiry = datetime.utcnow() + timedelta(hours=1)
+               # Store token and expiry in database with user_id
+               return token
+
+           def verify_reset_token(token):
+               # Retrieve token from database
+               # Check if token exists and is not expired
+               # If valid, return user_id
+               pass
+           ```
+
+      8. **Secure JWT Implementation:**
+         - Use strong signing keys
+         - Include expiration claims
+         - Validate all claims
+         - Example with PyJWT:
+           ```python
+           import jwt
+           from datetime import datetime, timedelta
+
+           # Create a JWT
+           payload = {
+               'user_id': user.id,
+               'exp': datetime.utcnow() + timedelta(hours=1),
+               'iat': datetime.utcnow()
+           }
+           token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+
+           # Verify a JWT
+           try:
+               payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+               user_id = payload['user_id']
+           except jwt.ExpiredSignatureError:
+               # Token has expired
+               pass
+           except jwt.InvalidTokenError:
+               # Invalid token
+               pass
+           ```
+
+      9. **Secure Cookie Configuration:**
+         - Set secure, HTTP-only, and SameSite flags
+         - Example with Flask:
+           ```python
+           from flask import Flask, make_response
+
+           app = Flask(__name__)
+
+           @app.route('/set_cookie')
+           def set_cookie():
+               resp = make_response('Cookie set')
+               resp.set_cookie(
+                   'session_id',
+                   'value',
+                   secure=True,
+                   httponly=True,
+                   samesite='Lax',
+                   max_age=3600
+               )
+               return resp
+           ```
+
+      10. **Credential Storage:**
+          - Use environment variables or secure vaults
+          - Never hardcode credentials
+          - Example with python-dotenv:
+            ```python
+            import os
+            from dotenv import load_dotenv
+
+            load_dotenv()
+
+            # Access credentials from environment variables
+            db_user = os.environ.get('DB_USER')
+            db_password = os.environ.get('DB_PASSWORD')
+            ```
+
+  - type: validate
+    conditions:
+      # Check 1: Proper password hashing
+      - pattern: "argon2|bcrypt|pbkdf2|make_password|generate_password_hash"
+        message: "Using secure password hashing algorithms."
+
+      # Check 2: CSRF protection
+      - pattern: "csrf|CSRFProtect|csrf_token|csrftoken"
+        message: "CSRF protection is implemented."
+
+      # Check 3: Secure cookie settings
+      - pattern: "SESSION_COOKIE_SECURE\\s*=\\s*True|secure=True|httponly=True|samesite"
+        message: "Secure cookie settings are configured."
+
+      # Check 4: Rate limiting
+      - pattern: "limiter\\.limit|RateLimitExceeded|rate_limit|throttle"
+        message: "Rate limiting is implemented for authentication endpoints."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - authentication
+    - identity
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:authentication
+    - standard:owasp-top10
+    - risk:a07-identification-authentication-failures
+  references:
+    - "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Credential_Stuffing_Prevention_Cheat_Sheet.html"
+    - "https://docs.djangoproject.com/en/stable/topics/auth/passwords/"
+    - "https://flask-login.readthedocs.io/en/latest/"
+    - "https://fastapi.tiangolo.com/tutorial/security/"
+```
+

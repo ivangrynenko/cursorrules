@@ -1,6 +1,6 @@
 ---
 description: Testing Guidelines
-globs: 
+globs:
 alwaysApply: false
 ---
 # Revised Cursor Rule File - Testing Guidelines (preserving functionality)

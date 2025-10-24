@@ -7,31 +7,39 @@ alwaysApply: false
 
 Ensures application security standards are maintained.
 
-> Priority: critical · Version: 1.0
+```yaml
+name: security_practices
+description: Enforce security best practices across the application
+filters:
+  - type: file_extension
+    pattern: "\\.(php|js|vue|jsx|tsx)$"
 
-## Applies To
-- `*.php`
-- `*.js`
-- `*.vue`
-- `*.jsx`
-- `*.tsx`
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "eval\\("
+        message: "Avoid using eval() - security risk"
 
-## Trigger Conditions
-- Files matching pattern `\.(php|js|vue|jsx|tsx)$`
+      - pattern: "\\$_GET|\\$_POST|\\$_REQUEST"
+        message: "Use Drupal's input sanitization methods"
 
-## Required Checks
+      - pattern: "innerHTML"
+        message: "Use textContent or sanitize HTML content"
 
-- Avoid using eval() - security risk
-- Use Drupal's input sanitization methods
-- Use textContent or sanitize HTML content
+  - type: suggest
+    message: |
+      Security Best Practices:
+      - Implement CSRF protection
+      - Use prepared statements for queries
+      - Sanitize user input
+      - Implement proper access controls
+      - Follow security updates protocol
+      - Ensure Drupal file permissions are secure (see drupal-file-permissions.mdc)
+      - Use ahoy cli commands instead of direct docker compose exec
 
-## Recommendations
+metadata:
+  priority: critical
+  version: 1.0
+```
 
-Security Best Practices:
-- Implement CSRF protection
-- Use prepared statements for queries
-- Sanitize user input
-- Implement proper access controls
-- Follow security updates protocol
-- Ensure Drupal file permissions are secure (see drupal-file-permissions.mdc)
-- Use ahoy cli commands instead of direct docker compose exec
+

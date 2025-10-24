@@ -73,7 +73,7 @@ class FeatureContext extends DrupalContext {
     use PathTrait;
     use ResponseTrait;
     use WaitTrait;
-    
+
     // Drupal-specific traits
     use BlockTrait;
     use ContentTrait;
@@ -82,7 +82,7 @@ class FeatureContext extends DrupalContext {
     use MediaTrait;
     use TaxonomyTrait;
     use UserTrait;
-    
+
     // Only add custom methods when drevops/behat-steps doesn't provide the functionality
 }
 ```
@@ -212,9 +212,9 @@ The following is the complete reference from [drevops/behat-steps STEPS.md](http
 [Source](vendor/drevops/behat-steps/src/DateTrait.php)
 
 >  Convert relative date expressions into timestamps or formatted dates.
->  
+>
 >  Supports values and tables.
->  
+>
 >  Possible formats:
 >  - `[relative:OFFSET]`
 >  - `[relative:OFFSET#FORMAT]`
@@ -298,7 +298,7 @@ The following is the complete reference from [drevops/behat-steps STEPS.md](http
 >
 >  Skip processing with tags: `@behat-steps-skip:fileDownloadBeforeScenario` or
 >  `@behat-steps-skip:fileDownloadAfterScenario`
->  
+>
 >  Special tags:
 >  - `@download` - enable download handling
 
@@ -418,9 +418,9 @@ The following is the complete reference from [drevops/behat-steps STEPS.md](http
 [Source](vendor/drevops/behat-steps/src/Drupal/BigPipeTrait.php)
 
 >  Bypass Drupal BigPipe when rendering pages.
->  
+>
 >  Activated by adding `@big_pipe` tag to the scenario.
->  
+>
 >  Skip processing with tags: `@behat-steps-skip:bigPipeBeforeScenario` or
 >  `@behat-steps-skip:bigPipeBeforeStep`.
 
@@ -547,7 +547,7 @@ The following is the complete reference from [drevops/behat-steps STEPS.md](http
 >
 >  Skip processing with tags: `@behat-steps-skip:emailBeforeScenario` or
 >  `@behat-steps-skip:emailAfterScenario`
->  
+>
 >  Special tags:
 >  - `@email` - enable email tracking using a default handler
 >  - `@email:{type}` - enable email tracking using a `{type}` handler
@@ -756,10 +756,10 @@ Use `FileTrait` and `MediaTrait` from drevops/behat-steps along with built-in Dr
 [Source](vendor/drevops/behat-steps/src/Drupal/TestmodeTrait.php)
 
 >  Configure Drupal Testmode module for controlled testing scenarios.
->  
+>
 >  Skip processing with tags: `@behat-steps-skip:testmodeBeforeScenario` and
 >  `@behat-steps-skip:testmodeAfterScenario`.
->  
+>
 >  Special tags:
 >  - `@testmode` - enable for scenario
 
@@ -810,7 +810,7 @@ Use `FileTrait` and `MediaTrait` from drevops/behat-steps along with built-in Dr
 >
 >  Skip processing with tags: `@behat-steps-skip:watchdogSetScenario` or
 >  `@behat-steps-skip:watchdogAfterScenario`
->  
+>
 >  Special tags:
 >  - `@watchdog:{type}` - limit watchdog messages to specific types.
 >  - `@error` - add to scenarios that are expected to trigger an error.
@@ -828,7 +828,7 @@ class FeatureContext extends DrupalContext {
     use ContentTrait;  // For content management
     use UserTrait;     // For user operations
     use EmailTrait;    // For email testing
-    
+
     // Custom methods only when absolutely necessary
 }
 ```

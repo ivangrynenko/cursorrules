@@ -7,278 +7,357 @@ alwaysApply: false
 
 This rule enforces security best practices to prevent software and data integrity failures in Python applications, as defined in OWASP Top 10:2021-A08.
 
-> Priority: high · Version: 1.0
+```yaml
+name: python_integrity_failures
+description: Detect and prevent software and data integrity failures in Python applications as defined in OWASP Top 10:2021-A08
+filters:
+  - type: file_extension
+    pattern: "\\.(py|ini|cfg|yml|yaml|json|toml)$"
+  - type: file_path
+    pattern: ".*"
 
-## Applies To
-- `*.py`
-- `*.ini`
-- `*.cfg`
-- `*.yml`
-- `*.yaml`
-- `*.json`
-- `*.toml`
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Insecure deserialization with pickle
+      - pattern: "pickle\\.loads\\(|pickle\\.load\\(|cPickle\\.loads\\(|cPickle\\.load\\("
+        message: "Insecure deserialization detected with pickle. Pickle is not secure against maliciously constructed data and should not be used with untrusted input."
 
-## Trigger Conditions
-- Files matching pattern `\.(py|ini|cfg|yml|yaml|json|toml)$`
-- Paths matching `.*`
+      # Pattern 2: Insecure deserialization with yaml.load
+      - pattern: "yaml\\.load\\([^,)]+\\)|yaml\\.load\\([^,)]+,\\s*Loader=yaml\\.Loader\\)"
+        message: "Insecure deserialization detected with yaml.load(). Use yaml.safe_load() instead for untrusted input."
 
-## Required Checks
+      # Pattern 3: Insecure deserialization with marshal
+      - pattern: "marshal\\.loads\\(|marshal\\.load\\("
+        message: "Insecure deserialization detected with marshal. Marshal is not secure against maliciously constructed data."
 
-- Insecure deserialization detected with pickle. Pickle is not secure against maliciously constructed data and should not be used with untrusted input.
-- Insecure deserialization detected with yaml.load(). Use yaml.safe_load() instead for untrusted input.
-- Insecure deserialization detected with marshal. Marshal is not secure against maliciously constructed data.
-- Potentially insecure deserialization with shelve detected. Shelve uses pickle internally and is not secure against malicious data.
-- Insecure use of eval() or exec() detected. These functions can execute arbitrary code and should never be used with untrusted input.
-- File download without integrity verification detected. Always verify the integrity of downloaded files using checksums or digital signatures.
-- Insecure package installation detected. Specify package versions and consider using hash verification for pip installations.
-- Configuration loading detected. Ensure integrity verification for configuration files, especially in production environments.
-- Insecure temporary file creation detected. Use tempfile.mkstemp() or tempfile.TemporaryFile() instead to avoid race conditions.
-- Potentially insecure file operation with user-controlled path detected. Validate and sanitize file paths from untrusted sources.
-- Update mechanism detected. Ensure proper integrity verification for software updates using digital signatures or secure checksums.
-- Dynamic module loading detected. Implement integrity checks and validation before loading external modules or plugins.
-- Insecure subprocess execution with shell=True detected. This can lead to command injection if user input is involved.
-- Deserialization of user-controlled data detected. Implement schema validation or integrity checks before processing.
-- Potentially insecure modification of globals or locals detected. This can lead to unexpected behavior or security issues.
+      # Pattern 4: Insecure deserialization with shelve
+      - pattern: "shelve\\.open\\("
+        message: "Potentially insecure deserialization with shelve detected. Shelve uses pickle internally and is not secure against malicious data."
 
-## Recommendations
+      # Pattern 5: Insecure use of eval or exec
+      - pattern: "eval\\(|exec\\(|compile\\([^,]+,\\s*['\"][^'\"]+['\"]\\s*,\\s*['\"]exec['\"]\\)"
+        message: "Insecure use of eval() or exec() detected. These functions can execute arbitrary code and should never be used with untrusted input."
 
-**Python Software and Data Integrity Best Practices:**
+      # Pattern 6: Missing integrity verification for downloads
+      - pattern: "urllib\\.request\\.urlretrieve\\(|requests\\.get\\([^)]*\\.exe['\"]\\)|requests\\.get\\([^)]*\\.zip['\"]\\)|requests\\.get\\([^)]*\\.tar\\.gz['\"]\\)"
+        message: "File download without integrity verification detected. Always verify the integrity of downloaded files using checksums or digital signatures."
 
-1. **Secure Deserialization:**
-   - Avoid using pickle, marshal, or shelve with untrusted data
-   - Use safer alternatives like JSON with schema validation
-   - Example with JSON schema validation:
-     ```python
-     import json
-     import jsonschema
-     
-     # Define a schema for validation
-     schema = {
-         "type": "object",
-         "properties": {
-             "name": {"type": "string"},
-             "age": {"type": "integer", "minimum": 0}
-         },
-         "required": ["name", "age"]
-     }
-     
-     # Validate data against schema
-     try:
-         data = json.loads(user_input)
-         jsonschema.validate(instance=data, schema=schema)
-         # Process data safely
-     except (json.JSONDecodeError, jsonschema.exceptions.ValidationError) as e:
-         # Handle validation error
-         print(f"Invalid data: {e}")
-     ```
+      # Pattern 7: Insecure package installation
+      - pattern: "pip\\s+install\\s+[^-]|subprocess\\.(?:call|run|Popen)\\(['\"]pip\\s+install"
+        message: "Insecure package installation detected. Specify package versions and consider using hash verification for pip installations."
 
-2. **YAML Safe Loading:**
-   - Always use yaml.safe_load() instead of yaml.load()
-   - Example:
-     ```python
-     import yaml
-     
-     # Safe way to load YAML
-     data = yaml.safe_load(yaml_string)
-     
-     # Avoid this:
-     # data = yaml.load(yaml_string)  # Insecure!
-     ```
+      # Pattern 8: Missing integrity checks for configuration
+      - pattern: "config\\.read\\(|json\\.loads?\\(|yaml\\.safe_load\\(|toml\\.loads?\\("
+        message: "Configuration loading detected. Ensure integrity verification for configuration files, especially in production environments."
 
-3. **Integrity Verification for Downloads:**
-   - Verify checksums or signatures for downloaded files
-   - Example:
-     ```python
-     import hashlib
-     import requests
-     
-     def download_with_integrity_check(url, expected_hash):
-         response = requests.get(url)
-         file_data = response.content
-         
-         # Calculate hash
-         calculated_hash = hashlib.sha256(file_data).hexdigest()
-         
-         # Verify integrity
-         if calculated_hash != expected_hash:
-             raise ValueError("Integrity check failed: hash mismatch")
-             
-         return file_data
-     ```
+      # Pattern 9: Insecure temporary file creation
+      - pattern: "tempfile\\.mktemp\\(|os\\.tempnam\\(|os\\.tmpnam\\("
+        message: "Insecure temporary file creation detected. Use tempfile.mkstemp() or tempfile.TemporaryFile() instead to avoid race conditions."
 
-4. **Secure Package Installation:**
-   - Pin dependencies to specific versions
-   - Use hash verification for pip installations
-   - Example requirements.txt with hashes:
-     ```
-     # requirements.txt
-     requests==2.31.0 --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
-     ```
+      # Pattern 10: Insecure file operations with untrusted paths
+      - pattern: "open\\([^,)]+\\+\\s*request\\.|open\\([^,)]+\\+\\s*user_|open\\([^,)]+\\+\\s*input\\("
+        message: "Potentially insecure file operation with user-controlled path detected. Validate and sanitize file paths from untrusted sources."
 
-5. **Secure Configuration Management:**
-   - Validate configuration file integrity
-   - Use environment-specific configurations
-   - Example:
-     ```python
-     import json
-     import hmac
-     import hashlib
-     
-     def load_config_with_integrity(config_file, secret_key):
-         with open(config_file, 'r') as f:
-             content = f.read()
-             
-         # Split content into data and signature
-         data, _, signature = content.rpartition('\n')
-         
-         # Verify integrity
-         expected_signature = hmac.new(
-             secret_key.encode(), 
-             data.encode(), 
-             hashlib.sha256
-         ).hexdigest()
-         
-         if not hmac.compare_digest(signature, expected_signature):
-             raise ValueError("Configuration integrity check failed")
-             
-         return json.loads(data)
-     ```
+      # Pattern 11: Missing integrity checks for updates
+      - pattern: "auto_update|self_update|check_for_updates"
+        message: "Update mechanism detected. Ensure proper integrity verification for software updates using digital signatures or secure checksums."
 
-6. **Secure Temporary Files:**
-   - Use secure temporary file functions
-   - Example:
-     ```python
-     import tempfile
-     import os
-     
-     # Secure temporary file creation
-     fd, temp_path = tempfile.mkstemp()
-     try:
-         with os.fdopen(fd, 'w') as temp_file:
-             temp_file.write('data')
-         # Process the file
-     finally:
-         os.unlink(temp_path)  # Clean up
-     
-     # Or use context manager
-     with tempfile.TemporaryFile() as temp_file:
-         temp_file.write(b'data')
-         temp_file.seek(0)
-         # Process the file
-     ```
+      # Pattern 12: Insecure plugin or extension loading
+      - pattern: "importlib\\.import_module\\(|__import__\\(|load_plugin|load_extension|load_module"
+        message: "Dynamic module loading detected. Implement integrity checks and validation before loading external modules or plugins."
 
-7. **Secure Update Mechanisms:**
-   - Verify signatures for updates
-   - Use HTTPS for update downloads
-   - Example:
-     ```python
-     import requests
-     import gnupg
-     
-     def secure_update(update_url, signature_url, gpg_key):
-         # Download update and signature
-         update_data = requests.get(update_url).content
-         signature = requests.get(signature_url).content
-         
-         # Verify signature
-         gpg = gnupg.GPG()
-         gpg.import_keys(gpg_key)
-         verified = gpg.verify_data(signature, update_data)
-         
-         if not verified:
-             raise ValueError("Update signature verification failed")
-             
-         return update_data
-     ```
+      # Pattern 13: Insecure use of subprocess with shell=True
+      - pattern: "subprocess\\.(?:call|run|Popen)\\([^,)]*shell\\s*=\\s*True"
+        message: "Insecure subprocess execution with shell=True detected. This can lead to command injection if user input is involved."
 
-8. **Secure Plugin Loading:**
-   - Validate plugins before loading
-   - Implement allowlisting for plugins
-   - Example:
-     ```python
-     import importlib
-     import hashlib
-     
-     # Allowlist of approved plugins with their hashes
-     APPROVED_PLUGINS = {
-         'safe_plugin': 'sha256:1234567890abcdef',
-         'other_plugin': 'sha256:abcdef1234567890'
-     }
-     
-     def load_plugin_safely(plugin_name, plugin_path):
-         # Check if plugin is in allowlist
-         if plugin_name not in APPROVED_PLUGINS:
-             raise ValueError(f"Plugin {plugin_name} is not approved")
-             
-         # Calculate plugin file hash
-         with open(plugin_path, 'rb') as f:
-             plugin_hash = 'sha256:' + hashlib.sha256(f.read()).hexdigest()
-             
-         # Verify hash matches expected value
-         if plugin_hash != APPROVED_PLUGINS[plugin_name]:
-             raise ValueError(f"Plugin {plugin_name} failed integrity check")
-             
-         # Load plugin safely
-         return importlib.import_module(plugin_name)
-     ```
+      # Pattern 14: Missing integrity verification for serialized data
+      - pattern: "json\\.loads?\\([^,)]*request\\.|json\\.loads?\\([^,)]*user_|json\\.loads?\\([^,)]*input\\("
+        message: "Deserialization of user-controlled data detected. Implement schema validation or integrity checks before processing."
 
-9. **Secure Subprocess Execution:**
-   - Avoid shell=True
-   - Use allowlists for commands
-   - Example:
-     ```python
-     import subprocess
-     import shlex
-     
-     def run_command_safely(command, arguments):
-         # Allowlist of safe commands
-         SAFE_COMMANDS = {'ls', 'echo', 'cat'}
-         
-         if command not in SAFE_COMMANDS:
-             raise ValueError(f"Command {command} is not allowed")
-             
-         # Build command with arguments
-         cmd = [command] + arguments
-         
-         # Execute without shell
-         return subprocess.run(cmd, shell=False, capture_output=True, text=True)
-     ```
+      # Pattern 15: Insecure use of globals or locals
+      - pattern: "globals\\(\\)\\[|locals\\(\\)\\["
+        message: "Potentially insecure modification of globals or locals detected. This can lead to unexpected behavior or security issues."
 
-10. **Input Validation and Sanitization:**
-    - Validate all inputs before processing
-    - Use schema validation for structured data
-    - Example with Pydantic:
-      ```python
-      from pydantic import BaseModel, validator
-      
-      class UserData(BaseModel):
-          username: str
-          age: int
-          
-          @validator('username')
-          def username_must_be_valid(cls, v):
-              if not v.isalnum() or len(v) > 30:
-                  raise ValueError('Username must be alphanumeric and <= 30 chars')
-              return v
-              
-          @validator('age')
-          def age_must_be_reasonable(cls, v):
-              if v < 0 or v > 120:
-                  raise ValueError('Age must be between 0 and 120')
-              return v
-      
-      # Usage
-      try:
-          user = UserData(username=user_input_name, age=user_input_age)
-          # Process validated data
-      except ValueError as e:
-          # Handle validation error
-          print(f"Invalid data: {e}")
-      ```
+  - type: suggest
+    message: |
+      **Python Software and Data Integrity Best Practices:**
 
-## Validation
+      1. **Secure Deserialization:**
+         - Avoid using pickle, marshal, or shelve with untrusted data
+         - Use safer alternatives like JSON with schema validation
+         - Example with JSON schema validation:
+           ```python
+           import json
+           import jsonschema
 
-- Using safe YAML loading.
-- Using secure temporary file functions.
-- Using subprocess with shell=False.
-- Implementing input validation.
+           # Define a schema for validation
+           schema = {
+               "type": "object",
+               "properties": {
+                   "name": {"type": "string"},
+                   "age": {"type": "integer", "minimum": 0}
+               },
+               "required": ["name", "age"]
+           }
+
+           # Validate data against schema
+           try:
+               data = json.loads(user_input)
+               jsonschema.validate(instance=data, schema=schema)
+               # Process data safely
+           except (json.JSONDecodeError, jsonschema.exceptions.ValidationError) as e:
+               # Handle validation error
+               print(f"Invalid data: {e}")
+           ```
+
+      2. **YAML Safe Loading:**
+         - Always use yaml.safe_load() instead of yaml.load()
+         - Example:
+           ```python
+           import yaml
+
+           # Safe way to load YAML
+           data = yaml.safe_load(yaml_string)
+
+           # Avoid this:
+           # data = yaml.load(yaml_string)  # Insecure!
+           ```
+
+      3. **Integrity Verification for Downloads:**
+         - Verify checksums or signatures for downloaded files
+         - Example:
+           ```python
+           import hashlib
+           import requests
+
+           def download_with_integrity_check(url, expected_hash):
+               response = requests.get(url)
+               file_data = response.content
+
+               # Calculate hash
+               calculated_hash = hashlib.sha256(file_data).hexdigest()
+
+               # Verify integrity
+               if calculated_hash != expected_hash:
+                   raise ValueError("Integrity check failed: hash mismatch")
+
+               return file_data
+           ```
+
+      4. **Secure Package Installation:**
+         - Pin dependencies to specific versions
+         - Use hash verification for pip installations
+         - Example requirements.txt with hashes:
+           ```
+           # requirements.txt
+           requests==2.31.0 --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
+           ```
+
+      5. **Secure Configuration Management:**
+         - Validate configuration file integrity
+         - Use environment-specific configurations
+         - Example:
+           ```python
+           import json
+           import hmac
+           import hashlib
+
+           def load_config_with_integrity(config_file, secret_key):
+               with open(config_file, 'r') as f:
+                   content = f.read()
+
+               # Split content into data and signature
+               data, _, signature = content.rpartition('\n')
+
+               # Verify integrity
+               expected_signature = hmac.new(
+                   secret_key.encode(),
+                   data.encode(),
+                   hashlib.sha256
+               ).hexdigest()
+
+               if not hmac.compare_digest(signature, expected_signature):
+                   raise ValueError("Configuration integrity check failed")
+
+               return json.loads(data)
+           ```
+
+      6. **Secure Temporary Files:**
+         - Use secure temporary file functions
+         - Example:
+           ```python
+           import tempfile
+           import os
+
+           # Secure temporary file creation
+           fd, temp_path = tempfile.mkstemp()
+           try:
+               with os.fdopen(fd, 'w') as temp_file:
+                   temp_file.write('data')
+               # Process the file
+           finally:
+               os.unlink(temp_path)  # Clean up
+
+           # Or use context manager
+           with tempfile.TemporaryFile() as temp_file:
+               temp_file.write(b'data')
+               temp_file.seek(0)
+               # Process the file
+           ```
+
+      7. **Secure Update Mechanisms:**
+         - Verify signatures for updates
+         - Use HTTPS for update downloads
+         - Example:
+           ```python
+           import requests
+           import gnupg
+
+           def secure_update(update_url, signature_url, gpg_key):
+               # Download update and signature
+               update_data = requests.get(update_url).content
+               signature = requests.get(signature_url).content
+
+               # Verify signature
+               gpg = gnupg.GPG()
+               gpg.import_keys(gpg_key)
+               verified = gpg.verify_data(signature, update_data)
+
+               if not verified:
+                   raise ValueError("Update signature verification failed")
+
+               return update_data
+           ```
+
+      8. **Secure Plugin Loading:**
+         - Validate plugins before loading
+         - Implement allowlisting for plugins
+         - Example:
+           ```python
+           import importlib
+           import hashlib
+
+           # Allowlist of approved plugins with their hashes
+           APPROVED_PLUGINS = {
+               'safe_plugin': 'sha256:1234567890abcdef',
+               'other_plugin': 'sha256:abcdef1234567890'
+           }
+
+           def load_plugin_safely(plugin_name, plugin_path):
+               # Check if plugin is in allowlist
+               if plugin_name not in APPROVED_PLUGINS:
+                   raise ValueError(f"Plugin {plugin_name} is not approved")
+
+               # Calculate plugin file hash
+               with open(plugin_path, 'rb') as f:
+                   plugin_hash = 'sha256:' + hashlib.sha256(f.read()).hexdigest()
+
+               # Verify hash matches expected value
+               if plugin_hash != APPROVED_PLUGINS[plugin_name]:
+                   raise ValueError(f"Plugin {plugin_name} failed integrity check")
+
+               # Load plugin safely
+               return importlib.import_module(plugin_name)
+           ```
+
+      9. **Secure Subprocess Execution:**
+         - Avoid shell=True
+         - Use allowlists for commands
+         - Example:
+           ```python
+           import subprocess
+           import shlex
+
+           def run_command_safely(command, arguments):
+               # Allowlist of safe commands
+               SAFE_COMMANDS = {'ls', 'echo', 'cat'}
+
+               if command not in SAFE_COMMANDS:
+                   raise ValueError(f"Command {command} is not allowed")
+
+               # Build command with arguments
+               cmd = [command] + arguments
+
+               # Execute without shell
+               return subprocess.run(cmd, shell=False, capture_output=True, text=True)
+           ```
+
+      10. **Input Validation and Sanitization:**
+          - Validate all inputs before processing
+          - Use schema validation for structured data
+          - Example with Pydantic:
+            ```python
+            from pydantic import BaseModel, validator
+
+            class UserData(BaseModel):
+                username: str
+                age: int
+
+                @validator('username')
+                def username_must_be_valid(cls, v):
+                    if not v.isalnum() or len(v) > 30:
+                        raise ValueError('Username must be alphanumeric and <= 30 chars')
+                    return v
+
+                @validator('age')
+                def age_must_be_reasonable(cls, v):
+                    if v < 0 or v > 120:
+                        raise ValueError('Age must be between 0 and 120')
+                    return v
+
+            # Usage
+            try:
+                user = UserData(username=user_input_name, age=user_input_age)
+                # Process validated data
+            except ValueError as e:
+                # Handle validation error
+                print(f"Invalid data: {e}")
+            ```
+
+  - type: validate
+    conditions:
+      # Check 1: Safe YAML loading
+      - pattern: "yaml\\.safe_load\\("
+        message: "Using safe YAML loading."
+
+      # Check 2: Secure temporary file usage
+      - pattern: "tempfile\\.mkstemp\\(|tempfile\\.TemporaryFile\\(|tempfile\\.NamedTemporaryFile\\("
+        message: "Using secure temporary file functions."
+
+      # Check 3: Secure subprocess usage
+      - pattern: "subprocess\\.(?:call|run|Popen)\\([^,)]*shell\\s*=\\s*False"
+        message: "Using subprocess with shell=False."
+
+      # Check 4: Input validation
+      - pattern: "jsonschema\\.validate|pydantic|dataclass|@validator"
+        message: "Implementing input validation."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - integrity
+    - deserialization
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:integrity
+    - standard:owasp-top10
+    - risk:a08-software-data-integrity-failures
+  references:
+    - "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html"
+    - "https://docs.python.org/3/library/pickle.html#restricting-globals"
+    - "https://pyyaml.org/wiki/PyYAMLDocumentation"
+    - "https://python-security.readthedocs.io/packages.html"
+    - "https://docs.python.org/3/library/tempfile.html#security"
+```
+
+

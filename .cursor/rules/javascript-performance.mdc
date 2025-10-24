@@ -4,21 +4,31 @@ globs: *.js, *.ts
 ---
 # JavaScript Performance Optimization
 
-> Priority: high · Version: 1.0
+```yaml
+name: javascript_performance_optimization
+description: Enforce best practices for optimizing JavaScript performance.
 
-## Applies To
-- `*.js`
-- `*.ts`
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "\\buseState\\(([^)]*)\\)"
+        message: "Avoid unnecessary state updates."
 
-## Required Checks
+      - pattern: "React\\.memo\\("
+        message: "Consider using React.memo() to optimize component re-renders."
 
-- Avoid unnecessary state updates.
-- Consider using React.memo() to optimize component re-renders.
-- Avoid using anonymous functions in render methods.
+      - pattern: "\\b\\(\\)\\s*=>\\s*{"
+        message: "Avoid using anonymous functions in render methods."
 
-## Recommendations
+  - type: suggest
+    message: |
+      Performance tips:
+      - Use memoization for expensive calculations.
+      - Optimize FlatList with performance props.
+      - Minimize unnecessary re-renders.
 
-Performance tips:
-- Use memoization for expensive calculations.
-- Optimize FlatList with performance props.
-- Minimize unnecessary re-renders.
+metadata:
+  priority: high
+  version: 1.0
+```
+

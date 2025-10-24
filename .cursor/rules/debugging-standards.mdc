@@ -6,32 +6,36 @@ globs: *.php, *.js, *.ts, *.vue, *.jsx, *.tsx, *.py
 
 Ensures proper debugging practices and error handling.
 
-> Priority: high · Version: 1.0
+```yaml
+name: debugging_standards
+description: Enforce standards for debugging and error handling
+filters:
+  - type: file_extension
+    pattern: "\\.(php|js|ts|vue|jsx|tsx|py)$"
 
-## Applies To
-- `*.php`
-- `*.js`
-- `*.ts`
-- `*.vue`
-- `*.jsx`
-- `*.tsx`
-- `*.py`
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "console\\.log\\(|print_r\\(|var_dump\\("
+        message: "Replace debug statements with proper logging"
 
-## Trigger Conditions
-- Files matching pattern `\.(php|js|ts|vue|jsx|tsx|py)$`
+      - pattern: "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+        message: "Implement proper error handling in catch blocks"
 
-## Required Checks
+  - type: suggest
+    message: |
+      Debugging Best Practices:
+      - Address root causes, not symptoms
+      - Add descriptive logging messages
+      - Create isolated test functions
+      - Implement comprehensive error handling
+      - Use appropriate logging levels
+      - Add context to error messages
+      - Consider debugging tools integration
 
-- Replace debug statements with proper logging
-- Implement proper error handling in catch blocks
+metadata:
+  priority: high
+  version: 1.0
+```
 
-## Recommendations
 
-Debugging Best Practices:
-- Address root causes, not symptoms
-- Add descriptive logging messages
-- Create isolated test functions
-- Implement comprehensive error handling
-- Use appropriate logging levels
-- Add context to error messages
-- Consider debugging tools integration

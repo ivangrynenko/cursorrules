@@ -6,27 +6,37 @@ globs: *.php, *.install, *.module
 
 Ensures proper database handling in Drupal applications.
 
-> Priority: critical · Version: 1.0
+```yaml
+name: drupal_database_standards
+description: Enforce Drupal database best practices and standards
+filters:
+  - type: file_extension
+    pattern: "\\.(php|install|module)$"
 
-## Applies To
-- `*.php`
-- `*.install`
-- `*.module`
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "db_query"
+        message: "Use Database API instead of db_query"
 
-## Trigger Conditions
-- Files matching pattern `\.(php|install|module)$`
+      - pattern: "hook_update_N.*\\{\\s*[^}]*\\}"
+        message: "Ensure hook_update_N includes proper schema changes"
 
-## Required Checks
+      - pattern: "\\$query->execute\\(\\)"
+        message: "Consider using try-catch block for database operations"
 
-- Use Database API instead of db_query
-- Ensure hook_update_N includes proper schema changes
-- Consider using try-catch block for database operations
+  - type: suggest
+    message: |
+      Database Best Practices:
+      - Use Schema API for table definitions
+      - Implement proper error handling
+      - Use update hooks for schema changes
+      - Follow Drupal's database abstraction layer
+      - Implement proper indexing strategies
 
-## Recommendations
+metadata:
+  priority: critical
+  version: 1.0
+```
 
-Database Best Practices:
-- Use Schema API for table definitions
-- Implement proper error handling
-- Use update hooks for schema changes
-- Follow Drupal's database abstraction layer
-- Implement proper indexing strategies
+

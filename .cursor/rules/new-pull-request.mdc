@@ -1,6 +1,6 @@
 ---
 description: Use this rule when requested to review a pull request
-globs: 
+globs:
 alwaysApply: false
 ---
 # Code Review Agent Instructions
@@ -10,7 +10,7 @@ You are a senior technical lead and architect conducting automated code reviews 
 ## Primary Objectives
 
 1. **Requirement Fulfilment Analysis (50%)**: Verify code changes satisfy issue requirements
-2. **Code Standards Compliance (30%)**: Ensure adherence to technology-specific coding standards and best practices  
+2. **Code Standards Compliance (30%)**: Ensure adherence to technology-specific coding standards and best practices
 3. **Security Assessment (20%)**: Validate OWASP security standards and framework-specific security practices
 4. **Label Management**: Apply appropriate GitHub labels for workflow automation
 5. **Freshdesk Integration**: Update issues with structured review findings and log time entry
@@ -22,7 +22,7 @@ You are a senior technical lead and architect conducting automated code reviews 
 - If not provided during the prompt, ask user to provide PR number or URL, extract and analyse:
 
 ### Pull Request Context
-- **PR Details**: Extract PR number 
+- **PR Details**: Extract PR number
 - **Repository Info**: Note owner, repo name, and branch information
 - **Change Statistics**: Review additions, deletions, and changed files count
 - **Use GitHub mcp tool**: Use github-mcp tool to connect to GitHub. If fails, Use gh cli.
@@ -33,7 +33,7 @@ You are a senior technical lead and architect conducting automated code reviews 
 - **Acceptance Criteria**: Identify specific acceptance criteria from issue conversations
 - **Client Feedback**: Review conversation history for clarification and changes
 - **Technical Context**: Note technology stack, modules affected, and dependencies
-- **Extract issue information**: Check PR description and title to pull issue number. 
+- **Extract issue information**: Check PR description and title to pull issue number.
 	In most cases it will be a Freshdesk issue. Use freshdesk-mcp task get issue information,
 	conversations and issue summary to understand context of the issue.
 
@@ -213,7 +213,7 @@ Compare code changes against:
      ]
    }
    EOF
-   
+
    # Submit the review
    gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews -X POST --input /tmp/review_comments.json
    ```
@@ -295,7 +295,7 @@ Compare code changes against:
 
 **Auto-Apply Labels Based On:**
 - **Score ≥ 80%**: Add `code-review-approved`
-- **Score < 80%**: Add `code-review-changes` 
+- **Score < 80%**: Add `code-review-changes`
 - **Security Issues**: Add `code-review-security`
 - **Standards Violations**: Add `drupal-standards`
 - **Requirement Score ≥ 80%**: Add `requirements-met`
@@ -366,7 +366,7 @@ After completing the code review, perform the following Freshdesk updates:
 
 **Status Colours:**
 - **Success/Approved**: `#1f7a1f` (dark green)
-- **Warning/Changes Needed**: `#cc8800` (dark orange) 
+- **Warning/Changes Needed**: `#cc8800` (dark orange)
 - **Critical/Failed**: `#dc3545` (red)
 - **Info/In Progress**: `#17a2b8` (blue)
 

@@ -3,189 +3,251 @@ description: Detect and prevent insecure design patterns in Python applications 
 globs: *.py, *.ini, *.cfg, *.yml, *.yaml, *.json, *.toml
 alwaysApply: false
 ---
-# Python Insecure Design Security Standards (OWASP A04:2021)
+ # Python Insecure Design Security Standards (OWASP A04:2021)
 
 This rule enforces security best practices to prevent insecure design vulnerabilities in Python applications, as defined in OWASP Top 10:2021-A04.
 
-> Priority: high · Version: 1.0
+```yaml
+name: python_insecure_design
+description: Detect and prevent insecure design patterns in Python applications as defined in OWASP Top 10:2021-A04
+filters:
+  - type: file_extension
+    pattern: "\\.(py)$"
+  - type: file_path
+    pattern: ".*"
 
-## Applies To
-- `*.py`
-- `*.ini`
-- `*.cfg`
-- `*.yml`
-- `*.yaml`
-- `*.json`
-- `*.toml`
+actions:
+  - type: enforce
+    conditions:
+      # Pattern 1: Lack of input validation
+      - pattern: "def\\s+[a-zA-Z0-9_]+\\([^)]*\\):\\s*(?![^#]*validate|[^#]*clean|[^#]*sanitize|[^#]*check|[^#]*is_valid)"
+        message: "Function lacks input validation. Consider implementing validation for all user-supplied inputs."
 
-## Trigger Conditions
-- Files matching pattern `\.(py)$`
-- Paths matching `.*`
+      # Pattern 2: Hardcoded business rules
+      - pattern: "if\\s+[a-zA-Z0-9_]+\\s*(==|!=|>|<|>=|<=)\\s*['\"][^'\"]+['\"]:"
+        message: "Hardcoded business rules detected. Consider using configuration files or database-driven rules for better maintainability."
 
-## Required Checks
+      # Pattern 3: Lack of rate limiting
+      - pattern: "@(app|api|route|blueprint)\\.(get|post|put|delete|patch)\\([^)]*\\)\\s*\\n\\s*(?![^#]*rate_limit|[^#]*throttle|[^#]*limiter)"
+        message: "API endpoint lacks rate limiting. Consider implementing rate limiting to prevent abuse."
 
-- Function lacks input validation. Consider implementing validation for all user-supplied inputs.
-- Hardcoded business rules detected. Consider using configuration files or database-driven rules for better maintainability.
-- API endpoint lacks rate limiting. Consider implementing rate limiting to prevent abuse.
-- Insecure default configuration detected. Ensure debug/development modes are disabled in production.
-- Consider implementing proper error handling with try-except blocks for operations that might fail.
-- Potential insecure direct object reference. Validate user's permission to access the requested object.
-- Endpoint lacks authentication checks. Consider adding authentication requirements for sensitive operations.
-- Exception caught without proper logging. Implement proper logging for exceptions to aid in debugging and monitoring.
-- File upload functionality detected. Ensure proper validation of file types, sizes, and implement virus scanning if applicable.
-- Consider adding security headers (Content-Security-Policy, X-Content-Type-Options, etc.) to HTTP responses.
+      # Pattern 4: Insecure default configurations
+      - pattern: "DEBUG\\s*=\\s*True|DEVELOPMENT\\s*=\\s*True|TESTING\\s*=\\s*True"
+        message: "Insecure default configuration detected. Ensure debug/development modes are disabled in production."
 
-## Recommendations
+      # Pattern 5: Lack of error handling
+      - pattern: "(?<!try:\\s*\\n)[^#]*\\n\\s*(?!except|finally)"
+        message: "Consider implementing proper error handling with try-except blocks for operations that might fail."
 
-**Python Secure Design Best Practices:**
+      # Pattern 6: Insecure direct object references
+      - pattern: "get_object_or_404\\(\\s*[^,]+,\\s*pk\\s*=\\s*request\\.(GET|POST|args|form|json)\\[['\"][^'\"]+['\"]\\]\\s*\\)|get\\(\\s*id\\s*=\\s*request\\.(GET|POST|args|form|json)"
+        message: "Potential insecure direct object reference. Validate user's permission to access the requested object."
 
-1. **Implement Defense in Depth:**
-   - Layer security controls throughout your application
-   - Don't rely on a single security mechanism
-   - Assume that each security layer can be bypassed
+      # Pattern 7: Missing authentication checks
+      - pattern: "@(app|api|route|blueprint)\\.(get|post|put|delete|patch)\\([^)]*\\)\\s*\\n\\s*(?!.*@login_required|.*@auth\\.login_required|.*@jwt_required|.*current_user|.*request\\.user)"
+        message: "Endpoint lacks authentication checks. Consider adding authentication requirements for sensitive operations."
 
-2. **Use Secure Defaults:**
-   - Start with secure configurations by default
-   - Require explicit opt-in for less secure options
-   - Example for Flask:
-     ```python
-     app.config.update(
-         SESSION_COOKIE_SECURE=True,
-         SESSION_COOKIE_HTTPONLY=True,
-         SESSION_COOKIE_SAMESITE='Lax',
-         PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
-     )
-     ```
+      # Pattern 8: Lack of proper logging
+      - pattern: "except\\s+[a-zA-Z0-9_]+\\s*(?:as\\s+[a-zA-Z0-9_]+)?:\\s*(?!.*logger\\.|.*logging\\.|.*print)"
+        message: "Exception caught without proper logging. Implement proper logging for exceptions to aid in debugging and monitoring."
 
-3. **Implement Proper Access Control:**
-   - Use role-based access control (RBAC)
-   - Implement principle of least privilege
-   - Validate access at the controller and service layers
-   - Example:
-     ```python
-     @app.route('/admin')
-     @roles_required('admin')  # Using Flask-Security
-     def admin_dashboard():
-         return render_template('admin/dashboard.html')
-     ```
+      # Pattern 9: Insecure file uploads
+      - pattern: "request\\.files\\[['\"][^'\"]+['\"]\\]|FileField\\(|FileStorage\\("
+        message: "File upload functionality detected. Ensure proper validation of file types, sizes, and implement virus scanning if applicable."
 
-4. **Use Rate Limiting:**
-   - Protect against brute force and DoS attacks
-   - Example with Flask-Limiter:
-     ```python
-     from flask_limiter import Limiter
-     limiter = Limiter(app)
-     
-     @app.route('/login', methods=['POST'])
-     @limiter.limit("5 per minute")
-     def login():
-         # Login logic
-     ```
+      # Pattern 10: Lack of security headers
+      - pattern: "response\\.(headers|set_header)\\([^)]*\\)|return\\s+Response\\([^)]*\\)|return\\s+make_response\\([^)]*\\)"
+        message: "Consider adding security headers (Content-Security-Policy, X-Content-Type-Options, etc.) to HTTP responses."
 
-5. **Implement Proper Error Handling:**
-   - Catch and log exceptions appropriately
-   - Return user-friendly error messages without exposing sensitive details
-   - Example:
-     ```python
-     try:
-         # Operation that might fail
-         result = perform_operation(user_input)
-     except ValidationError as e:
-         logger.warning(f"Validation error: {str(e)}")
-         return jsonify({"error": "Invalid input provided"}), 400
-     except Exception as e:
-         logger.error(f"Unexpected error: {str(e)}", exc_info=True)
-         return jsonify({"error": "An unexpected error occurred"}), 500
-     ```
+  - type: suggest
+    message: |
+      **Python Secure Design Best Practices:**
 
-6. **Use Configuration Management:**
-   - Store configuration in environment variables or secure vaults
-   - Use different configurations for development and production
-   - Example:
-     ```python
-     import os
-     from dotenv import load_dotenv
-     
-     load_dotenv()
-     
-     DEBUG = os.getenv('DEBUG', 'False') == 'True'
-     SECRET_KEY = os.getenv('SECRET_KEY')
-     DATABASE_URL = os.getenv('DATABASE_URL')
-     ```
+      1. **Implement Defense in Depth:**
+         - Layer security controls throughout your application
+         - Don't rely on a single security mechanism
+         - Assume that each security layer can be bypassed
 
-7. **Implement Proper Logging:**
-   - Log security events and exceptions
-   - Include contextual information but avoid sensitive data
-   - Use structured logging
-   - Example:
-     ```python
-     import logging
-     
-     logger = logging.getLogger(__name__)
-     
-     def user_action(user_id, action):
-         logger.info("User action", extra={
-             "user_id": user_id,
-             "action": action,
-             "timestamp": datetime.now().isoformat()
-         })
-     ```
+      2. **Use Secure Defaults:**
+         - Start with secure configurations by default
+         - Require explicit opt-in for less secure options
+         - Example for Flask:
+           ```python
+           app.config.update(
+               SESSION_COOKIE_SECURE=True,
+               SESSION_COOKIE_HTTPONLY=True,
+               SESSION_COOKIE_SAMESITE='Lax',
+               PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
+           )
+           ```
 
-8. **Use Security Headers:**
-   - Implement Content-Security-Policy, X-Content-Type-Options, etc.
-   - Example with Flask:
-     ```python
-     from flask_talisman import Talisman
-     
-     talisman = Talisman(
-         app,
-         content_security_policy={
-             'default-src': "'self'",
-             'script-src': "'self'"
-         }
-     )
-     ```
+      3. **Implement Proper Access Control:**
+         - Use role-based access control (RBAC)
+         - Implement principle of least privilege
+         - Validate access at the controller and service layers
+         - Example:
+           ```python
+           @app.route('/admin')
+           @roles_required('admin')  # Using Flask-Security
+           def admin_dashboard():
+               return render_template('admin/dashboard.html')
+           ```
 
-9. **Implement Secure File Handling:**
-   - Validate file types, sizes, and content
-   - Store files outside the web root
-   - Use secure file permissions
-   - Example:
-     ```python
-     import os
-     from werkzeug.utils import secure_filename
-     
-     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg'}
-     MAX_CONTENT_LENGTH = 1 * 1024 * 1024  # 1MB
-     
-     def allowed_file(filename):
-         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-     
-     @app.route('/upload', methods=['POST'])
-     def upload_file():
-         if 'file' not in request.files:
-             return jsonify({"error": "No file part"}), 400
-         
-         file = request.files['file']
-         if file.filename == '':
-             return jsonify({"error": "No selected file"}), 400
-         
-         if file and allowed_file(file.filename):
-             filename = secure_filename(file.filename)
-             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-             return jsonify({"success": True}), 200
-         
-         return jsonify({"error": "File type not allowed"}), 400
-     ```
+      4. **Use Rate Limiting:**
+         - Protect against brute force and DoS attacks
+         - Example with Flask-Limiter:
+           ```python
+           from flask_limiter import Limiter
+           limiter = Limiter(app)
 
-10. **Use Threat Modeling:**
-    - Identify potential threats during design phase
-    - Implement controls to mitigate identified threats
-    - Regularly review and update threat models
+           @app.route('/login', methods=['POST'])
+           @limiter.limit("5 per minute")
+           def login():
+               # Login logic
+           ```
 
-## Validation
+      5. **Implement Proper Error Handling:**
+         - Catch and log exceptions appropriately
+         - Return user-friendly error messages without exposing sensitive details
+         - Example:
+           ```python
+           try:
+               # Operation that might fail
+               result = perform_operation(user_input)
+           except ValidationError as e:
+               logger.warning(f"Validation error: {str(e)}")
+               return jsonify({"error": "Invalid input provided"}), 400
+           except Exception as e:
+               logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+               return jsonify({"error": "An unexpected error occurred"}), 500
+           ```
 
-- Implementing input validation.
-- Using proper error handling with try-except blocks.
-- Implementing rate limiting for API endpoints.
-- Using proper logging mechanisms.
+      6. **Use Configuration Management:**
+         - Store configuration in environment variables or secure vaults
+         - Use different configurations for development and production
+         - Example:
+           ```python
+           import os
+           from dotenv import load_dotenv
+
+           load_dotenv()
+
+           DEBUG = os.getenv('DEBUG', 'False') == 'True'
+           SECRET_KEY = os.getenv('SECRET_KEY')
+           DATABASE_URL = os.getenv('DATABASE_URL')
+           ```
+
+      7. **Implement Proper Logging:**
+         - Log security events and exceptions
+         - Include contextual information but avoid sensitive data
+         - Use structured logging
+         - Example:
+           ```python
+           import logging
+
+           logger = logging.getLogger(__name__)
+
+           def user_action(user_id, action):
+               logger.info("User action", extra={
+                   "user_id": user_id,
+                   "action": action,
+                   "timestamp": datetime.now().isoformat()
+               })
+           ```
+
+      8. **Use Security Headers:**
+         - Implement Content-Security-Policy, X-Content-Type-Options, etc.
+         - Example with Flask:
+           ```python
+           from flask_talisman import Talisman
+
+           talisman = Talisman(
+               app,
+               content_security_policy={
+                   'default-src': "'self'",
+                   'script-src': "'self'"
+               }
+           )
+           ```
+
+      9. **Implement Secure File Handling:**
+         - Validate file types, sizes, and content
+         - Store files outside the web root
+         - Use secure file permissions
+         - Example:
+           ```python
+           import os
+           from werkzeug.utils import secure_filename
+
+           ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg'}
+           MAX_CONTENT_LENGTH = 1 * 1024 * 1024  # 1MB
+
+           def allowed_file(filename):
+               return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+           @app.route('/upload', methods=['POST'])
+           def upload_file():
+               if 'file' not in request.files:
+                   return jsonify({"error": "No file part"}), 400
+
+               file = request.files['file']
+               if file.filename == '':
+                   return jsonify({"error": "No selected file"}), 400
+
+               if file and allowed_file(file.filename):
+                   filename = secure_filename(file.filename)
+                   file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                   return jsonify({"success": True}), 200
+
+               return jsonify({"error": "File type not allowed"}), 400
+           ```
+
+      10. **Use Threat Modeling:**
+          - Identify potential threats during design phase
+          - Implement controls to mitigate identified threats
+          - Regularly review and update threat models
+
+  - type: validate
+    conditions:
+      # Check 1: Proper input validation
+      - pattern: "validate|clean|sanitize|check|is_valid"
+        message: "Implementing input validation."
+
+      # Check 2: Proper error handling
+      - pattern: "try:\\s*\\n[^#]*\\n\\s*(except|finally)"
+        message: "Using proper error handling with try-except blocks."
+
+      # Check 3: Rate limiting implementation
+      - pattern: "rate_limit|throttle|limiter"
+        message: "Implementing rate limiting for API endpoints."
+
+      # Check 4: Proper logging
+      - pattern: "logger\\.|logging\\."
+        message: "Using proper logging mechanisms."
+
+metadata:
+  priority: high
+  version: 1.0
+  tags:
+    - security
+    - python
+    - design
+    - architecture
+    - owasp
+    - language:python
+    - framework:django
+    - framework:flask
+    - framework:fastapi
+    - category:security
+    - subcategory:design
+    - standard:owasp-top10
+    - risk:a04-insecure-design
+  references:
+    - "https://owasp.org/Top10/A04_2021-Insecure_Design/"
+    - "https://cheatsheetseries.owasp.org/cheatsheets/Secure_Product_Design_Cheat_Sheet.html"
+    - "https://flask.palletsprojects.com/en/latest/security/"
+    - "https://docs.djangoproject.com/en/stable/topics/security/"
+    - "https://fastapi.tiangolo.com/advanced/security/"
+    - "https://owasp.org/www-project-proactive-controls/"
+```
+

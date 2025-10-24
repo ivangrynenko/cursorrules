@@ -4,39 +4,82 @@ globs: *.php, *.ini
 ---
 # PHP Memory Optimisation Standards
 
-Actionable guidance for reducing peak memory usage in PHP code and configuration across heterogeneous projects.
+Guidance and automated checks to reduce peak memory usage in PHP applications. Based on widely accepted practices and the article "PHP Memory Optimization Tips" by Khouloud Haddad.
 
-> Priority: high · Version: 1.0 (PHP code) · Version: 1.0 (php.ini guidance)
+```yaml
+name: php_memory_optimisation
+description: Detect memory-heavy patterns and suggest streaming, generators, and better data handling
+filters:
+  - type: file_extension
+    pattern: "\\.php$"
 
-## Applies To
-- `*.php`
-- `*.ini`
+actions:
+  - type: enforce
+    conditions:
+      # Avoid loading entire DB result sets into memory.
+      - pattern: "->fetchAll\\("
+        message: "Avoid fetchAll() on large result sets; iterate with fetch() in a loop or wrap with a generator (yield)."
 
-## Trigger Conditions
-- Data access layers loading large result sets or files.
-- Loops performing expensive array operations or repeated merges.
-- php.ini or runtime configuration controlling OPcache and garbage collection.
+      - pattern: "\\bmysqli_fetch_all\\("
+        message: "Avoid mysqli_fetch_all() for large queries; prefer streaming fetch (e.g., mysqli_fetch_assoc in a loop)."
 
-## Required Checks (PHP Code)
-- Replace `fetchAll()`/`mysqli_fetch_all()` on large queries with streaming loops (`fetch()` while loops, generators, iterators).
-- Avoid `file_get_contents()`/`file()` inside loops when processing large files; stream with `SplFileObject`, chunked reads, or generators.
-- Minimise array copies (e.g., prefer `$array[] =` over `array_merge()` inside loops, preallocate when possible).
-- Review uses of `range()` that may allocate huge arrays; consider generators or iterators for large ranges.
-- Release references to large structures (`unset`, `gc_collect_cycles`) in long-running scripts once data is no longer needed.
+      # Avoid repeated full-file loads inside loops.
+      - pattern: "foreach\\s*\\([^)]*\\)\\s*\\{[^}]*file_get_contents\\("
+        message: "Avoid file_get_contents() inside loops; stream with SplFileObject or read once and reuse."
 
-## Required Checks (PHP Configuration)
-- Ensure OPcache is enabled in production (`opcache.enable=1`, `opcache.enable_cli=1` for CLI heavy workloads).
-- Size OPcache memory and interned string buffers to match project footprint (`opcache.memory_consumption`, `opcache.interned_strings_buffer`, `opcache.max_accelerated_files`).
-- Confirm CLI workers or batch scripts inherit the same OPcache settings when appropriate.
+      # Avoid array_merge in tight loops as it copies arrays.
+      - pattern: "foreach\\s*\\([^)]*\\)\\s*\\{[^}]*=\\s*array_merge\\("
+        message: "Avoid array_merge() inside loops; append elements directly or preallocate arrays."
 
-## Recommendations
-- Wrap data streaming patterns in reusable helpers to keep teams from reintroducing memory-heavy approaches.
-- Use generators (`yield`) for pipelines that transform large datasets.
-- Profile using `memory_get_usage()`, Blackfire, Xdebug, or similar tools to quantify improvements.
-- Monitor OPcache hit ratios and memory consumption to adjust configuration before saturation.
-- Consider using `Symfony\Component\Process\Process` for external commands to control memory usage of child processes.
+      # Use caution with range() on large ranges (allocates full array).
+      - pattern: "\\brange\\s*\\("
+        message: "range() allocates full arrays; for large ranges consider generators (yield) to avoid high memory."
 
-## Positive Signals
-- Presence of iterators (`Generator`, `Yield`, `SplFileObject`) instead of bulk array loading.
-- Data access layers using limit/offset pagination or chunked processing.
-- Configuration files enabling OPcache with tuned cache sizes committed alongside application code.
+  - type: suggest
+    message: |
+      **PHP memory optimisation recommendations:**
+
+      - **Stream database results:** Prefer `$stmt->fetch(PDO::FETCH_ASSOC)` in a `while` loop or use generators instead of `fetchAll()`.
+      - **Use generators (yield):** Iterate large datasets without allocating full arrays.
+      - **Stream files:** Use `SplFileObject` or chunked reads instead of `file_get_contents()` for large files.
+      - **Minimise array copying:** Avoid `array_merge()` in loops; push items directly or pre-size with known capacity (e.g., `SplFixedArray`).
+      - **Free memory explicitly:** `unset($var)` after large data is no longer needed; consider `gc_collect_cycles()` for long-running scripts.
+      - **Profile memory:** Use `memory_get_usage()` and tools like Xdebug/Blackfire to spot peaks.
+      - **OPcache:** Ensure OPcache is enabled and sized appropriately in production.
+
+  - type: validate
+    conditions:
+      # Detect full-file reads that likely could be streamed.
+      - pattern: "\\bfile\\s*\\("
+        message: "file() reads entire files into memory; prefer SplFileObject for line-by-line streaming."
+
+metadata:
+  priority: high
+  version: 1.0
+```
+
+<rule>
+name: php_ini_opcache_recommendations
+description: Recommend enabling OPcache for lower memory and better performance when editing php.ini
+filters:
+  - type: file_extension
+    pattern: "\\.ini$"
+
+actions:
+  - type: suggest
+    message: |
+      **OPcache recommendations (php.ini):**
+      - Set `opcache.enable=1` and `opcache.enable_cli=1` for CLI scripts that process large datasets.
+      - Size memory pool appropriately, e.g., `opcache.memory_consumption=128` (adjust to your project).
+      - Consider `opcache.interned_strings_buffer` and `opcache.max_accelerated_files` for larger codebases.
+
+  - type: enforce
+    conditions:
+      - pattern: "(?mi)^opcache\\.enable\\s*=\\s*0"
+        message: "Enable OPcache in production (set opcache.enable=1) to reduce memory and CPU overhead."
+
+metadata:
+  priority: medium
+  version: 1.0
+</rule>
+

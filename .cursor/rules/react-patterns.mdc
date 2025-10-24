@@ -6,26 +6,37 @@ globs: *.jsx, *.tsx
 
 Ensures React components follow recommended patterns and hook usage.
 
-> Priority: high · Version: 1.0
+```yaml
+name: react_patterns
+description: Enforce React component patterns and hooks best practices
+filters:
+  - type: file_extension
+    pattern: "\\.(jsx|tsx)$"
 
-## Applies To
-- `*.jsx`
-- `*.tsx`
+actions:
+  - type: enforce
+    conditions:
+      - pattern: "useEffect\\([^,]+\\)"
+        message: "Specify dependencies array in useEffect"
 
-## Trigger Conditions
-- Files matching pattern `\.(jsx|tsx)$`
+      - pattern: "useState\\([^)]*\\).*useState\\([^)]*\\)"
+        message: "Consider combining related state variables"
 
-## Required Checks
+      - pattern: "React\\.memo\\(.*\\)"
+        message: "Ensure React.memo is used appropriately for performance"
 
-- Specify dependencies array in useEffect
-- Consider combining related state variables
-- Ensure React.memo is used appropriately for performance
+  - type: suggest
+    message: |
+      React Best Practices:
+      - Use functional components with hooks
+      - Implement proper memoization
+      - Follow the Rules of Hooks
+      - Use TypeScript for prop types
+      - Consider custom hooks for reusable logic
 
-## Recommendations
+metadata:
+  priority: high
+  version: 1.0
+```
 
-React Best Practices:
-- Use functional components with hooks
-- Implement proper memoization
-- Follow the Rules of Hooks
-- Use TypeScript for prop types
-- Consider custom hooks for reusable logic
+
