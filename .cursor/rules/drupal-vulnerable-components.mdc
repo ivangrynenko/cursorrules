@@ -92,7 +92,7 @@ This rule enforces security best practices to prevent vulnerabilities related to
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, dependencies, vulnerable-components, owasp, language:php, framework:drupal, category:security, subcategory:dependencies, standard:owasp-top10, risk:a06-vulnerable-components
 ## References
 - https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/

@@ -69,7 +69,7 @@ actions:
 
 metadata:
   priority: high|medium|low
-  version: 1.0
+  version: 1.1
 </rule>
 ```
 
@@ -100,6 +100,6 @@ metadata:
 
 ## Metadata
 - Priority: high|medium|low
-- Version: 1.0
+- Version: 1.1
 - - **When Adding New Rules: **
 - - **When Modifying Existing Rules: **

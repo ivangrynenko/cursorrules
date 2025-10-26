@@ -92,7 +92,7 @@ This rule enforces security best practices to prevent insecure design vulnerabil
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, design, architecture, owasp, language:php, framework:drupal, category:security, subcategory:design, standard:owasp-top10, risk:a04-insecure-design
 ## References
 - https://owasp.org/Top10/A04_2021-Insecure_Design/

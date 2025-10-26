@@ -82,7 +82,7 @@ This rule enforces security best practices to prevent broken access control vuln
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, access-control, permissions, owasp, language:php, framework:drupal, category:security, subcategory:access-control, standard:owasp-top10, risk:a01-broken-access-control
 ## References
 - https://owasp.org/Top10/A01_2021-Broken_Access_Control/

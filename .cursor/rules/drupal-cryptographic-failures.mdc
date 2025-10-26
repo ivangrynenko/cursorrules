@@ -87,7 +87,7 @@ This rule enforces security best practices to prevent cryptographic failures in 
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, cryptography, encryption, owasp, language:php, framework:drupal, category:security, subcategory:cryptography, standard:owasp-top10, risk:a02-cryptographic-failures
 ## References
 - https://owasp.org/Top10/A02_2021-Cryptographic_Failures/

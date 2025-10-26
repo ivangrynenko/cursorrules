@@ -87,7 +87,7 @@ This rule enforces security best practices to prevent misconfiguration vulnerabi
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, configuration, misconfiguration, owasp, language:php, framework:drupal, category:security, subcategory:configuration, standard:owasp-top10, risk:a05-misconfiguration
 ## References
 - https://owasp.org/Top10/A05_2021-Security_Misconfiguration/

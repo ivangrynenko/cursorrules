@@ -94,7 +94,7 @@ This rule enforces security best practices to prevent logging and monitoring fai
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, logging, monitoring, owasp, language:php, framework:drupal, category:security, subcategory:logging, standard:owasp-top10, risk:a09-logging-monitoring
 ## References
 - https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/

@@ -104,6 +104,6 @@ ahoy drush status-report | grep -i "protected"
 
 ## Metadata
 - Priority: high
-- Version: 1.1
+- Version: 1.2
 
  

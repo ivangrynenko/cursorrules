@@ -86,7 +86,7 @@ This rule enforces security best practices to prevent injection vulnerabilities 
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, injection, sql, xss, csrf, owasp, language:php, framework:drupal, category:security, subcategory:injection, standard:owasp-top10, risk:a03-injection
 ## References
 - https://owasp.org/Top10/A03_2021-Injection/

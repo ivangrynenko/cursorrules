@@ -89,7 +89,7 @@ This rule enforces security best practices to prevent Server-Side Request Forger
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, ssrf, owasp, language:php, framework:drupal, category:security, subcategory:ssrf, standard:owasp-top10, risk:a10-ssrf
 ## References
 - https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/

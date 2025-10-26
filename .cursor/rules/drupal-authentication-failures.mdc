@@ -92,7 +92,7 @@ This rule enforces security best practices to prevent identification and authent
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, authentication, identification, owasp, language:php, framework:drupal, category:security, subcategory:authentication, standard:owasp-top10, risk:a07-authentication-failures
 ## References
 - https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/

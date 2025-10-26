@@ -92,7 +92,7 @@ This rule enforces security best practices to prevent software and data integrit
 
 ## Metadata
 - Priority: high
-- Version: 1.0
+- Version: 1.1
 - Tags: security, drupal, integrity, deserialization, owasp, language:php, framework:drupal, category:security, subcategory:integrity, standard:owasp-top10, risk:a08-integrity-failures
 ## References
 - https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/
