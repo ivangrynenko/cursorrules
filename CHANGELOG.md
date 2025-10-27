@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file. Entries appear in reverse chronological order so the most recent updates are always at the top. Do not overwrite existing content—prepend new releases instead.
 
+## [1.1.0] - 2025-10-27
+### Changed
+- Restructured the full Cursor rule bundle set with consistent sections for details, filters, rejections, and suggestions to improve readability and maintenance.
+- Incremented internal rule metadata versions across all affected files to reflect the new structure.
+
 ## [1.0.8] - 2025-10-24
 ### Added
 - Integrated installation of Cursor slash commands, including project/home/both targets and new `--commands` / `--skip-commands` flags.
