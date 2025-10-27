@@ -6,45 +6,38 @@ globs: .git/*
 
 Ensures consistent Git commit messages.
 
-<rule>
-name: git_commit_standards
-description: Enforce structured Git commit messages.
-filters:
-  - type: file_extension
-    pattern: "\\.git/.*"
+## Rule Details
 
-actions:
-  - type: enforce
-    conditions:
-      # More precise regex to ensure prefix is followed by colon and space
-      - pattern: "^(?!fix|feat|perf|docs|style|refactor|test|chore): "
-        message: "Use a commit message prefix followed by colon and space (fix:, feat:, etc.)."
+- **Name:** git_commit_standards
 
-      # Check for uppercase after the prefix
-      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore): [A-Z]"
-        message: "First word after prefix should be lowercase."
+- **Description:** Enforce structured Git commit messages.
 
-      # More precise length check that excludes the prefix from the count
-      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore): .{46,}"
-        message: "Keep commit message content (excluding prefix) under 46 characters."
+## Filters
+- file extension pattern: `\\.git/.*`
 
-      # Ensure there's a space after the colon
-      - pattern: "^(fix|feat|perf|docs|style|refactor|test|chore):(?! )"
-        message: "Include a space after the colon in prefix."
+## Enforcement Checks
+- Conditions:
+  - pattern `^(?!fix|feat|perf|docs|style|refactor|test|chore): ` – Use a commit message prefix followed by colon and space (fix:, feat:, etc.).
+    - More precise regex to ensure prefix is followed by colon and space
+  - pattern `^(fix|feat|perf|docs|style|refactor|test|chore): [A-Z]` – First word after prefix should be lowercase.
+    - Check for uppercase after the prefix
+  - pattern `^(fix|feat|perf|docs|style|refactor|test|chore): .{46,}` – Keep commit message content (excluding prefix) under 46 characters.
+    - More precise length check that excludes the prefix from the count
+  - pattern `^(fix|feat|perf|docs|style|refactor|test|chore):(?! )` – Include a space after the colon in prefix.
+    - Ensure there's a space after the colon
 
-  - type: suggest
-    message: |
-      Recommended commit format:
-      - "fix: resolved bug in user authentication"
-      - "feat: added new search functionality"
-      - "docs: updated installation guide"
-      - "style: fixed button alignment"
-      - "refactor: simplified login logic"
-      - "test: added unit tests for auth"
-      - "chore: updated dependencies"
-      - "perf: optimized database queries"
+## Suggestions
+- Guidance:
+Recommended commit format:
+- "fix: resolved bug in user authentication"
+- "feat: added new search functionality"
+- "docs: updated installation guide"
+- "style: fixed button alignment"
+- "refactor: simplified login logic"
+- "test: added unit tests for auth"
+- "chore: updated dependencies"
+- "perf: optimized database queries"
 
-metadata:
-  priority: high
-  version: 1.1
-</rule>
+## Metadata
+- Priority: high
+- Version: 1.2

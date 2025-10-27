@@ -6,35 +6,32 @@ globs: *.php, *.install, *.module
 
 Ensures proper database handling in Drupal applications.
 
-<rule>
-name: drupal_database_standards
-description: Enforce Drupal database best practices and standards
-filters:
-  - type: file_extension
-    pattern: "\\.(php|install|module)$"
+## Rule Details
 
-actions:
-  - type: enforce
-    conditions:
-      - pattern: "db_query"
-        message: "Use Database API instead of db_query"
+- **Name:** drupal_database_standards
 
-      - pattern: "hook_update_N.*\\{\\s*[^}]*\\}"
-        message: "Ensure hook_update_N includes proper schema changes"
+- **Description:** Enforce Drupal database best practices and standards
 
-      - pattern: "\\$query->execute\\(\\)"
-        message: "Consider using try-catch block for database operations"
+## Filters
+- file extension pattern: `\\.(php|install|module)$`
 
-  - type: suggest
-    message: |
-      Database Best Practices:
-      - Use Schema API for table definitions
-      - Implement proper error handling
-      - Use update hooks for schema changes
-      - Follow Drupal's database abstraction layer
-      - Implement proper indexing strategies
+## Enforcement Checks
+- Conditions:
+  - pattern `db_query` – Use Database API instead of db_query
+  - pattern `hook_update_N.*\\{\\s*[^}]*\\}` – Ensure hook_update_N includes proper schema changes
+  - pattern `\\$query->execute\\(\\)` – Consider using try-catch block for database operations
 
-metadata:
-  priority: critical
-  version: 1.0
-</rule> 
+## Suggestions
+- Guidance:
+Database Best Practices:
+- Use Schema API for table definitions
+- Implement proper error handling
+- Use update hooks for schema changes
+- Follow Drupal's database abstraction layer
+- Implement proper indexing strategies
+
+## Metadata
+- Priority: critical
+- Version: 1.1
+
+ 
